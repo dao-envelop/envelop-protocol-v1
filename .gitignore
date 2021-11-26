@@ -1,0 +1,16 @@
+__pycache__
+.history
+.hypothesis/
+build/
+reports/
+logdo.md
+_niftsy_s/
+.env
+flat.sol
+abi/
+flatsource/
+node_modules/
+hardhat*
+artifacts/
+cache/
+
