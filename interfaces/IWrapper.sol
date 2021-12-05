@@ -1,31 +1,38 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.6;
+pragma solidity 0.8.10;
 
 //import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 
 interface IWrapper  {
 
-    event Wrapped(
-        address underlineContract, 
-        uint256 tokenId, 
-        uint256 indexed wrappedTokenId
+    event WrappedV1(
+        address indexed inAssetAddress,
+        address indexed outAssetAddress, 
+        uint256 indexed inAssetTokenId, 
+        uint256 outTokenId,
+        address wnftFirstOwner,
+        uint256 nativeCollateralAmount,
+        bytes2  rules
     );
 
-    event UnWrapped(
+    event UnWrappedV1(
+        address indexed wrappedAddress,
+        address indexed originalAddress,
         uint256 indexed wrappedId, 
-        address indexed owner, 
+        uint256 originalTokenId, 
+        address beneficiary, 
         uint256 nativeCollateralAmount,
-        uint256 feeAmount 
+        bytes2  rules 
     );
-    event NewFee(uint256 feeAmount, uint256 startDate);
-    event NiftsyProtocolTransfer(
-        uint256 indexed wrappedTokenId, 
-        address indexed royaltyBeneficiary,
-        uint256 transferFee, 
-        uint256 royalty,
-        address feeToken 
-    );
+    // event NewFee(uint256 feeAmount, uint256 startDate);
+    // event NiftsyProtocolTransfer(
+    //     uint256 indexed wrappedTokenId, 
+    //     address indexed royaltyBeneficiary,
+    //     uint256 transferFee, 
+    //     uint256 royalty,
+    //     address feeToken 
+    // );
     
     /**
      * @dev Function returns array with info about ERC20 
@@ -45,10 +52,10 @@ interface IWrapper  {
      * @param _wrappedId  new protocol NFT id from this contarct
      * @param _erc20 - collateral token address
      */
-    function getERC20CollateralBalance(uint256 _wrappedId, address _erc20) 
-        external 
-        view
-        returns (uint256); 
+    // function getERC20CollateralBalance(uint256 _wrappedId, address _erc20) 
+    //     external 
+    //     view
+    //     returns (uint256); 
 
     /**
      * @dev Function returns true is `_contract` ERC20 is 
@@ -56,5 +63,5 @@ interface IWrapper  {
      *
      * @param _contract  collateral contarct
      */
-    function enabledForCollateral(address _contract) external view returns (bool);
+    //function enabledForCollateral(address _contract) external view returns (bool);
 }
