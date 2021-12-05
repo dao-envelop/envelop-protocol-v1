@@ -127,7 +127,7 @@ contract WrapperBaseV1 is ReentrancyGuard, /*IFeeRoyaltyCharger, IWrapper, */Own
         
     }
 
-    function transfer(
+    function _transfer(
         ETypes.AssetItem calldata _assetItem,
         address _from,
         address _to
@@ -149,6 +149,36 @@ contract WrapperBaseV1 is ReentrancyGuard, /*IFeeRoyaltyCharger, IWrapper, */Own
             revert UnSupportedAsset(_assetItem);
         }
         return _transfered;
+    }
+
+    function _transferSafe(
+        ETypes.AssetItem calldata _assetItem,
+        address _from,
+        address _to
+    ) internal virtual returns (uint256 _transferedValue){
+        uint256 balanceBefore;
+        if (_assetItem.asset.assetType == ETypes.AssetType.NATIVE) {
+            balanceBefore = _to.balance;
+            (bool success, ) = _to.call{ value: _assetItem.amount}("");
+            require(success, "transfer failed");
+            _transferedValue = _to.balance - balanceBefore;
+        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC20) {
+            balanceBefore = IERC20Extended(_assetItem.asset.contractAddress).balanceOf(_to);
+            IERC20Extended(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.amount);
+            _transferedValue = IERC20Extended(_assetItem.asset.contractAddress).balanceOf(_to) - balanceBefore;
+        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC721) {
+            IERC721Mintable(_assetItem.asset.contractAddress).transferFrom(_from, _to, _assetItem.tokenId);
+            if (IERC721Mintable(_assetItem.asset.contractAddress).ownerOf(_assetItem.tokenId) == _to) {
+                _transferedValue = 1;
+            }
+        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC1155) {
+            balanceBefore = IERC1155Mintable(_assetItem.asset.contractAddress).balanceOf(_to, _assetItem.tokenId);
+            IERC1155Mintable(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.tokenId, _assetItem.amount, "");
+            _transferedValue = IERC1155Mintable(_assetItem.asset.contractAddress).balanceOf(_to, _assetItem.tokenId) - balanceBefore;
+        } else {
+            revert UnSupportedAsset(_assetItem);
+        }
+        return _transferedValue;
     }
 
 }
