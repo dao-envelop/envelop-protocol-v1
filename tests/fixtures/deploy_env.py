@@ -2,25 +2,29 @@ import pytest
 #from brownie import chain
 
 ############ Mocks ########################
+@pytest.fixture(scope="module")
+def dai(accounts, TokenMock):
+    dai = accounts[0].deploy(TokenMock,"DAI MOCK Token", "DAI")
+    yield dai
 
-# @pytest.fixture(scope="module")
-# def weth(accounts, TokenMock):
-#     weth = accounts[0].deploy(TokenMock,"WETH MOCK Token", "WETH")
-#     yield weth
+@pytest.fixture(scope="module")
+def weth(accounts, TokenMock):
+    weth = accounts[0].deploy(TokenMock,"WETH MOCK Token", "WETH")
+    yield weth
 
 # @pytest.fixture(scope="module")
 # def pft(accounts, TokenMock):
 #     pft = accounts[0].deploy(TokenMock,"PF MOCK Token", "PFT")
 #     yield pft
 
-# @pytest.fixture(scope="module")
-# def erc721mock(accounts, Token721Mock):
-#     """
-#     Simple NFT with URI
-#     """
-#     t = accounts[0].deploy(Token721Mock, "Simple NFT with URI", "XXX")
-#     #t.setURI(0, 'https://maxsiz.github.io/')
-#     yield t    
+@pytest.fixture(scope="module")
+def erc721mock(accounts, Token721Mock):
+    """
+    Simple NFT with URI
+    """
+    t = accounts[0].deploy(Token721Mock, "Simple NFT with URI", "XXX")
+    t.setURI(0, 'https://maxsiz.github.io/')
+    yield t    
 
 # @pytest.fixture(scope="module")
 # def fakeERC721mock(accounts, Token721Mock):
@@ -41,16 +45,23 @@ def wnft1155(accounts, EnvelopwNFT1155):
     wnft = accounts[0].deploy(EnvelopwNFT1155,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/" )
     yield wnft
 
+@pytest.fixture(scope="module")
+def techERC20(accounts, TechToken):
+    erc20 = accounts[0].deploy(TechToken)
+    yield erc20 
 
-# @pytest.fixture(scope="module")
-# def niftsy20(accounts, Niftsy):
-#     erc20 = accounts[0].deploy(Niftsy, accounts[0])
-#     yield erc20 
+@pytest.fixture(scope="module")
+def wrapper(accounts, WrapperBaseV1, techERC20):
+    t = accounts[0].deploy(WrapperBaseV1, techERC20.address )
+    yield t
 
-# @pytest.fixture(scope="module")
-# def techERC20(accounts, TechToken):
-#     erc20 = accounts[0].deploy(TechToken)
-#     yield erc20     
+
+@pytest.fixture(scope="module")
+def niftsy20(accounts, Niftsy):
+    erc20 = accounts[0].deploy(Niftsy, accounts[0])
+    yield erc20 
+
+    
 
 # @pytest.fixture(scope="module")
 # def wrapper(accounts, WrapperWithERC20Collateral, techERC20, dai, weth):
