@@ -51,4 +51,16 @@ library ETypes {
 
     }
 
+    struct INData {
+        AssetItem inAsset;
+        address unWrapDestinition;
+        Fee[] fees;
+        Lock[] locks;
+        Royalty[] royalties;
+        AssetType outType;
+        uint256 outBalance;      //0- for 721 and any amount for 1155
+        bytes2 rules;
+
+    }
+
 }
