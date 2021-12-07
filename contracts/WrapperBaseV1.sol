@@ -140,7 +140,9 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     function setTransferProxy(address _proxyAddress) external onlyOwner {
         transferProxy = _proxyAddress;
     }
+    /////////////////////////////////////////////////////////////////////
 
+    //TODO Reafactro with internal getters
     function getERC20CollateralBalance(
         address _wNFTAddress, 
         uint256 _tokenId, 
@@ -156,6 +158,11 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             }
         }
     }
+
+    function getWrappedToken(address _wNFTAddress, uint256 _wNFTTokenId) public view returns (ETypes.WNFT memory) {
+        return wrappedTokens[_wNFTAddress][_wNFTTokenId];
+
+    } 
     /////////////////////////////////////////////////////////////////////
     //                    Internals                                    //
     /////////////////////////////////////////////////////////////////////
