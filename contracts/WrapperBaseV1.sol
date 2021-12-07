@@ -67,7 +67,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         for (uint256 i = 0; i < _inData.collateral.length; i ++) {
             if (_inData.collateral[i].asset.assetType != ETypes.AssetType.NATIVE) {
                 _transfer(_inData.collateral[i], msg.sender, address(this));
-            } else if (_inData.collateral[i].asset.assetType != ETypes.AssetType.NATIVE) {
+            } else if (_inData.collateral[i].asset.assetType == ETypes.AssetType.NATIVE) {
                 require(msg.value >= _inData.collateral[i].amount, "Insufficient funds for native collateral");
                 nativeDeclared += _inData.collateral[i].amount;
             }    
