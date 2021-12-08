@@ -27,7 +27,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
 
     uint256 constant public MAX_ROYALTY_PERCENT = 5000;
     uint256 constant public MAX_TIME_TO_UNWRAP = 365 days;
-    uint256 constant public MAX_FEE_THRESHOLD_PERCENT = 1; //percent from project token totalSupply
+    //uint256 constant public MAX_FEE_THRESHOLD_PERCENT = 1; //percent from project token totalSupply
 
     uint256 public MAX_COLLATERAL_SLOTS = 20;
     address public protocolTechToken;
@@ -266,16 +266,21 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     ) internal virtual 
     {
         wrappedTokens[wNFTAddress][tokenId].inAsset = _inData.inAsset;
+        wrappedTokens[wNFTAddress][tokenId].unWrapDestinition = _inData.unWrapDestinition;
+        wrappedTokens[wNFTAddress][tokenId].rules = _inData.rules;
+        
+        // Copying of type struct ETypes.Fee memory[] memory to storage not yet supported.
+        for (uint256 i = 0; i < _inData.fees.length; i ++) {
+            wrappedTokens[wNFTAddress][tokenId].fees.push(_inData.fees[i]);            
+        }
 
-        // AssetItem inAsset;
-        // AssetItem[] collateral;
-        // address unWrapDestinition;
-        // Fee[] fees;
-        // Lock[] locks;
-        // Royalty[] royalties;
-        // AssetType outType;
-        // uint256 outBalance;      //0- for 721 and any amount for 1155
-        // bytes2 rules;
+        for (uint256 i = 0; i < _inData.locks.length; i ++) {
+            wrappedTokens[wNFTAddress][tokenId].locks.push(_inData.locks[i]);            
+        }
+
+        for (uint256 i = 0; i < _inData.royalties.length; i ++) {
+            wrappedTokens[wNFTAddress][tokenId].royalties.push(_inData.royalties[i]);            
+        }
 
     }
 
