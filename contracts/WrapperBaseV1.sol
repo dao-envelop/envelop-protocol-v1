@@ -67,17 +67,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         );
         lastWNFTId[_inData.outType].tokenId += 1;  //Save just minted id 
 
-        // 3. Process Colleteral
-        uint256 nativeDeclared;
-        for (uint256 i = 0; i < _collateral.length; i ++) {
-            if (_collateral[i].asset.assetType != ETypes.AssetType.NATIVE) {
-                _transfer(_collateral[i], msg.sender, address(this));
-            } else if (_collateral[i].asset.assetType == ETypes.AssetType.NATIVE) {
-                require(msg.value >= _collateral[i].amount, "Insufficient funds for native collateral");
-                nativeDeclared += _collateral[i].amount;
-            }    
-        }
-        require(msg.value == nativeDeclared, "Need pass correct native value in wrap params");
 
         // 4. Safe wNFT info
         _saveWNFTinfo(
