@@ -36,10 +36,10 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
 	wrapper.setWhiteList(weth.address, {'from':accounts[0]})
 	wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
-	erc721_property = ('3', erc721mock.address)
-	dai_property = ('2', dai.address)
-	weth_property = ('2', weth.address)
-	eth_property = ('1', zero_address)
+	erc721_property = (3, erc721mock.address)
+	dai_property = (2, dai.address)
+	weth_property = (2, weth.address)
+	eth_property = (1, zero_address)
 
 	erc721_data = (erc721_property, str(ORIGINAL_NFT_IDs[0]), '1')
 	dai_data = (dai_property, '0', str(Wei(call_amount)))

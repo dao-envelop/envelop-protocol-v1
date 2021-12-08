@@ -9,7 +9,6 @@ contract Token1155Mock is ERC1155 {
 
     
     constructor(string memory uri_) ERC1155(uri_)  {
-        _mint(msg.sender, 0, 1, '1');
     }
 
     function mint(
@@ -18,6 +17,6 @@ contract Token1155Mock is ERC1155 {
         uint256 amount
     ) external {
         
-        _mint(to, tokenId, amount, '1');
+        _mint(to, tokenId, amount, '');
     }
 }
