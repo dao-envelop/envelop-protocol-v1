@@ -51,7 +51,6 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
 	royalty = [(accounts[1], '100'), (accounts[2], '200')]
 
 	wNFT = ( erc721_data,
-		[dai_data, weth_data, eth_data],
 		accounts[2],
 		fee,
 		lock,
@@ -60,10 +59,12 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
 		'0',
 		'0'
 		)
-
-	wrapper.wrap(wNFT, accounts[3], {"from": accounts[1]})
+	logging.info('d = {}'.format(dai_data))
+	logging.info('balance = {}'.format(dai.balanceOf(accounts[1])))
+	wrapper.wrap(wNFT, [dai_data, eth_data], accounts[3], {"from": accounts[1], "value": "4 ether"})
 	
-
+	#[dai_data, weth_data, eth_data]
+	#, "value": "4 ether"
 
 	'''
 	makeWrapNFT(wrapper, erc721mock, ['originalTokenId'], [ORIGINAL_NFT_IDs[1]], accounts[1], niftsy20)

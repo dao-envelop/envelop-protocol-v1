@@ -69,12 +69,12 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
 
         // 3. Process Colleteral
         uint256 nativeDeclared;
-        for (uint256 i = 0; i < _inData.collateral.length; i ++) {
-            if (_inData.collateral[i].asset.assetType != ETypes.AssetType.NATIVE) {
-                _transfer(_inData.collateral[i], msg.sender, address(this));
-            } else if (_inData.collateral[i].asset.assetType == ETypes.AssetType.NATIVE) {
-                require(msg.value >= _inData.collateral[i].amount, "Insufficient funds for native collateral");
-                nativeDeclared += _inData.collateral[i].amount;
+        for (uint256 i = 0; i < _collateral.length; i ++) {
+            if (_collateral[i].asset.assetType != ETypes.AssetType.NATIVE) {
+                _transfer(_collateral[i], msg.sender, address(this));
+            } else if (_collateral[i].asset.assetType == ETypes.AssetType.NATIVE) {
+                require(msg.value >= _collateral[i].amount, "Insufficient funds for native collateral");
+                nativeDeclared += _collateral[i].amount;
             }    
         }
         require(msg.value == nativeDeclared, "Need pass correct native value in wrap params");
