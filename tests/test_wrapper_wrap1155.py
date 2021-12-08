@@ -1,7 +1,7 @@
 import pytest
 import logging
 from brownie import Wei, reverts, chain
-from makeTestData import makeNFTForTest721
+from makeTestData import makeNFTForTest1155
 
 
 LOGGER = logging.getLogger(__name__)
@@ -9,30 +9,32 @@ ORIGINAL_NFT_IDs = [10000,11111,22222]
 zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
 eth_amount = "4 ether"
-in_type = 3
-out_type = 3
+in_type = 4
+out_type = 4
+nft_amount = 5
 
 
-def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20):
+def test_simple_wrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20):
 	#make test data
-	makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
+	makeNFTForTest1155(accounts, erc1155mock, ORIGINAL_NFT_IDs, nft_amount)
 
-	erc721mock.approve(wrapper.address, ORIGINAL_NFT_IDs[0], {'from':accounts[1]})
+
+	erc1155mock.setApprovalForAll(wrapper.address,True, {'from':accounts[1]})
 	dai.transfer(accounts[1], call_amount, {"from": accounts[0]})
 	weth.transfer(accounts[1], 2*call_amount, {"from": accounts[0]})
 
+	wnft1155.setMinterStatus(wrapper.address, {"from": accounts[0]})
 	dai.approve(wrapper.address, call_amount, {'from':accounts[1]})
 	weth.approve(wrapper.address, 2*call_amount, {'from':accounts[1]})
 
-	wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-	wnft721.setMinter(wrapper.address, {"from": accounts[0]})
+	wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
 
-	erc721_property = (in_type, erc721mock.address)
+	erc1155_property = (in_type, erc1155mock.address)
 	dai_property = (2, dai.address)
 	weth_property = (2, weth.address)
 	eth_property = (1, zero_address)
 
-	erc721_data = (erc721_property, ORIGINAL_NFT_IDs[0], 1)
+	erc1155_data = (erc1155_property, ORIGINAL_NFT_IDs[0], nft_amount)
 	dai_data = (dai_property, 0, Wei(call_amount))
 	weth_data = (weth_property, 0, Wei(2*call_amount))
 	eth_data = (eth_property, 0, Wei(eth_amount))
@@ -41,13 +43,13 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
 	lock = [('0x0', chain.time() + 10), ('0x0', chain.time() + 20)]
 	royalty = [(accounts[1], 100), (accounts[2], 200)]
 
-	wNFT = ( erc721_data,
+	wNFT = ( erc1155_data,
 		accounts[2],
 		fee,
 		lock,
 		royalty,
 		out_type,
-		0,
+		nft_amount,
 		'0'
 		)
 
@@ -57,14 +59,14 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
 	assert wrapper.balance() == eth_amount
 	assert dai.balanceOf(wrapper) == call_amount
 	assert weth.balanceOf(wrapper) == 2*call_amount
-	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == wrapper.address
-	assert wnft721.ownerOf(wrapper.lastWNFTId(out_type)[1]) == accounts[3].address
-	assert wnft721.totalSupply() == 1
+	assert erc1155mock.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[0]) == nft_amount
+	assert wnft1155.balanceOf(accounts[3].address,wrapper.lastWNFTId(out_type)[1]) == nft_amount
+	assert wnft1155.totalSupply(wrapper.lastWNFTId(out_type)[1]) == nft_amount
 
 	wTokenId = wrapper.lastWNFTId(out_type)[1]
-	wNFT = wrapper.getWrappedToken(wnft721, wTokenId)
+	wNFT = wrapper.getWrappedToken(wnft1155, wTokenId)
 	#logging.info(wNFT)
-	assert wNFT[0] == erc721_data
+	assert wNFT[0] == erc1155_data
 	assert wNFT[1] == [eth_data, dai_data, weth_data]
 	assert wNFT[2] == accounts[2]
 	assert wNFT[3] == fee
