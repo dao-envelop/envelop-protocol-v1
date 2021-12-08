@@ -99,7 +99,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
                 );
             }
         }
-/*
+
         emit WrappedV1(
             _inData.inAsset.asset.contractAddress,        // inAssetAddress
             lastWNFTId[_inData.outType].contractAddress,  // outAssetAddress
@@ -109,7 +109,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             msg.value,                                    // nativeCollateralAmount
             _inData.rules                                 // rules
         );
-    */
         return ETypes.AssetItem(ETypes.Asset(ETypes.AssetType(0), address(0)),0,0);
     }
 
