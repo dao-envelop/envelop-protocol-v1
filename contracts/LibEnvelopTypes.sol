@@ -35,7 +35,7 @@ library ETypes {
 
     struct Royalty {
         address beneficiary;
-        uint8 percent;
+        uint16 percent;
     }
 
     struct WNFT {
@@ -45,8 +45,6 @@ library ETypes {
         Fee[] fees;
         Lock[] locks;
         Royalty[] royalties;
-        AssetType outType;
-        uint256 outBalance;      //0- for 721 and any amount for 1155
         bytes2 rules;
 
     }
