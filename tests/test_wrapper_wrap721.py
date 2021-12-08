@@ -48,8 +48,8 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
 	weth_data = (weth_property, 0, Wei(2*call_amount))
 	eth_data = (eth_property, 0, Wei(eth_amount))
 
-	fee = [(1, Wei(1e18), niftsy20.address)]
-	lock = [(1, chain.time() + 10), (1, chain.time() + 20)]
+	fee = [('0x0', Wei(1e18), niftsy20.address)]
+	lock = [('0x0', chain.time() + 10), ('0x0', chain.time() + 20)]
 	royalty = [(accounts[1], 100), (accounts[2], 200)]
 
 	wNFT = ( erc721_data,
@@ -74,13 +74,11 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
 
 	wTokenId = wrapper.lastWNFTId(out_type)[1]
 	wNFT = wrapper.getWrappedToken(wnft721, wTokenId)
-	logging.info(wNFT)
+	#logging.info(wNFT)
 	assert wNFT[0] == erc721_data
 	assert wNFT[1] == [eth_data, dai_data, weth_data]
-	#assert wNFT[2] == accounts[2]
-	#assert wNFT[3] == fee
-	#assert wNFT[4] == lock
-	#assert wNFT[5] == royalty
-	#assert wNFT[6] == out_type
-	assert wNFT[7] == 0
-	assert wNFT[8] == '0x0'
+	assert wNFT[2] == accounts[2]
+	assert wNFT[3] == fee
+	assert wNFT[4] == lock
+	assert wNFT[5] == royalty
+	assert wNFT[6] == '0x0'	
