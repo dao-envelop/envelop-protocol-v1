@@ -20,7 +20,7 @@ def weth(accounts, TokenMock):
 @pytest.fixture(scope="module")
 def erc721mock(accounts, Token721Mock):
     """
-    Simple NFT with URI
+    NFT 721 with URI
     """
     t = accounts[0].deploy(Token721Mock, "Simple NFT with URI", "XXX")
     t.setURI(0, 'https://maxsiz.github.io/')
