@@ -98,7 +98,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
                 )
             );
         }
-        
+       
         // 4. Process Token Colleteral
         for (uint256 i = 0; i <_collateral.length; i ++) {
             if (_collateral[i].asset.assetType != ETypes.AssetType.NATIVE) {
@@ -110,7 +110,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
                 );
             }
         }
-
+/*
         emit WrappedV1(
             _inData.inAsset.asset.contractAddress,        // inAssetAddress
             lastWNFTId[_inData.outType].contractAddress,  // outAssetAddress
@@ -120,7 +120,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             msg.value,                                    // nativeCollateralAmount
             _inData.rules                                 // rules
         );
-
+    */
         return ETypes.AssetItem(ETypes.Asset(ETypes.AssetType(0), address(0)),0,0);
     }
 
@@ -225,6 +225,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             require(success, "transfer failed");
             _transfered = true; 
         } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC20) {
+            require(IERC20Extended(_assetItem.asset.contractAddress).balanceOf(_from) <= _assetItem.amount, "UPS!!!!");
             IERC20Extended(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.amount);
             _transfered = true;
         } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC721) {

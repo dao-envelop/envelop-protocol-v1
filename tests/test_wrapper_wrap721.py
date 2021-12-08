@@ -61,7 +61,7 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
 		)
 	logging.info('d = {}'.format(dai_data))
 	logging.info('balance = {}'.format(dai.balanceOf(accounts[1])))
-	wrapper.wrap(wNFT, [dai_data, eth_data], accounts[3], {"from": accounts[1], "value": "4 ether"})
+	wrapper.wrap(wNFT, [dai_data, weth_data, eth_data], accounts[3], {"from": accounts[1], "value": "4 ether"})
 	
 	#[dai_data, weth_data, eth_data]
 	#, "value": "4 ether"
