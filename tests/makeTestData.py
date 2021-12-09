@@ -12,6 +12,10 @@ def makeNFTForTest721(accounts, erc721mock, original_nft_ids):
     [erc721mock.mint(x, {'from':accounts[0]})  for x in original_nft_ids]
     erc721mock.transferFrom(accounts[0], accounts[1], original_nft_ids[0], {'from':accounts[0]})
 
+def makeNFTForTest1155(accounts, erc1155mock, original_nft_ids, amount):
+    [erc1155mock.mint(accounts[0], x, amount, {'from':accounts[0]})  for x in original_nft_ids]
+    erc1155mock.safeTransferFrom(accounts[0], accounts[1], original_nft_ids[0], amount, "", {'from':accounts[0]})
+
 '''def makeWrapNFT(wrapper, erc721mock, fields, values, account, transferFeeContract):
     START_NATIVE_COLLATERAL_ = '1 ether'
     ADD_NATIVE_COLLATERAL_ = '2 ether'
