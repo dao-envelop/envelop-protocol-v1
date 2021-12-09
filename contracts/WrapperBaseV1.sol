@@ -114,8 +114,9 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         );
     } 
 
+    function unWrap(address _wNFTAddress, uint256 _wNFTTokenId) external virtual {
 
-
+    } 
     /////////////////////////////////////////////////////////////////////
     //                    Admin functions                              //
     /////////////////////////////////////////////////////////////////////
@@ -296,6 +297,14 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
                     msg.value
                 )
             );
+            emit CollateralAdded(
+                    _wNFTAddress, 
+                    _wNFTTokenId, 
+                    uint8(ETypes.AssetType.NATIVE),
+                    address(0),
+                    0,
+                    msg.value
+                );
         }
        
         // 4. Process Token Colleteral
@@ -306,6 +315,14 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
                     _wNFTAddress, 
                     _wNFTTokenId,
                     _collateral[i]
+                );
+                emit CollateralAdded(
+                    _wNFTAddress, 
+                    _wNFTTokenId, 
+                    uint8(_collateral[i].asset.assetType),
+                    _collateral[i].asset.contractAddress,
+                    _collateral[i].tokenId,
+                    _collateral[i].amount
                 );
             }
         }

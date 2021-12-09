@@ -25,6 +25,15 @@ interface IWrapper  {
         uint256 nativeCollateralAmount,
         bytes2  rules 
     );
+
+    event CollateralAdded(
+        address indexed wrappedAddress,
+        uint256 indexed wrappedId,
+        uint8   assetType,
+        address collateralAddress,
+        uint256 collateralTokenId,
+        uint256 collateralBalance
+    );
     // event NewFee(uint256 feeAmount, uint256 startDate);
     // event NiftsyProtocolTransfer(
     //     uint256 indexed wrappedTokenId, 
