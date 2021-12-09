@@ -75,30 +75,11 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             _inData
         );
 
-        // 3. Process Native Colleteral
-        if (msg.value > 0) {
-            _updateCollateralInfo(
-                lastWNFTId[_inData.outType].contractAddress, 
-                lastWNFTId[_inData.outType].tokenId,
-                ETypes.AssetItem(
-                    ETypes.Asset(ETypes.AssetType.NATIVE, address(0)),
-                    0,
-                    msg.value
-                )
-            );
-        }
-       
-        // 4. Process Token Colleteral
-        for (uint256 i = 0; i <_collateral.length; i ++) {
-            if (_collateral[i].asset.assetType != ETypes.AssetType.NATIVE) {
-                _transfer(_collateral[i], msg.sender, address(this));
-                _updateCollateralInfo(
-                    lastWNFTId[_inData.outType].contractAddress, 
-                    lastWNFTId[_inData.outType].tokenId,
-                    _collateral[i]
-                );
-            }
-        }
+        _addCollateral(
+            lastWNFTId[_inData.outType].contractAddress, 
+            lastWNFTId[_inData.outType].tokenId, 
+            _collateral
+        );
 
         emit WrappedV1(
             _inData.inAsset.asset.contractAddress,        // inAssetAddress
@@ -120,6 +101,20 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         //TODO many Checks
         return wrap(_inData, _collateral, _wrappFor);
     }
+
+    function addCollateral(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId, 
+        ETypes.AssetItem[] calldata _collateral
+    ) external virtual {
+        _addCollateral(
+            _wNFTAddress, 
+            _wNFTTokenId, 
+            _collateral
+        );
+    } 
+
+
 
     /////////////////////////////////////////////////////////////////////
     //                    Admin functions                              //
@@ -284,6 +279,38 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
 
     }
 
+    function _addCollateral(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId, 
+        ETypes.AssetItem[] calldata _collateral
+    ) internal virtual 
+    {
+        // 3. Process Native Colleteral
+        if (msg.value > 0) {
+            _updateCollateralInfo(
+                _wNFTAddress, 
+                _wNFTTokenId,
+                ETypes.AssetItem(
+                    ETypes.Asset(ETypes.AssetType.NATIVE, address(0)),
+                    0,
+                    msg.value
+                )
+            );
+        }
+       
+        // 4. Process Token Colleteral
+        for (uint256 i = 0; i <_collateral.length; i ++) {
+            if (_collateral[i].asset.assetType != ETypes.AssetType.NATIVE) {
+                _transfer(_collateral[i], msg.sender, address(this));
+                _updateCollateralInfo(
+                    _wNFTAddress, 
+                    _wNFTTokenId,
+                    _collateral[i]
+                );
+            }
+        }
+    }
+
     function _updateCollateralInfo(
         address _wNFTAddress, 
         uint256 _wNFTTokenId, 
@@ -295,8 +322,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.push(collateralItem);
         } else {
             // Collateral storage is not empty
-            
-            
             (uint256 _amnt, uint256 _index) = _getCollateralBalanceAndIndex(
                 _wNFTAddress, 
                 _wNFTTokenId,
@@ -351,6 +376,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             }
         }
     }
+
+
 
     function _getERC20CollateralBalance(
         address _wNFTAddress, 
@@ -425,4 +452,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         }
 
     }
+
+
 }
