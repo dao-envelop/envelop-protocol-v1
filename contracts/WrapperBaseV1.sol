@@ -114,7 +114,81 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         );
     } 
 
-    function unWrap(address _wNFTAddress, uint256 _wNFTTokenId) external virtual {
+    function unWrap(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) external virtual {
+        // 0. Check core protocol logic
+        uint256 burnBalance;
+        if (_wNFTType == ETypes.AssetType.ERC721) {
+            // Only token owner can UnWrap
+            require(
+                IERC721Mintable(_wNFTAddress).ownerOf(_wNFTTokenId) == msg.sender,
+                'Only owner can unwrap it!'
+            );    
+        } else if (_wNFTType == ETypes.AssetType.ERC1155) {
+            require(
+                IERC1155Mintable(_wNFTAddress).totalSupply(_wNFTTokenId) == IERC1155Mintable(_wNFTAddress).balanceOf(msg.sender, _wNFTTokenId),
+                'ERC115 unwrap available only for all totalSupply'
+            );
+            burnBalance = IERC1155Mintable(_wNFTAddress).totalSupply(_wNFTTokenId);
+        } else {
+            revert UnSupportedAsset(ETypes.AssetItem(ETypes.Asset(_wNFTType,_wNFTAddress),_wNFTTokenId, 0));
+        }
+        
+        // 1. Check  rules, such as unWrapless
+        require(
+            _checkRules(_wNFTAddress, _wNFTTokenId)
+        );
+
+        // 2. Check  locks
+        require(
+            _checkLocks(_wNFTAddress, _wNFTTokenId)
+        );
+
+        // 3. Charge Fee Hook
+        require(
+            _chargeFees(_wNFTAddress, _wNFTTokenId)
+        );
+        uint256 nativeCollateralAmount = _getNativeCollateralBalance(_wNFTAddress, _wNFTTokenId);
+        ///////////////////////////////////////////////
+        ///  Place for hook                        ////
+        ///////////////////////////////////////////////
+        // 4. Safe return collateral to appropriate benificiary
+        if (!_beforeUnWrapHook(_wNFTAddress, _wNFTTokenId)) {
+            return;
+        }
+        
+        // 5. BurnWNFT
+        _burnNFT(
+            _wNFTType, 
+            _wNFTAddress, 
+            msg.sender, 
+            _wNFTTokenId, 
+            burnBalance
+        );
+
+        // 5. Return Original
+        // TODO   Check GAS
+        // _transfer(
+        //     wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
+        //     address(this),
+        //     wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
+        // );
+
+        _transferSafe(
+            wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
+            address(this),
+            wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
+        );
+        emit UnWrappedV1(
+            _wNFTAddress,
+            wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.asset.contractAddress,
+            _wNFTTokenId, 
+            wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.tokenId,
+            wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition, 
+            nativeCollateralAmount,  // TODO Check  GAS
+            wrappedTokens[_wNFTAddress][_wNFTTokenId].rules 
+        );
+          
+
 
     } 
     /////////////////////////////////////////////////////////////////////
@@ -200,7 +274,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     }
 
     function _transfer(
-        ETypes.AssetItem calldata _assetItem,
+        ETypes.AssetItem memory _assetItem,
         address _from,
         address _to
     ) internal virtual returns (bool _transfered){
@@ -225,7 +299,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     }
 
     function _transferSafe(
-        ETypes.AssetItem calldata _assetItem,
+        ETypes.AssetItem memory _assetItem,
         address _from,
         address _to
     ) internal virtual returns (uint256 _transferedValue){
@@ -235,19 +309,24 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             (bool success, ) = _to.call{ value: _assetItem.amount}("");
             require(success, "transfer failed");
             _transferedValue = _to.balance - balanceBefore;
+        
         } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC20) {
             balanceBefore = IERC20Extended(_assetItem.asset.contractAddress).balanceOf(_to);
             IERC20Extended(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.amount);
             _transferedValue = IERC20Extended(_assetItem.asset.contractAddress).balanceOf(_to) - balanceBefore;
-        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC721) {
+        
+        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC721 &&
+            IERC721Mintable(_assetItem.asset.contractAddress).ownerOf(_assetItem.tokenId) == _from) {
             IERC721Mintable(_assetItem.asset.contractAddress).transferFrom(_from, _to, _assetItem.tokenId);
             if (IERC721Mintable(_assetItem.asset.contractAddress).ownerOf(_assetItem.tokenId) == _to) {
                 _transferedValue = 1;
             }
+        
         } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC1155) {
             balanceBefore = IERC1155Mintable(_assetItem.asset.contractAddress).balanceOf(_to, _assetItem.tokenId);
             IERC1155Mintable(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.tokenId, _assetItem.amount, "");
             _transferedValue = IERC1155Mintable(_assetItem.asset.contractAddress).balanceOf(_to, _assetItem.tokenId) - balanceBefore;
+        
         } else {
             revert UnSupportedAsset(_assetItem);
         }
@@ -394,7 +473,67 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         }
     }
 
+    function _chargeFees(address _wNFTAddress, uint256 _wNFTTokenId) internal  returns (bool) {
+        return true;
+    }
 
+    /**
+     * @dev This hook may be overriden in inheritor contracts for extend
+     * base functionality.
+     *
+     * @param _wNFTAddress -wrapped token address
+     * @param _wNFTTokenId -wrapped token id
+     * 
+     * must returna true for success unwrapping enable 
+     */
+    function _beforeUnWrapHook(address _wNFTAddress, uint256 _wNFTTokenId) internal virtual returns (bool){
+        uint256 transfered;
+        for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
+            // TODO add comments
+            // Copy in memory for reentracy safe    
+            ETypes.AssetItem memory _assetItem = wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i];
+            wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].amount = 0;
+            transfered = _transferSafe(
+                _assetItem,
+                address(this),
+                wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
+            );
+
+            if (transfered != _assetItem.amount ) {
+                emit SuspiciousFail(
+                    _wNFTAddress, 
+                    _wNFTTokenId, 
+                    _assetItem.asset.contractAddress
+                );
+            }
+           
+            // dont pop due in some case it c can be very costly
+            // https://docs.soliditylang.org/en/v0.8.9/types.html#array-members   
+            if (gasleft() <= 1_000) {
+                emit PartialUnWrapp(_wNFTAddress, _wNFTTokenId, i);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+
+    function _getNativeCollateralBalance(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId 
+    ) public view returns (uint256) 
+    {
+        (uint256 res, ) = _getCollateralBalanceAndIndex(
+            _wNFTAddress, 
+            _wNFTTokenId,
+            ETypes.AssetType.NATIVE, 
+            address(0), // tokenAddress 
+            0           // tokenId
+        );
+        return res;
+    }
 
     function _getERC20CollateralBalance(
         address _wNFTAddress, 
@@ -470,5 +609,12 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
 
     }
 
+    function _checkRules(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool) {
+        return true;
+    }
+
+    function _checkLocks(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool) {
+        return true;
+    } 
 
 }

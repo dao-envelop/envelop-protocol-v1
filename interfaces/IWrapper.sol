@@ -34,6 +34,17 @@ interface IWrapper  {
         uint256 collateralTokenId,
         uint256 collateralBalance
     );
+
+    event PartialUnWrapp(
+        address indexed wrappedAddress,
+        uint256 indexed wrappedId,
+        uint256 lastCollateralIndex
+    );
+    event SuspiciousFail(
+        address indexed wrappedAddress,
+        uint256 indexed wrappedId, 
+        address indexed failedContractAddress
+    );
     // event NewFee(uint256 feeAmount, uint256 startDate);
     // event NiftsyProtocolTransfer(
     //     uint256 indexed wrappedTokenId, 
