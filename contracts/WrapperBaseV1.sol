@@ -106,7 +106,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         address _wNFTAddress, 
         uint256 _wNFTTokenId, 
         ETypes.AssetItem[] calldata _collateral
-    ) external virtual {
+    ) external payable virtual {
         _addCollateral(
             _wNFTAddress, 
             _wNFTTokenId, 
