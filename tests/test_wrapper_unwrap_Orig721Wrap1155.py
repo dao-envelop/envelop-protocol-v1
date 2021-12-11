@@ -1,7 +1,7 @@
 import pytest
 import logging
 from brownie import Wei, reverts, chain
-from makeTestData import makeNFTForTest1155, makeFromERC1155ToERC1155
+from makeTestData import makeNFTForTest721, makeFromERC721ToERC1155
 
 
 LOGGER = logging.getLogger(__name__)
@@ -10,12 +10,12 @@ zero_address = '0x0000000000000000000000000000000000000000'
 in_nft_amount = 3 
 out_nft_amount = 5
 
-def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20):
+def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft1155, niftsy20):
 	#make test data
-	makeNFTForTest1155(accounts, erc1155mock, ORIGINAL_NFT_IDs, in_nft_amount)
+	makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
 
 	#make wrap NFT 1155
-	wTokenId = makeFromERC1155ToERC1155(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, ORIGINAL_NFT_IDs[0], in_nft_amount, out_nft_amount, accounts[3])
+	wTokenId = makeFromERC721ToERC1155(accounts, erc721mock, wrapper, dai, weth, wnft1155, niftsy20, ORIGINAL_NFT_IDs[0], out_nft_amount, accounts[3], True)
 	
 	assert wnft1155.balanceOf(accounts[3].address, wTokenId) == out_nft_amount
 
@@ -36,5 +36,5 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20):
 	assert weth.balanceOf(wrapper) == 0
 	assert dai.balanceOf(accounts[2]) == before_dai_balance
 	assert weth.balanceOf(accounts[2]) == before_weth_balance
-	assert erc1155mock.balanceOf(accounts[2].address, ORIGINAL_NFT_IDs[0]) == in_nft_amount
+	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[2]
 	assert wnft1155.totalSupply(wTokenId) == 0
