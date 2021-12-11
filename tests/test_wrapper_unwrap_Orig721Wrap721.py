@@ -14,6 +14,8 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20):
 	#make wrap NFT 721
 	wTokenId = makeFromERC721ToERC721(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, ORIGINAL_NFT_IDs[0], accounts[3])
 	
+	assert wnft721.ownerOf(wTokenId) == accounts[3]
+
 	wrapper.unWrap(3, wnft721.address, wTokenId, {"from": accounts[3]})
 	'''
 	#checks
