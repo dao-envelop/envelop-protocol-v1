@@ -303,6 +303,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         address _from,
         address _to
     ) internal virtual returns (uint256 _transferedValue){
+        //TODO   think about try catch in transfers
         uint256 balanceBefore;
         if (_assetItem.asset.assetType == ETypes.AssetType.NATIVE) {
             balanceBefore = _to.balance;
@@ -312,7 +313,11 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         
         } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC20) {
             balanceBefore = IERC20Extended(_assetItem.asset.contractAddress).balanceOf(_to);
-            IERC20Extended(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.amount);
+            if (_from == address(this)){
+                IERC20Extended(_assetItem.asset.contractAddress).safeTransfer(_to, _assetItem.amount);
+            } else {
+                IERC20Extended(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.amount);
+            }    
             _transferedValue = IERC20Extended(_assetItem.asset.contractAddress).balanceOf(_to) - balanceBefore;
         
         } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC721 &&
