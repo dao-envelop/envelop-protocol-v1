@@ -49,7 +49,7 @@ contract EnvelopwNFT721 is ERC721Enumerable, Ownable {
     function burn(uint256 tokenId) public virtual {
         //solhint-disable-next-line max-line-length
         require(wrapperMinter == msg.sender, "Trusted address only");
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721Burnable: caller is not owner nor approved");
+        //require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721Burnable: caller is not owner nor approved");
         _burn(tokenId);
     }
 
