@@ -95,7 +95,6 @@ def makeFromERC721ToERC721(accounts, erc721mock, wrapper, dai, weth, wnft721, ni
         '0'
         )
 
-    logging.info(erc721_data)
     assert erc721mock.ownerOf(ORIGINAL_NFT_ID) == accounts[1]
     assert erc721mock.isApprovedForAll(accounts[1], wrapper.address) == True
 
