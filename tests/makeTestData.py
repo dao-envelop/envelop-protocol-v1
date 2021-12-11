@@ -1,12 +1,12 @@
 import pytest
 import logging
-from brownie import chain
+from brownie import chain, Wei
 LOGGER = logging.getLogger(__name__)
 
-ORIGINAL_NFT_IDs_ = []
+zero_address = '0x0000000000000000000000000000000000000000'
+call_amount = 1e18
+eth_amount = "4 ether"
 
-
-#logging.info('make UNWRAPAFTER_ = {}'.format(UNWRAPAFTER_))
 
 def makeNFTForTest721(accounts, erc721mock, original_nft_ids):
     [erc721mock.mint(x, {'from':accounts[0]})  for x in original_nft_ids]
@@ -16,69 +16,89 @@ def makeNFTForTest1155(accounts, erc1155mock, original_nft_ids, amount):
     [erc1155mock.mint(accounts[0], x, amount, {'from':accounts[0]})  for x in original_nft_ids]
     erc1155mock.safeTransferFrom(accounts[0], accounts[1], original_nft_ids[0], amount, "", {'from':accounts[0]})
 
-'''def makeWrapNFT(wrapper, erc721mock, fields, values, account, transferFeeContract):
-    START_NATIVE_COLLATERAL_ = '1 ether'
-    ADD_NATIVE_COLLATERAL_ = '2 ether'
-    ERC20_COLLATERAL_AMOUNT_ = 2e17;
-    TRANSFER_FEE_ = 2e18
-    ROAYLTY_PERCENT_ = 10
-    UNWRAP_FEE_THRESHOLD_ = 6e18
-    protokolFee_ = 10
-    chargeFeeAfter_ = 10
-    ROYALTYBENEFICIARY_= '0xbd7e5fb7525ed8583893ce1b1f93e21cc0cf02f6'
-    zero_address_ = '0x0000000000000000000000000000000000000000'
-    UNWRAPAFTER_ = chain.time() + 10
+def makeFromERC1155ToERC1155(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, ORIGINAL_NFT_ID, in_nft_amount, out_nft_amount, wrappFor):
+    in_type = 4
+    out_type = 4
 
-    #logging.info('TRANSFER_FEE_ from make 1= {}'.format(TRANSFER_FEE_))
+    erc1155mock.setApprovalForAll(wrapper.address,True, {'from':accounts[1]})
+    dai.transfer(accounts[1], call_amount, {"from": accounts[0]})
+    weth.transfer(accounts[1], 2*call_amount, {"from": accounts[0]})
 
-    #logging.info('make UNWRAPAFTER_ = {}'.format(UNWRAPAFTER_))
-    
-    UNDERLINECONTRACT_ = erc721mock.address
-    UNWRAPAFTER_ = chain.time() + 10
-    for i in range(len(fields)):
-        if fields[i] ==  'originalTokenId':
-            ORIGINAL_NFT_IDs_ = []
-            ORIGINAL_NFT_IDs_.append(values[i])
-        elif fields[i] ==  'unwrapAfter':
-            UNWRAPAFTER_ = values[i]
-        elif fields[i] ==  'transferFee':
-            TRANSFER_FEE_ = values[i]
-        elif fields[i] ==  'royaltyBeneficiary':
-            ROYALTYBENEFICIARY_ = values[i]
-        elif fields[i] ==  'royaltyPercent':
-            ROAYLTY_PERCENT_ = values[i]
-        elif fields[i] ==  'start_native_collateral':
-            START_NATIVE_COLLATERAL_ = values[i]
-        else: #result
-            UNWRAP_FEE_THRESHOLD_ = values[i]
-    #logging.info('TRANSFER_FEE_ from make 2= {}'.format(TRANSFER_FEE_))
+    wnft1155.setMinterStatus(wrapper.address, {"from": accounts[0]})
+    dai.approve(wrapper.address, call_amount, {'from':accounts[1]})
+    weth.approve(wrapper.address, 2*call_amount, {'from':accounts[1]})
 
-    erc721mock.approve(wrapper.address, ORIGINAL_NFT_IDs_[0], {'from':account})
-    
-    wrapper.wrap721(
-        
-        UNDERLINECONTRACT_, 
-        ORIGINAL_NFT_IDs_[0], 
-        UNWRAPAFTER_,
-        TRANSFER_FEE_,
-        ROYALTYBENEFICIARY_,
-        ROAYLTY_PERCENT_,
-        UNWRAP_FEE_THRESHOLD_, 
-        transferFeeContract.address,
-        {'from':account, 'value':START_NATIVE_COLLATERAL_})
-    assert erc721mock.ownerOf(ORIGINAL_NFT_IDs_[0]) == wrapper.address
-    assert wrapper.ownerOf(wrapper.lastWrappedNFTId()) == account
+    wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
 
-def _addErc20Collateral(account0, account1, wrapper, amount, tokenId , TokenMock):
-    dai = account0.deploy(TokenMock,"DAI MOCK Token", "DAI")
-    wrapper.setCollateralStatus(dai.address, True, {"from": account0})
-    dai.approve(wrapper.address, amount, {"from": account1})
-    dai.transfer(account1, amount, {"from": account0})
-    wrapper.addERC20Collateral(tokenId, dai.address, amount, {"from": account1})
-    assert dai.balanceOf(wrapper.address) == amount
-    #logging.info('dai.balanceOf(account.address) = {}'.format(dai.balanceOf(account1.address)))
-    assert dai.balanceOf(account1.address) == 0
-    return dai'''
+    erc1155_property = (in_type, erc1155mock.address)
+    dai_property = (2, dai.address)
+    weth_property = (2, weth.address)
+    eth_property = (1, zero_address)
 
-    
-    
+    erc1155_data = (erc1155_property, ORIGINAL_NFT_ID, in_nft_amount)
+    dai_data = (dai_property, 0, Wei(call_amount))
+    weth_data = (weth_property, 0, Wei(2*call_amount))
+    eth_data = (eth_property, 0, Wei(eth_amount))
+
+    fee = [('0x0', Wei(1e18), niftsy20.address)]
+    lock = [('0x0', chain.time() + 10), ('0x0', chain.time() + 20)]
+    royalty = [(accounts[1], 100), (accounts[2], 200)]
+
+    wNFT = ( erc1155_data,
+        accounts[2],
+        fee,
+        lock,
+        royalty,
+        out_type,
+        out_nft_amount,
+        '0'
+        )
+
+    wrapper.wrap(wNFT, [dai_data, weth_data, eth_data], wrappFor, {"from": accounts[1], "value": eth_amount})
+    return wrapper.lastWNFTId(out_type)[1]
+
+def makeFromERC721ToERC721(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, ORIGINAL_NFT_ID, wrappFor):
+    in_type = 3
+    out_type = 3
+
+    erc721mock.setApprovalForAll(wrapper.address, True, {'from':accounts[1]})
+    dai.transfer(accounts[1], call_amount, {"from": accounts[0]})
+    weth.transfer(accounts[1], 2*call_amount, {"from": accounts[0]})
+
+    dai.approve(wrapper.address, call_amount, {'from':accounts[1]})
+    weth.approve(wrapper.address, 2*call_amount, {'from':accounts[1]})
+
+    wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
+    wnft721.setMinter(wrapper.address, {"from": accounts[0]})
+
+    erc721_property = (in_type, erc721mock.address)
+    dai_property = (2, dai.address)
+    weth_property = (2, weth.address)
+    eth_property = (1, zero_address)
+
+    erc721_data = (erc721_property, ORIGINAL_NFT_ID, 1)
+    dai_data = (dai_property, 0, Wei(call_amount))
+    weth_data = (weth_property, 0, Wei(2*call_amount))
+    eth_data = (eth_property, 0, Wei(eth_amount))
+
+    fee = [('0x0', Wei(1e18), niftsy20.address)]
+    lock = [('0x0', chain.time() + 10), ('0x0', chain.time() + 20)]
+    royalty = [(accounts[1], 100), (accounts[2], 200)]
+
+    wNFT = ( erc721_data,
+        accounts[2],
+        fee,
+        lock,
+        royalty,
+        out_type,
+        0,
+        '0'
+        )
+
+    logging.info(erc721_data)
+    assert erc721mock.ownerOf(ORIGINAL_NFT_ID) == accounts[1]
+    assert erc721mock.isApprovedForAll(accounts[1], wrapper.address) == True
+
+
+    wrapper.wrap(wNFT, [dai_data, weth_data, eth_data], wrappFor, {"from": accounts[1], "value": eth_amount})
+    return wrapper.lastWNFTId(out_type)[1]
