@@ -49,10 +49,10 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
      */
     function burn(address _from, uint256 _tokenId, uint256 _amount) public virtual {
         require(wrapperMinter == msg.sender, "Trusted address only");
-        require(
-            _from == _msgSender() || isApprovedForAll(_from, _msgSender()),
-            "ERC1155: caller is not owner nor approved"
-        );
+        // require(
+        //     _from == _msgSender() || isApprovedForAll(_from, _msgSender()),
+        //     "ERC1155: caller is not owner nor approved"
+        // );
         _burn(_from, _tokenId, _amount);
     }
 
