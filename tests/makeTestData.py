@@ -17,6 +17,7 @@ def makeNFTForTest1155(accounts, erc1155mock, original_nft_ids, amount):
     erc1155mock.safeTransferFrom(accounts[0], accounts[1], original_nft_ids[0], amount, "", {'from':accounts[0]})
 
 def makeFromERC1155ToERC1155(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, ORIGINAL_NFT_ID, in_nft_amount, out_nft_amount, wrappFor):
+    #make wrap NFT with determined collateral
     in_type = 4
     out_type = 4
 
@@ -41,7 +42,7 @@ def makeFromERC1155ToERC1155(accounts, erc1155mock, wrapper, dai, weth, wnft1155
     eth_data = (eth_property, 0, Wei(eth_amount))
 
     fee = [('0x0', Wei(1e18), niftsy20.address)]
-    lock = [('0x0', chain.time() + 10), ('0x0', chain.time() + 20)]
+    lock = [('0x0', chain.time() + 100), ('0x0', chain.time() + 200)]
     royalty = [(accounts[1], 100), (accounts[2], 200)]
 
     wNFT = ( erc1155_data,
@@ -58,6 +59,7 @@ def makeFromERC1155ToERC1155(accounts, erc1155mock, wrapper, dai, weth, wnft1155
     return wrapper.lastWNFTId(out_type)[1]
 
 def makeFromERC721ToERC721(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, ORIGINAL_NFT_ID, wrappFor):
+    #make wrap NFT with determined collateral
     in_type = 3
     out_type = 3
 
