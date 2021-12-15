@@ -54,5 +54,7 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, moc
 	mockHacker721_1.setFailReciever(accounts[9])
 	mockHacker721_1.setWrapper(wrapper.address)
 	mockHacker721_1.mint(accounts[1], 0, {"from": accounts[1]})
-	
+	mockHacker721_1.approve(wrapper.address, 0, {"from": accounts[1]})
 	wrapper.addCollateral(wnft721.address, wTokenId, [((3, mockHacker721_1.address), 0, 0)], {'from': accounts[1]})
+
+	assert mockHacker721_1.ownerOf(0) == accounts[9]
