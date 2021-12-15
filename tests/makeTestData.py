@@ -260,7 +260,7 @@ def makeFromERC1155ToERC1155WithoutCollateral(accounts, erc1155mock, wrapper, wn
         '0'
         )
 
-    wrapper.wrap(wNFT, [], wrappFor, {"from": accounts[1], "value": eth_amount})
+    wrapper.wrap(wNFT, [], wrappFor, {"from": accounts[1]})
     return wrapper.lastWNFTId(out_type)[1]
 
 def makeFromERC721ToERC721WithoutCollateral(accounts, erc721mock, wrapper, wnft721, niftsy20, ORIGINAL_NFT_ID, wrappFor):
@@ -294,7 +294,7 @@ def makeFromERC721ToERC721WithoutCollateral(accounts, erc721mock, wrapper, wnft7
     assert erc721mock.isApprovedForAll(accounts[1], wrapper.address) == True
 
 
-    wrapper.wrap(wNFT, [], wrappFor, {"from": accounts[1], "value": eth_amount})
+    wrapper.wrap(wNFT, [], wrappFor, {"from": accounts[1]})
     return wrapper.lastWNFTId(out_type)[1]
 
 def makeFromERC721ToERC1155WithoutCollateral(accounts, erc721mock, wrapper, wnft1155, niftsy20, ORIGINAL_NFT_ID, out_nft_amount, wrappFor, check_mode):
@@ -325,7 +325,7 @@ def makeFromERC721ToERC1155WithoutCollateral(accounts, erc721mock, wrapper, wnft
         '0'
         )
 
-    wrapper.wrap(wNFT, [], wrappFor, {"from": accounts[1], "value": eth_amount})
+    wrapper.wrap(wNFT, [], wrappFor, {"from": accounts[1]})
 
     #checks
     if (check_mode == True):
@@ -374,7 +374,7 @@ def makeFromERC1155ToERC721WithoutCollateral(accounts, erc1155mock, wrapper, wnf
         '0'
         )
 
-    wrapper.wrap(wNFT, [], wrappFor, {"from": accounts[1], "value": eth_amount})
+    wrapper.wrap(wNFT, [], wrappFor, {"from": accounts[1]})
 
     #checks
     if (check_mode == True):
