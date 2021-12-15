@@ -94,14 +94,14 @@ def mockHacker(accounts, MaliciousTokenMock):
     yield h
 
 @pytest.fixture(scope="module")
-def mockHacker721_1(accounts, MaliciousTokenMock721_1):
-    h = accounts[0].deploy(MaliciousTokenMock721_1,"Hacker Malicious Token 721_1", "KLR721_1")
+def mockHacker721_1(accounts, ERC721):
+    h = accounts[0].deploy(ERC721,"Hacker Malicious Token 721_1", "KLR721_1")
     yield h
 
-@pytest.fixture(scope="module")
+'''@pytest.fixture(scope="module")
 def mockHacker721_2(accounts, MaliciousTokenMock721_2):
     h = accounts[0].deploy(MaliciousTokenMock721_2,"Hacker Malicious Token 721_2", "KLR721_2")
-    yield h
+    yield h'''
 
 # @pytest.fixture(scope="module")
 # def distributor(accounts, WrapperDistributor721, techERC20):

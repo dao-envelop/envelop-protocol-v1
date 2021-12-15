@@ -51,5 +51,8 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, moc
 		wrapper.addCollateral(wnft721.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[2], 0)], {'from': accounts[8]})
 
 	#with asset data - ERC721 token. Contract of token change the address @to. Token id 0
-	mockHacker721_1.mintWithURI( accounts[1], 0, '', {"from": accounts[1]})
+	mockHacker721_1.setFailReciever(accounts[9])
+	mockHacker721_1.setWrapper(wrapper.address)
+	mockHacker721_1.mint(accounts[1], 0, {"from": accounts[1]})
+	
 	wrapper.addCollateral(wnft721.address, wTokenId, [((3, mockHacker721_1.address), 0, 0)], {'from': accounts[1]})
