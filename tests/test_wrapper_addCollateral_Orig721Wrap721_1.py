@@ -26,7 +26,7 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, mo
 	with reverts(""):
 		wrapper.addCollateral(wnft721.address, wTokenId, [((3, mockHacker721_1.address), 0, 0)], {'from': accounts[1]})
 
-	assert mockHacker721_1.balanceOf(accounts[1]) == 0 #check balance
+	assert mockHacker721_1.balanceOf(accounts[1]) == 1 #check balance
 	assert mockHacker721_1.ownerOf(0) == accounts[1] #check owner
 	assert wrapper.getWrappedToken(wnft721, wTokenId)[1] == []
 
