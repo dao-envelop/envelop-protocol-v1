@@ -370,7 +370,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         ETypes.AssetItem[] calldata _collateral
     ) internal virtual 
     {
-        // 3. Process Native Colleteral
+        // Process Native Colleteral
         if (msg.value > 0) {
             _updateCollateralInfo(
                 _wNFTAddress, 
@@ -432,37 +432,42 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
                 collateralItem.tokenId
             );
             /////////////////////////////////////////
-            //  ERC20 Collateral                  ///
+            //  ERC20 & NATIVE Collateral         ///
             /////////////////////////////////////////
-            if (collateralItem.asset.assetType == ETypes.AssetType.ERC20 && _amnt> 0) {
-                wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount += collateralItem.amount;
-            } else {
+            if (collateralItem.asset.assetType == ETypes.AssetType.ERC20 ||
+                 collateralItem.asset.assetType == ETypes.AssetType.NATIVE){
+
+                if (_amnt > 0) {
+                    wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount += collateralItem.amount;
+                } else {
                 //So if we are here hence there is NO that _erc20 in collateral yet 
                 //We can add more tokens if limit NOT exccedd
-                require(
-                    wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length < MAX_COLLATERAL_SLOTS, 
-                    "To much tokens in collatteral"
-                );
-                wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.push(collateralItem);
-                return;
+                    require(
+                        wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length < MAX_COLLATERAL_SLOTS, 
+                        "To much tokens in collatteral"
+                    );
+                    wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.push(collateralItem);
+                }
+                return;    
             }
-
 
             /////////////////////////////////////////
             //  ERC1155 Collateral                ///
             /////////////////////////////////////////
-            if (collateralItem.asset.assetType == ETypes.AssetType.ERC1155 && _amnt> 0) {
-                wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount += collateralItem.amount;
-            } else {
-                //So if we are here hence there is NO that _erc20 in collateral yet 
-                //We can add more tokens if limit NOT exccedd
-                require(
-                    wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length < MAX_COLLATERAL_SLOTS, 
-                    "To much tokens in collatteral"
-                );
-                wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.push(collateralItem);
+            if (collateralItem.asset.assetType == ETypes.AssetType.ERC1155) {
+                if (_amnt> 0) {
+                    wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount += collateralItem.amount;
+                } else {
+                    //So if we are here hence there is NO that _erc20 in collateral yet 
+                    //We can add more tokens if limit NOT exccedd
+                    require(
+                        wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length < MAX_COLLATERAL_SLOTS, 
+                        "To much tokens in collatteral"
+                    );
+                    wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.push(collateralItem);
+                }
                 return;
-            }
+            }    
 
             /////////////////////////////////////////
             //  ERC721 Collateral                 ///
