@@ -8,7 +8,7 @@ LOGGER = logging.getLogger(__name__)
 ORIGINAL_NFT_IDs = [10000,11111,22222]
 zero_address = '0x0000000000000000000000000000000000000000'
 
-def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, mockHacker721_1):
+def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20):
 	#make test data
 	makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
 
@@ -63,4 +63,6 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, mo
 	assert collateral[1][0][0] == 3
 	assert collateral[1][1] == ORIGINAL_NFT_IDs[1]
 	assert collateral[1][1][1] == erc721mock.address
+	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[1]) == wrapper.address
+	assert erc721mock.balanceOf(wrapper.address) == 1
 
