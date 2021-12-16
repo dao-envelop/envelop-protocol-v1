@@ -8,9 +8,10 @@ LOGGER = logging.getLogger(__name__)
 ORIGINAL_NFT_IDs = [10000,11111,22222]
 zero_address = '0x0000000000000000000000000000000000000000'
 
-def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20):
+def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc721mock1):
 	#make test data
 	makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
+	makeNFTForTest721(accounts, erc721mock1, ORIGINAL_NFT_IDs)
 
 	#make wrap NFT 721
 	wTokenId = makeFromERC721ToERC721WithoutCollateral(accounts, erc721mock, wrapper, wnft721, niftsy20, ORIGINAL_NFT_IDs[0], accounts[3])
@@ -48,11 +49,14 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20):
 		wrapper.addCollateral(wnft721.address, wTokenId, [((4, erc721mock.address), ORIGINAL_NFT_IDs[2], 0)], {'from': accounts[9]})	
 
 	#with asset data - ERC721 token. Msg.Sender is not owner of token
-	with reverts("ERC721: transfer of token that is not own"):
-		wrapper.addCollateral(wnft721.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[2], 0)], {'from': accounts[8]})
+	wrapper.addCollateral(wnft721.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[2], 0)], {'from': accounts[8]})
 
 	#with asset data - ERC721 token. Second token to collateral
 	wrapper.addCollateral(wnft721.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[2], 0)], {'from': accounts[9]})
+
+	#with asset data - ERC721 token. Second contract to collateral
+	erc721mock1.approve(wrapper.address, ORIGINAL_NFT_IDs[0], {"from": accounts[1]})
+	wrapper.addCollateral(wnft721.address, wTokenId, [((3, erc721mock1.address), ORIGINAL_NFT_IDs[0], 0)], {'from': accounts[1]})
 
 	logging.info(wrapper.getWrappedToken(wnft721, wTokenId)[1])
 	logging.info(wrapper.getWrappedToken(wnft721, wTokenId)[1][0])
@@ -64,12 +68,17 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20):
 	assert collateral[0][0][0] == 1
 	assert collateral[1][0][0] == 3
 	assert collateral[2][0][0] == 3
+	assert collateral[3][0][0] == 3
 	assert collateral[1][1] == ORIGINAL_NFT_IDs[1]
 	assert collateral[2][1] == ORIGINAL_NFT_IDs[2]
+	assert collateral[3][1] == ORIGINAL_NFT_IDs[0]
 	assert collateral[1][0][1] == erc721mock.address
 	assert collateral[2][0][1] == erc721mock.address
+	assert collateral[3][0][1] == erc721mock1.address
 	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == wrapper.address
 	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[1]) == wrapper.address
 	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[2]) == wrapper.address
+	assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == wrapper.address
 	assert erc721mock.balanceOf(wrapper.address) == 3
+	assert erc721mock1.balanceOf(wrapper.address) == 1
 

@@ -11,9 +11,10 @@ in_nft_amount = 3
 out_nft_amount = 5
 coll_amount = 2
 
-def test_addColl(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20):
+def test_addColl(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, erc1155mock1):
 	#make test data
 	makeNFTForTest1155(accounts, erc1155mock, ORIGINAL_NFT_IDs, in_nft_amount)
+	makeNFTForTest1155(accounts, erc1155mock1, ORIGINAL_NFT_IDs, in_nft_amount)
 
 	#make wrap NFT 1155
 	wTokenId = makeFromERC1155ToERC1155WithoutCollateral(accounts, erc1155mock, wrapper, wnft1155, niftsy20, ORIGINAL_NFT_IDs[0], in_nft_amount, out_nft_amount, accounts[3])
@@ -49,6 +50,9 @@ def test_addColl(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20):
 	#with asset data - ERC1155 token. Second token to collateral. Add balance
 	wrapper.addCollateral(wnft1155.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[2], 1)], {'from': accounts[9]})
 
+	#with asset data - ERC1155 token. Second contract to collateral
+	erc1155mock1.setApprovalForAll(wrapper.address,True, {'from':accounts[1]})
+	wrapper.addCollateral(wnft1155.address, wTokenId, [((4, erc1155mock1.address), ORIGINAL_NFT_IDs[0], coll_amount)], {'from': accounts[1]})
 
 	logging.info(wrapper.getWrappedToken(wnft1155, wTokenId)[1])
 	logging.info(wrapper.getWrappedToken(wnft1155, wTokenId)[1][0])
@@ -59,14 +63,21 @@ def test_addColl(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20):
 	assert collateral[0][2] == "1 ether"
 	assert collateral[0][0][0] == 1
 	assert collateral[1][0][0] == 4
+	assert collateral[2][0][0] == 4
+	assert collateral[3][0][0] == 4
 	assert collateral[1][1] == ORIGINAL_NFT_IDs[1]
 	assert collateral[1][2] == coll_amount
 	assert collateral[1][0][1] == erc1155mock.address
 	assert collateral[2][1] == ORIGINAL_NFT_IDs[2]
 	assert collateral[2][2] == coll_amount
 	assert collateral[2][0][1] == erc1155mock.address
+	assert collateral[3][1] == ORIGINAL_NFT_IDs[0]
+	assert collateral[3][2] == coll_amount
+	assert collateral[3][0][1] == erc1155mock1.address
 	assert erc1155mock.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[1]) == coll_amount
 	assert erc1155mock.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[2]) == coll_amount
+	assert erc1155mock1.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[0]) == coll_amount
 	assert erc1155mock.balanceOf(accounts[9], ORIGINAL_NFT_IDs[1]) == in_nft_amount-coll_amount
 	assert erc1155mock.balanceOf(accounts[9], ORIGINAL_NFT_IDs[2]) == in_nft_amount-coll_amount
+	assert erc1155mock1.balanceOf(accounts[1], ORIGINAL_NFT_IDs[0]) == in_nft_amount-coll_amount
 

@@ -24,7 +24,16 @@ def erc721mock(accounts, Token721Mock):
     """
     t = accounts[0].deploy(Token721Mock, "Simple NFT with URI", "XXX")
     t.setURI(0, 'https://maxsiz.github.io/')
-    yield t   
+    yield t  
+
+@pytest.fixture(scope="module")
+def erc721mock1(accounts, Token721Mock):
+    """
+    NFT 721 with URI
+    """
+    t = accounts[0].deploy(Token721Mock, "Simple NFT with URI1", "XXX1")
+    t.setURI(0, 'https://maxsiz.github.io/1/')
+    yield t  
 
 @pytest.fixture(scope="module")
 def erc1155mock(accounts, Token1155Mock):
@@ -32,6 +41,14 @@ def erc1155mock(accounts, Token1155Mock):
     NFT 1155 with URI
     """
     t = accounts[0].deploy(Token1155Mock, "https://maxsiz.github.io/")
+    yield t  
+
+@pytest.fixture(scope="module")
+def erc1155mock1(accounts, Token1155Mock):
+    """
+    NFT 1155 with URI
+    """
+    t = accounts[0].deploy(Token1155Mock, "https://maxsiz.github.io/1/")
     yield t  
 
 # @pytest.fixture(scope="module")
@@ -95,7 +112,7 @@ def mockHacker(accounts, MaliciousTokenMock):
 
 @pytest.fixture(scope="module")
 def mockHacker721_1(accounts, MaliciousMockERC721_1):
-    h = accounts[0].deploy(MaliciousMockERC721_1,"Hacker Malicious Token 721_1", "KLR721_1")
+    h = accounts[0].deploy(MaliciousMockERC721_1,"Hacker Maliciuos Token 721_1", "KLR721_1")
     yield h
 
 @pytest.fixture(scope="module")
