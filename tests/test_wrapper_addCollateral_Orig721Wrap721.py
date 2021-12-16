@@ -8,7 +8,7 @@ LOGGER = logging.getLogger(__name__)
 ORIGINAL_NFT_IDs = [10000,11111,22222]
 zero_address = '0x0000000000000000000000000000000000000000'
 
-def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, mockHacker721_1):
+def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, mockHacker721_1):
 	#make test data
 	makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
 
@@ -17,7 +17,7 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, moc
 	
 	assert wnft721.ownerOf(wTokenId) == accounts[3]
 
-	'''
+	
 	#without asset data
 	wrapper.addCollateral(wnft721.address, wTokenId, [], {'from': accounts[9], "value": '1 ether'})
 
@@ -50,14 +50,8 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, moc
 	#with asset data - ERC721 token. Msg.Sender is not owner of token
 	with reverts("ERC721: transfer of token that is not own"):
 		wrapper.addCollateral(wnft721.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[2], 0)], {'from': accounts[8]})
-	'''
-	#with asset data - ERC721 token. Contract of token change the address @to. Token id 0
-	mockHacker721_1.setFailReciever(accounts[9])
-	mockHacker721_1.setWrapper(wrapper.address)
-	mockHacker721_1.mint(accounts[1], 0, {"from": accounts[1]})
-	mockHacker721_1.approve(wrapper.address, 0, {"from": accounts[1]})
-	wrapper.addCollateral(wnft721.address, wTokenId, [((3, mockHacker721_1.address), 0, 0)], {'from': accounts[1]})
 
-	assert mockHacker721_1.ownerOf(0) == accounts[9]
 
 	logging.info(wrapper.getWrappedToken(wnft721, wTokenId)[1])
+
+	assert wrapper.balance() == "4 ether"

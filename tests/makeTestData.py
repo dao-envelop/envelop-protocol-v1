@@ -30,7 +30,8 @@ def makeFromERC1155ToERC1155(accounts, erc1155mock, wrapper, dai, weth, wnft1155
     dai.approve(wrapper.address, call_amount, {'from':accounts[1]})
     weth.approve(wrapper.address, 2*call_amount, {'from':accounts[1]})
 
-    wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
+    if (wrapper.lastWNFTId(out_type)[1] == 0):
+        wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
 
     erc1155_property = (in_type, erc1155mock.address)
     dai_property = (2, dai.address)
@@ -71,7 +72,8 @@ def makeFromERC721ToERC721(accounts, erc721mock, wrapper, dai, weth, wnft721, ni
     dai.approve(wrapper.address, call_amount, {'from':accounts[1]})
     weth.approve(wrapper.address, 2*call_amount, {'from':accounts[1]})
 
-    wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
+    if (wrapper.lastWNFTId(out_type)[1] == 0):
+        wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
     wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
     erc721_property = (in_type, erc721mock.address)
@@ -117,7 +119,8 @@ def makeFromERC721ToERC1155(accounts, erc721mock, wrapper, dai, weth, wnft1155, 
     dai.approve(wrapper.address, call_amount, {'from':accounts[1]})
     weth.approve(wrapper.address, 2*call_amount, {'from':accounts[1]})
 
-    wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
+    if (wrapper.lastWNFTId(out_type)[1] == 0):
+        wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
     wnft1155.setMinterStatus(wrapper.address, {"from": accounts[0]})
 
     erc721_property = (in_type, erc721mock.address)
@@ -180,7 +183,8 @@ def makeFromERC1155ToERC721(accounts, erc1155mock, wrapper, dai, weth, wnft721, 
     dai.approve(wrapper.address, call_amount, {'from':accounts[1]})
     weth.approve(wrapper.address, 2*call_amount, {'from':accounts[1]})
 
-    wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
+    if (wrapper.lastWNFTId(out_type)[1] == 0):
+        wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
     wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
     erc1155_property = (in_type, erc1155mock.address)
@@ -240,7 +244,8 @@ def makeFromERC1155ToERC1155WithoutCollateral(accounts, erc1155mock, wrapper, wn
 
     wnft1155.setMinterStatus(wrapper.address, {"from": accounts[0]})
 
-    wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
+    if (wrapper.lastWNFTId(out_type)[1] == 0):
+        wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
 
     erc1155_property = (in_type, erc1155mock.address)
 
@@ -269,7 +274,8 @@ def makeFromERC721ToERC721WithoutCollateral(accounts, erc721mock, wrapper, wnft7
 
     erc721mock.setApprovalForAll(wrapper.address, True, {'from':accounts[1]})
     
-    wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
+    if (wrapper.lastWNFTId(out_type)[1] == 0):
+        wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
     wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
     erc721_property = (in_type, erc721mock.address)
@@ -304,7 +310,8 @@ def makeFromERC721ToERC1155WithoutCollateral(accounts, erc721mock, wrapper, wnft
 
     erc721mock.setApprovalForAll(wrapper.address, True, {'from':accounts[1]})
 
-    wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
+    if (wrapper.lastWNFTId(out_type)[1] == 0):
+        wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
     wnft1155.setMinterStatus(wrapper.address, {"from": accounts[0]})
 
     erc721_property = (in_type, erc721mock.address)
@@ -353,7 +360,8 @@ def makeFromERC1155ToERC721WithoutCollateral(accounts, erc1155mock, wrapper, wnf
 
     erc1155mock.setApprovalForAll(wrapper.address,True, {'from':accounts[1]})
 
-    wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
+    if (wrapper.lastWNFTId(out_type)[1] == 0):
+        wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
     wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
     erc1155_property = (in_type, erc1155mock.address)
