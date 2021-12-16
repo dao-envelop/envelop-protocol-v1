@@ -34,6 +34,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     address public protocolWhiteList;
     address public transferProxy;
 
+     
+    mapping(address => bool) public trustedOperators;
 
     // Map from wrapping asset type to wnft contract address and last minted id
     mapping(ETypes.AssetType => ETypes.NFTItem) public lastWNFTId;  
@@ -42,11 +44,20 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     mapping(address => mapping(uint256 => ETypes.WNFT)) public wrappedTokens; //? Private in Production
 
     error UnSupportedAsset(ETypes.AssetItem asset);
-    constructor(address _erc20) {
-        require(_erc20 != address(0), "ProtocolTechToken cant be zero value");
-        protocolTechToken = _erc20; 
+
+
+    modifier onlyTrusted() {
+        require (trustedOperators[msg.sender] == true, "Only trusted address");
+        _;
     }
 
+    constructor(address _erc20) {
+        require(_erc20 != address(0), "ProtocolTechToken cant be zero value");
+        protocolTechToken = _erc20;
+        trustedOperators[msg.sender] = true; 
+    }
+
+    
     function wrap(ETypes.INData calldata _inData, ETypes.AssetItem[] calldata _collateral, address _wrappFor) 
         public 
         virtual
@@ -55,7 +66,55 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         returns (ETypes.AssetItem memory) 
     {
         // 1. Take users inAsset
-        //_takeUnderlineAssetForWrap(_inData.inAsset),
+        require(
+            _mustTransfered(_inData.inAsset) == _transferSafe(_inData.inAsset, msg.sender, address(this)),
+            "Suspicious asset for wrap"
+        );
+        // 2. Mint wNFT
+        _mintNFT(
+            _inData.outType,     // what will be minted instead of wrapping asset
+            lastWNFTId[_inData.outType].contractAddress, // wNFT contract address
+            _wrappFor,                                   // wNFT receiver (1st owner) 
+            lastWNFTId[_inData.outType].tokenId + 1,        
+            _inData.outBalance                           // wNFT tokenId
+        );
+        lastWNFTId[_inData.outType].tokenId += 1;  //Save just minted id 
+
+
+        // 4. Safe wNFT info
+        _saveWNFTinfo(
+            lastWNFTId[_inData.outType].contractAddress, 
+            lastWNFTId[_inData.outType].tokenId,
+            _inData
+        );
+
+        _addCollateral(
+            lastWNFTId[_inData.outType].contractAddress, 
+            lastWNFTId[_inData.outType].tokenId, 
+            _collateral
+        );
+
+        emit WrappedV1(
+            _inData.inAsset.asset.contractAddress,        // inAssetAddress
+            lastWNFTId[_inData.outType].contractAddress,  // outAssetAddress
+            _inData.inAsset.tokenId,                      // inAssetTokenId 
+            lastWNFTId[_inData.outType].tokenId,          // outTokenId 
+            _wrappFor,                                    // wnftFirstOwner
+            msg.value,                                    // nativeCollateralAmount
+            _inData.rules                                 // rules
+        );
+        return ETypes.AssetItem(ETypes.Asset(ETypes.AssetType(0), address(0)),0,0);
+    }
+
+    function wrapUnsafe(ETypes.INData calldata _inData, ETypes.AssetItem[] calldata _collateral, address _wrappFor) 
+        public 
+        virtual
+        payable
+        onlyTrusted 
+        nonReentrant 
+        returns (ETypes.AssetItem memory) 
+    {
+        // 1. Take users inAsset
         _transfer(_inData.inAsset, msg.sender, address(this));
         // 2. Mint wNFT
         _mintNFT(
@@ -166,7 +225,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         );
 
         // 5. Return Original
-        // TODO   Check GAS
+
+        // TODO   Check GAS - this is UNSafe transfer version may be little cheaper
         // _transfer(
         //     wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
         //     address(this),
@@ -209,6 +269,10 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
 
     function setTransferProxy(address _proxyAddress) external onlyOwner {
         transferProxy = _proxyAddress;
+    }
+
+    function setTrustedAddres(address _operator, bool _status) public onlyOwner {
+        trustedOperators[_operator] = _status;
     }
     /////////////////////////////////////////////////////////////////////
 
@@ -322,8 +386,11 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         
         } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC721 &&
             IERC721Mintable(_assetItem.asset.contractAddress).ownerOf(_assetItem.tokenId) == _from) {
+            balanceBefore = IERC721Mintable(_assetItem.asset.contractAddress).balanceOf(_to); 
             IERC721Mintable(_assetItem.asset.contractAddress).transferFrom(_from, _to, _assetItem.tokenId);
-            if (IERC721Mintable(_assetItem.asset.contractAddress).ownerOf(_assetItem.tokenId) == _to) {
+            if (IERC721Mintable(_assetItem.asset.contractAddress).ownerOf(_assetItem.tokenId) == _to &&
+                IERC721Mintable(_assetItem.asset.contractAddress).balanceOf(_to) - balanceBefore == 1
+                ) {
                 _transferedValue = 1;
             }
         
@@ -391,10 +458,13 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
                 );
         }
        
-        // 4. Process Token Colleteral
+        // Process Token Colleteral
         for (uint256 i = 0; i <_collateral.length; i ++) {
             if (_collateral[i].asset.assetType != ETypes.AssetType.NATIVE) {
-                _transfer(_collateral[i], msg.sender, address(this));
+                require(
+                    _mustTransfered(_collateral[i]) == _transferSafe(_collateral[i], msg.sender, address(this)),
+                    "Suspicious asset for wrap"
+                );
                 _updateCollateralInfo(
                     _wNFTAddress, 
                     _wNFTTokenId,
@@ -528,7 +598,17 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         return true;
     }
 
-
+    function _mustTransfered(ETypes.AssetItem calldata _assetForTransfer) internal pure returns(uint256 mustTransfered) {
+        // Available for wrap assets must be good transferable (stakable).
+        // So for erc721  mustTransfered always be 1
+        if (_assetForTransfer.asset.assetType == ETypes.AssetType.ERC721) {
+            mustTransfered = 1;
+        } else {
+            mustTransfered = _assetForTransfer.amount;
+        }
+        return mustTransfered;
+    }
+    
 
     function _getNativeCollateralBalance(
         address _wNFTAddress, 
