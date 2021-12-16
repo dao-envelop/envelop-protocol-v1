@@ -53,5 +53,14 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, mo
 
 
 	logging.info(wrapper.getWrappedToken(wnft721, wTokenId)[1])
+	logging.info(wrapper.getWrappedToken(wnft721, wTokenId)[1][0])
 
 	assert wrapper.balance() == "4 ether"
+
+	collateral = wrapper.getWrappedToken(wnft721, wTokenId)[1]
+	assert collateral[0][2] == "4 ether"
+	assert collateral[0][0][0] == 1
+	assert collateral[1][0][0] == 3
+	assert collateral[1][1] == ORIGINAL_NFT_IDs[1]
+	assert collateral[1][1][1] == erc721mock.address
+
