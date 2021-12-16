@@ -39,8 +39,15 @@ def test_addColl(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20):
 	with reverts("ERC1155: caller is not owner nor approved"):
 		wrapper.addCollateral(wnft1155.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[2], coll_amount-1)], {'from': accounts[8]})
 
+	#with asset data - ERC1155 token. Not enough balance for transfer
+	with reverts("ERC1155: insufficient balance for transfer"):
+		wrapper.addCollateral(wnft1155.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[2], coll_amount+10)], {'from': accounts[9]})
+
 	#with asset data - ERC1155 token. Second token to collateral
 	wrapper.addCollateral(wnft1155.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[2], coll_amount-1)], {'from': accounts[9]})
+
+	#with asset data - ERC1155 token. Second token to collateral. Add balance
+	wrapper.addCollateral(wnft1155.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[2], 1)], {'from': accounts[9]})
 
 
 	logging.info(wrapper.getWrappedToken(wnft1155, wTokenId)[1])
@@ -56,10 +63,10 @@ def test_addColl(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20):
 	assert collateral[1][2] == coll_amount
 	assert collateral[1][0][1] == erc1155mock.address
 	assert collateral[2][1] == ORIGINAL_NFT_IDs[2]
-	assert collateral[2][2] == coll_amount - 1
+	assert collateral[2][2] == coll_amount
 	assert collateral[2][0][1] == erc1155mock.address
 	assert erc1155mock.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[1]) == coll_amount
-	assert erc1155mock.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[2]) == coll_amount - 1
+	assert erc1155mock.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[2]) == coll_amount
 	assert erc1155mock.balanceOf(accounts[9], ORIGINAL_NFT_IDs[1]) == in_nft_amount-coll_amount
-	assert erc1155mock.balanceOf(accounts[9], ORIGINAL_NFT_IDs[2]) == in_nft_amount-coll_amount+1
+	assert erc1155mock.balanceOf(accounts[9], ORIGINAL_NFT_IDs[2]) == in_nft_amount-coll_amount
 
