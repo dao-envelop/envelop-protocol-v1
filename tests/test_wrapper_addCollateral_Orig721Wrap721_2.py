@@ -37,23 +37,27 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20):
 	weth.approve(wrapper.address, 10*amount, {"from": accounts[1]})
 	wrapper.addCollateral(wnft721.address, wTokenId, [((2, weth.address), 0, 5*amount)], {'from': accounts[1], "value": "1 ether"})	
 
+	#with erc20. Add amount. Success
+	dai.transfer(accounts[1], 2*amount, {"from": accounts[0]})
+	wrapper.addCollateral(wnft721.address, wTokenId, [((2, dai.address), 0, 2*amount)], {'from': accounts[1]})
+
 	
-	'''collateral = wrapper.getWrappedToken(wnft721, wTokenId)[1]
-	assert collateral[0][2] == "4 ether"
+	collateral = wrapper.getWrappedToken(wnft721, wTokenId)[1]
+	assert collateral[0][2] == "2 ether"
 	assert collateral[0][0][0] == 1
-	assert collateral[1][0][0] == 3
-	assert collateral[2][0][0] == 3
-	assert collateral[3][0][0] == 3
-	assert collateral[1][1] == ORIGINAL_NFT_IDs[1]
-	assert collateral[2][1] == ORIGINAL_NFT_IDs[2]
-	assert collateral[3][1] == ORIGINAL_NFT_IDs[0]
-	assert collateral[1][0][1] == erc721mock.address
-	assert collateral[2][0][1] == erc721mock.address
-	assert collateral[3][0][1] == erc721mock1.address
-	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == wrapper.address
-	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[1]) == wrapper.address
-	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[2]) == wrapper.address
-	assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == wrapper.address
-	assert erc721mock.balanceOf(wrapper.address) == 3
-	assert erc721mock1.balanceOf(wrapper.address) == 1'''
+	assert collateral[0][0][1] == zero_address
+	
+
+	assert collateral[1][0][0] == 2
+	assert collateral[1][0][1] == dai.address
+	assert collateral[1][2] == 3*amount
+
+
+	assert collateral[2][0][0] == 2
+	assert collateral[2][0][1] == weth.address
+	assert collateral[2][2] == 5*amount
+
+	assert dai.balanceOf(wrapper.address) == 3*amount
+	assert weth.balanceOf(wrapper.address) == 5*amount
+	assert wrapper.balance() == "2 ether"
 

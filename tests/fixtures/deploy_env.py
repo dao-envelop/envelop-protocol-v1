@@ -111,6 +111,11 @@ def mockHacker(accounts, MaliciousTokenMock):
     yield h
 
 @pytest.fixture(scope="module")
+def mockHacker20_1(accounts, MaliciousMockERC20_1):
+    h = accounts[0].deploy(MaliciousMockERC20_1,"Hacker Malicious Token", "KLR")
+    yield h
+
+@pytest.fixture(scope="module")
 def mockHacker721_1(accounts, MaliciousMockERC721_1):
     h = accounts[0].deploy(MaliciousMockERC721_1,"Hacker Maliciuos Token 721_1", "KLR721_1")
     yield h
