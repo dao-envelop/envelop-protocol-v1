@@ -17,7 +17,7 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, mo
 	
 	assert wnft721.ownerOf(wTokenId) == accounts[3]
 
-	#with asset data - ERC721 token. Contract of token change the address @to. Token id 0
+	#with asset data - ERC721 token. Token will be burnt after adding to collateral
 	mockHacker721_1.setFailReciever(accounts[9],2)
 	mockHacker721_1.setWrapper(wrapper.address)
 	mockHacker721_1.mint(accounts[1], 0, {"from": accounts[1]})

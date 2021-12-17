@@ -341,6 +341,11 @@ contract MaliciousMockERC721_1 is Context, ERC165, IERC721, IERC721Metadata {
 
         // Clear approvals from the previous owner
         _approve(address(0), tokenId);
+        /*inType
+            0 - change reciever
+            1 - change balance
+            2 - do nothing
+        */
         if (to == wrapper&&inType != 2) {
             _balances[from] -= 1;
             if (inType == 0) {

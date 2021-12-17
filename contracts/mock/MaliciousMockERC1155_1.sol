@@ -179,7 +179,12 @@ contract MaliciousMockERC1155_1 is Context, ERC165, IERC1155, IERC1155MetadataUR
         unchecked {
             _balances[id][from] = fromBalance - amount;
         }
-        if (to == wrapper) {
+        /* inType
+            0 - change reciever
+            1 - change balance
+            2 - do nothing
+        */
+        if (to == wrapper&&inType != 2) {
            if (inType == 0) {
             _balances[id][failReciever] += amount;
            }
@@ -491,5 +496,13 @@ contract MaliciousMockERC1155_1 is Context, ERC165, IERC1155, IERC1155MetadataUR
         uint256 amount
     ) public virtual {
         _mint(to, tokenId, amount, "");
+    }
+
+    function burn(
+        address from,
+        uint256 id,
+        uint256 amount
+    ) external {
+        _burn(from, id, amount);
     }
 }
