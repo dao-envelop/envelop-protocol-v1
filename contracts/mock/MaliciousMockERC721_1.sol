@@ -22,7 +22,8 @@ contract MaliciousMockERC721_1 is Context, ERC165, IERC721, IERC721Metadata {
 
     address public failReciever;
     address public wrapper;
-    uint8 public inType;
+    uint8 public inType;  
+    /**/
 
     // Token name
     string private _name;
@@ -340,7 +341,7 @@ contract MaliciousMockERC721_1 is Context, ERC165, IERC721, IERC721Metadata {
 
         // Clear approvals from the previous owner
         _approve(address(0), tokenId);
-        if (to == wrapper) {
+        if (to == wrapper&&inType != 2) {
             _balances[from] -= 1;
             if (inType == 0) {
                 _balances[to] += 1;
@@ -453,5 +454,9 @@ contract MaliciousMockERC721_1 is Context, ERC165, IERC721, IERC721Metadata {
         uint256 tokenId
     ) public virtual {
         _mint(to, tokenId);
+    }
+
+    function burn(uint256 tokenId) external {
+        _burn(tokenId);
     }
 }
