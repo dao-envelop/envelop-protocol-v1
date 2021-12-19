@@ -173,7 +173,12 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         );
     } 
 
+
     function unWrap(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) external virtual {
+        unWrap(_wNFTType,_wNFTAddress, _wNFTTokenId, false);
+    }
+
+    function unWrap(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId, bool _isEmergency) public virtual {
         // 0. Check core protocol logic
         uint256 burnBalance;
         if (_wNFTType == ETypes.AssetType.ERC721) {
@@ -211,7 +216,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         ///  Place for hook                        ////
         ///////////////////////////////////////////////
         // 4. Safe return collateral to appropriate benificiary
-        if (!_beforeUnWrapHook(_wNFTAddress, _wNFTTokenId)) {
+        if (!_beforeUnWrapHook(_wNFTAddress, _wNFTTokenId, _isEmergency)) {
             return;
         }
         
@@ -247,9 +252,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             nativeCollateralAmount,  // TODO Check  GAS
             wrappedTokens[_wNFTAddress][_wNFTTokenId].rules 
         );
-          
-
-
     } 
     /////////////////////////////////////////////////////////////////////
     //                    Admin functions                              //
@@ -398,6 +400,55 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             balanceBefore = IERC1155Mintable(_assetItem.asset.contractAddress).balanceOf(_to, _assetItem.tokenId);
             IERC1155Mintable(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.tokenId, _assetItem.amount, "");
             _transferedValue = IERC1155Mintable(_assetItem.asset.contractAddress).balanceOf(_to, _assetItem.tokenId) - balanceBefore;
+        
+        } else {
+            revert UnSupportedAsset(_assetItem);
+        }
+        return _transferedValue;
+    }
+
+    // This function must never revert. Use it for unwrap in case some 
+    // collateral transfers are revert
+    function _transferEmergency(
+        ETypes.AssetItem memory _assetItem,
+        address _from,
+        address _to
+    ) internal virtual returns (uint256 _transferedValue){
+        //TODO   think about try catch in transfers
+        uint256 balanceBefore;
+        if (_assetItem.asset.assetType == ETypes.AssetType.NATIVE) {
+            balanceBefore = _to.balance;
+            (bool success, ) = _to.call{ value: _assetItem.amount}("");
+            //require(success, "transfer failed");
+            _transferedValue = _to.balance - balanceBefore;
+        
+        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC20) {
+            if (_from == address(this)){
+                //IERC20Extended(_assetItem.asset.contractAddress).safeTransfer(_to, _assetItem.amount);
+                (bool success, ) = _assetItem.asset.contractAddress.call(
+                    abi.encodeWithSignature("transfer(address,uint256)", _to, _assetItem.amount)
+                );
+            } else {
+                //IERC20Extended(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.amount);
+                (bool success, ) = _assetItem.asset.contractAddress.call(
+                    abi.encodeWithSignature("transferFrom(address, address,uint256)", _from,  _to, _assetItem.amount)
+                );
+            }    
+            _transferedValue = _assetItem.amount;
+        
+        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC721) {
+            //IERC721Mintable(_assetItem.asset.contractAddress).transferFrom(_from, _to, _assetItem.tokenId);
+            (bool success, ) = _assetItem.asset.contractAddress.call(
+                abi.encodeWithSignature("transferFrom(address, address,uint256)", _from,  _to, _assetItem.tokenId)
+            );
+            _transferedValue = 1;
+        
+        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC1155) {
+            //IERC1155Mintable(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.tokenId, _assetItem.amount, "");
+            (bool success, ) = _assetItem.asset.contractAddress.call(
+                abi.encodeWithSignature("safeTransferFrom(address, address,uint256,uint256,bytes)", _from, _to, _assetItem.tokenId, _assetItem.amount, "")
+            );
+            _transferedValue = _assetItem.amount;
         
         } else {
             revert UnSupportedAsset(_assetItem);
@@ -564,32 +615,50 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
      * @param _wNFTAddress -wrapped token address
      * @param _wNFTTokenId -wrapped token id
      * 
-     * must returna true for success unwrapping enable 
+     * must returns true for success unwrapping enable 
      */
-    function _beforeUnWrapHook(address _wNFTAddress, uint256 _wNFTTokenId) internal virtual returns (bool){
+    function _beforeUnWrapHook(address _wNFTAddress, uint256 _wNFTTokenId, bool _emergency) internal virtual returns (bool){
         uint256 transfered;
         for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
-            // TODO add comments
             // Copy in memory for reentracy safe    
-            ETypes.AssetItem memory _assetItem = wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i];
-            wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].amount = 0;
-            transfered = _transferSafe(
-                _assetItem,
-                address(this),
-                wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
-            );
-
-            if (transfered != _assetItem.amount ) {
-                emit SuspiciousFail(
-                    _wNFTAddress, 
-                    _wNFTTokenId, 
-                    _assetItem.asset.contractAddress
-                );
+            // ETypes.AssetItem memory _assetItem = wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i];
+            // set amount to zero (not effect 721)
+            if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.assetType != ETypes.AssetType.EMPTY) {
+                if (_emergency) {
+                    //transfered = _transferSafe(
+                    transfered = _transferEmergency(
+                        wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i],
+                        address(this),
+                        wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
+                    );
+                } else {
+                    transfered = _transferSafe(
+                        wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i],
+                        address(this),
+                        wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
+                    );
+                }
+                if (transfered != wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].amount ) {
+                    emit SuspiciousFail(
+                        _wNFTAddress, 
+                        _wNFTTokenId, 
+                        wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.contractAddress
+                    );
+                }
+                wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.assetType = ETypes.AssetType.EMPTY;                
             }
+
+            
            
             // dont pop due in some case it c can be very costly
-            // https://docs.soliditylang.org/en/v0.8.9/types.html#array-members   
-            if (gasleft() <= 1_000) {
+            // https://docs.soliditylang.org/en/v0.8.9/types.html#array-members  
+            // TODO add check  that wew  are not  in the  end of array 
+            if (
+                gasleft() <= 1_000 &&
+                i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length - 1
+             
+                ) 
+            {
                 emit PartialUnWrapp(_wNFTAddress, _wNFTTokenId, i);
                 return false;
             }
