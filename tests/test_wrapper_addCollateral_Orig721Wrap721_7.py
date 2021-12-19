@@ -24,7 +24,7 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, er
     makeNFTForTest721(accounts, erc721mock1, ORIGINAL_NFT_IDs)
     erc721mock1.approve(wrapper.address, ORIGINAL_NFT_IDs[0], {"from": accounts[1]} )
 
-    #make 721 for collateral
+    #make 1155 for collateral
     makeNFTForTest1155(accounts, erc1155mock1, ORIGINAL_NFT_IDs, in_nft_amount)
 
     #make erc20 for collateral
@@ -46,5 +46,7 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, er
     assert wrapper.balance() == 0
     assert erc1155mock1.balanceOf(accounts[1], ORIGINAL_NFT_IDs[0]) == in_nft_amount
     assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[1]
+    assert dai.balanceOf(wrapper.address) == 0
+    assert weth.balanceOf(wrapper.address) == 0
     assert collateral == []
 
