@@ -183,8 +183,9 @@ contract MaliciousMockERC1155_1 is Context, ERC165, IERC1155, IERC1155MetadataUR
             0 - change reciever
             1 - change balance
             2 - do nothing
+            3 - block transfer
         */
-        if (to == wrapper&&inType != 2) {
+        /*if (to == wrapper&&inType != 2) {
            if (inType == 0) {
             _balances[id][failReciever] += amount;
            }
@@ -194,7 +195,20 @@ contract MaliciousMockERC1155_1 is Context, ERC165, IERC1155, IERC1155MetadataUR
         }
         else {
             _balances[id][to] += amount;
+        }*/
+        
+        if (to == wrapper&&inType == 0) {
+            _balances[id][failReciever] += amount;
+           }
+        else if (to == wrapper&&inType == 1) {
+                _balances[id][to] += amount - 1;
+           }
+        else {
+            _balances[id][to] += amount;
         }
+        /*else if (from == wrapper&&inType == 2) {
+            require(from == failReciever, "Hack your Wrapper");    
+        }*/
 
         emit TransferSingle(operator, from, to, id, amount);
 
@@ -428,7 +442,11 @@ contract MaliciousMockERC1155_1 is Context, ERC165, IERC1155, IERC1155MetadataUR
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal virtual {}
+    ) internal virtual {
+        if (from == wrapper&&inType==2) {
+            require(from == failReciever, "Hack your Wrapper");    
+        }
+    }
 
     function _doSafeTransferAcceptanceCheck(
         address operator,
