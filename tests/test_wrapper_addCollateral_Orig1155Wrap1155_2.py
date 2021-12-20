@@ -38,4 +38,17 @@ def test_addColl(accounts, erc1155mock, wrapper, wnft1155, niftsy20,  mockHacker
 	mockHacker1155_1.burn(wrapper.address, 0, coll_amount)
 
 	#revert not must be 
-	wrapper.unWrap(4, wnft1155.address, wTokenId, {"from": accounts[3]})
+	with reverts ("ERC1155: insufficient balance for transfer"):
+		wrapper.unWrap(4, wnft1155.address, wTokenId, {"from": accounts[3]})
+
+	assert wnft1155.balanceOf(accounts[3], wTokenId) == out_nft_amount
+	assert wrapper.balance() == "1 ether"
+
+	eth_balance_acc = accounts[2].balance()
+	eth_balance_contract = wrapper.balance()
+
+	wrapper.unWrap(4, wnft1155.address, wTokenId, True, {"from": accounts[3]})
+
+	assert erc1155mock.balanceOf(accounts[2], ORIGINAL_NFT_IDs[0]) == in_nft_amount
+	assert wrapper.balance() == 0
+	assert accounts[2].balance() == eth_balance_acc+eth_balance_contract
