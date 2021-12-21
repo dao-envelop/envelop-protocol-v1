@@ -66,9 +66,11 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         returns (ETypes.AssetItem memory) 
     {
 
+        // 0. Check assetIn asset
+        
         // 1. Take users inAsset
-        if (   _inData.inAsset.asset.assetType != ETypes.AssetType.NATIVE 
-            && _inData.inAsset.asset.assetType != ETypes.AssetType.EMPTY
+        if (  _inData.inAsset.asset.assetType != ETypes.AssetType.NATIVE &&
+             _inData.inAsset.asset.assetType != ETypes.AssetType.EMPTY
         ) 
         {
             require(
@@ -240,20 +242,25 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         );
         
         // 5. Return Original
+        if (   _wNFTType != ETypes.AssetType.NATIVE && 
+               _wNFTType != ETypes.AssetType.EMPTY
+        ) 
+        {
 
-        if (!_isEmergency){
-            _transferSafe(
-                wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
-                address(this),
-                wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
-            );
-        } else {
-            _transferEmergency (
-                wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
-                address(this),
-                wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
-            );
-        }    
+            if (!_isEmergency){
+                _transferSafe(
+                    wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
+                    address(this),
+                    wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
+                );
+            } else {
+                _transferEmergency (
+                    wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
+                    address(this),
+                    wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
+                );
+            }
+        }        
         emit UnWrappedV1(
             _wNFTAddress,
             wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.asset.contractAddress,
