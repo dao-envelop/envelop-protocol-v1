@@ -71,6 +71,8 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft721, niftsy20, er
     assert wrapper.balance() == eth_amount
     assert wnft721.ownerOf(wTokenId) == accounts[3]
 
+
+
     eth_contract_balance = wrapper.balance()
     eth_acc_balance = accounts[2].balance()
 
@@ -83,3 +85,62 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft721, niftsy20, er
     assert wrapper.balance() == 0
     assert wnft721.balanceOf(accounts[3]) == 0
     assert accounts[2].balance() == eth_acc_balance + eth_contract_balance
+
+    logging.info(wTokenId)
+
+
+    ####################################################################again wrap and unwrap#################################################3
+    dai.transfer(accounts[1], call_amount, {"from": accounts[0]})
+    weth.transfer(accounts[1], 2*call_amount, {"from": accounts[0]})
+
+    dai.approve(wrapper.address, call_amount, {'from':accounts[1]})
+    weth.approve(wrapper.address, 2*call_amount, {'from':accounts[1]})
+
+     #make 721 for collateral - normal token
+    erc721mock1.transferFrom(accounts[0], accounts[1], ORIGINAL_NFT_IDs[1], {"from": accounts[0]})
+    erc721mock1.approve(wrapper.address, ORIGINAL_NFT_IDs[1], {"from": accounts[1]})
+
+    #make 1155 for collateral - normal token
+    erc1155mock1.safeTransferFrom(accounts[0], accounts[1], ORIGINAL_NFT_IDs[1], in_nft_amount, "", {"from": accounts[0]})
+
+    erc721_data = (erc721_property, ORIGINAL_NFT_IDs[1], 0)
+    erc1155_data = (erc1155_property, ORIGINAL_NFT_IDs[1], in_nft_amount)
+
+    wNFT = ( empty_data,
+        accounts[2],
+        fee,
+        lock,
+        royalty,
+        out_type,
+        0,
+        '0'
+        )
+
+    wrapper.wrap(wNFT, [dai_data, weth_data, erc721_data, erc1155_data], accounts[3], {"from": accounts[1], "value": eth_amount})
+    wTokenId = wrapper.lastWNFTId(out_type)[1]
+    logging.info(wTokenId)
+
+    assert dai.balanceOf(wrapper.address) == call_amount
+    assert weth.balanceOf(wrapper.address) == 2*call_amount
+    assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[1]) == wrapper.address
+    assert erc1155mock1.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[1]) == in_nft_amount
+    assert wrapper.balance() == eth_amount
+    assert wnft721.ownerOf(wTokenId) == accounts[3]
+
+
+
+    eth_contract_balance = wrapper.balance()
+    eth_acc_balance = accounts[2].balance()
+
+
+    wrapper.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[3]} )
+
+    assert dai.balanceOf(accounts[2]) == 2*call_amount
+    assert weth.balanceOf(accounts[2]) == 4*call_amount
+    assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[1]) == accounts[2]
+    assert erc1155mock1.balanceOf(accounts[2], ORIGINAL_NFT_IDs[1]) == in_nft_amount
+    assert wrapper.balance() == 0
+    assert wnft721.balanceOf(accounts[3]) == 0
+    assert accounts[2].balance() == eth_acc_balance + eth_contract_balance
+
+
