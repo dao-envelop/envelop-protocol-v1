@@ -192,23 +192,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     function unWrap(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId, bool _isEmergency) public virtual {
         // 0. Check core protocol logic:
         // - who and what possible to unwrap
-        uint256 burnBalance;
-        if (_wNFTType == ETypes.AssetType.ERC721) {
-            // Only token owner can UnWrap
-            require(
-                IERC721Mintable(_wNFTAddress).ownerOf(_wNFTTokenId) == msg.sender,
-                'Only owner can unwrap it!'
-            );    
-        } else if (_wNFTType == ETypes.AssetType.ERC1155) {
-            require(
-                IERC1155Mintable(_wNFTAddress).totalSupply(_wNFTTokenId) 
-                == IERC1155Mintable(_wNFTAddress).balanceOf(msg.sender, _wNFTTokenId),
-                'ERC115 unwrap available only for all totalSupply'
-            );
-            burnBalance = IERC1155Mintable(_wNFTAddress).totalSupply(_wNFTTokenId);
-        } else {
-            revert UnSupportedAsset(ETypes.AssetItem(ETypes.Asset(_wNFTType,_wNFTAddress),_wNFTTokenId, 0));
-        }
+        (address burnFor, uint256 burnBalance) = _checkCore(_wNFTType, _wNFTAddress, _wNFTTokenId);
+        
         
         // 1. Check  rules, such as unWrapless
         require(
@@ -238,7 +223,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         _burnNFT(
             _wNFTType, 
             _wNFTAddress, 
-            msg.sender, 
+            burnFor,  // msg.sender, 
             _wNFTTokenId, 
             burnBalance
         );
@@ -799,6 +784,36 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
 
     function _checkWrap(ETypes.INData calldata _inData, address _wrappFor) internal view returns (bool){
         return true;
+    }
+
+    function _checkCore(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) 
+        internal 
+        view 
+        virtual 
+        returns (address burnFor, uint256 burnBalance) 
+    {
+        if (_wNFTType == ETypes.AssetType.ERC721) {
+            // Only token owner or unwraper can UnWrap
+            burnFor = IERC721Mintable(_wNFTAddress).ownerOf(_wNFTTokenId);
+            require(burnFor == msg.sender, 
+                //|| wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition == msg.sender,
+                'Only owner or unWrapDestinition can unwrap it'
+            ); 
+            return (burnFor, burnBalance);
+
+        } else if (_wNFTType == ETypes.AssetType.ERC1155) {
+            burnBalance = IERC1155Mintable(_wNFTAddress).totalSupply(_wNFTTokenId);
+            burnFor = msg.sender;
+            require(
+                burnBalance ==
+                IERC1155Mintable(_wNFTAddress).balanceOf(burnFor, _wNFTTokenId)
+                ,'ERC115 unwrap available only for all totalSupply'
+            );
+            return (burnFor, burnBalance);
+            
+        } else {
+            revert UnSupportedAsset(ETypes.AssetItem(ETypes.Asset(_wNFTType,_wNFTAddress),_wNFTTokenId, 0));
+        }
     }
 
 }
