@@ -237,12 +237,19 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         //     address(this),
         //     wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
         // );
-
-        _transferSafe(
-            wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
-            address(this),
-            wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
-        );
+        if (!_isEmergency){
+            _transferSafe(
+                wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
+                address(this),
+                wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
+            );
+        } else {
+            _transferEmergency (
+                wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
+                address(this),
+                wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
+            );
+        }    
         emit UnWrappedV1(
             _wNFTAddress,
             wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.asset.contractAddress,
@@ -620,12 +627,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     function _beforeUnWrapHook(address _wNFTAddress, uint256 _wNFTTokenId, bool _emergency) internal virtual returns (bool){
         uint256 transfered;
         for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
-            // Copy in memory for reentracy safe    
-            // ETypes.AssetItem memory _assetItem = wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i];
-            // set amount to zero (not effect 721)
             if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.assetType != ETypes.AssetType.EMPTY) {
                 if (_emergency) {
-                    //transfered = _transferSafe(
                     transfered = _transferEmergency(
                         wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i],
                         address(this),
