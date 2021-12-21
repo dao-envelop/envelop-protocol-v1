@@ -50,7 +50,12 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, mo
 	assert collateral[2] == ((3, erc721mock1.address), ORIGINAL_NFT_IDs[0], 0)
 	assert collateral[3] == ((4, erc1155mock1.address), ORIGINAL_NFT_IDs[0], coll_amount)
 
-	logging.info(wrapper.getWrappedToken(wnft721, wTokenId)[1])
+	logging.info('\nwNFT:{},{}\nIn asset:{},\nCollateral records:\n {}'.format(
+		wnft721, wTokenId,
+		wrapper.getWrappedToken(wnft721, wTokenId)[0],
+		wrapper.getWrappedToken(wnft721, wTokenId)[1]
+	)
+	)
 
 	mockHacker721_1.burn(0)
 
@@ -71,6 +76,12 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, mo
 	tx = wrapper.unWrap(3, wnft721.address, wTokenId, True,  {"from": accounts[3]})
 
 	logging.info(tx.events)
+	logging.info('\nwNFT:{},{}\nIn asset:{},\nCollateral records:\n {}'.format(
+		wnft721, wTokenId,
+		wrapper.getWrappedToken(wnft721, wTokenId)[0],
+		wrapper.getWrappedToken(wnft721, wTokenId)[1]
+	)
+	)
 
 	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[2]
 	assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[2]
