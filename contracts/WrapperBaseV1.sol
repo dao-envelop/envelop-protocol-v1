@@ -431,7 +431,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             } else {
                 //IERC20Extended(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.amount);
                 (bool success, ) = _assetItem.asset.contractAddress.call(
-                    abi.encodeWithSignature("transferFrom(address, address,uint256)", _from,  _to, _assetItem.amount)
+                    abi.encodeWithSignature("transferFrom(address,address,uint256)", _from,  _to, _assetItem.amount)
                 );
             }    
             _transferedValue = _assetItem.amount;
@@ -439,14 +439,14 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC721) {
             //IERC721Mintable(_assetItem.asset.contractAddress).transferFrom(_from, _to, _assetItem.tokenId);
             (bool success, ) = _assetItem.asset.contractAddress.call(
-                abi.encodeWithSignature("transferFrom(address, address,uint256)", _from,  _to, _assetItem.tokenId)
+                abi.encodeWithSignature("transferFrom(address,address,uint256)", _from,  _to, _assetItem.tokenId)
             );
             _transferedValue = 1;
         
         } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC1155) {
             //IERC1155Mintable(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.tokenId, _assetItem.amount, "");
             (bool success, ) = _assetItem.asset.contractAddress.call(
-                abi.encodeWithSignature("safeTransferFrom(address, address,uint256,uint256,bytes)", _from, _to, _assetItem.tokenId, _assetItem.amount, "")
+                abi.encodeWithSignature("safeTransferFrom(address,address,uint256,uint256,bytes)", _from, _to, _assetItem.tokenId, _assetItem.amount, "")
             );
             _transferedValue = _assetItem.amount;
         
@@ -647,12 +647,11 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
                 }
                 wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.assetType = ETypes.AssetType.EMPTY;                
             }
-
-            
-           
             // dont pop due in some case it c can be very costly
             // https://docs.soliditylang.org/en/v0.8.9/types.html#array-members  
             // TODO add check  that wew  are not  in the  end of array 
+
+            // For safe exit in case of low gaslimit
             if (
                 gasleft() <= 1_000 &&
                 i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length - 1
