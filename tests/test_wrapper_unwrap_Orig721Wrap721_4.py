@@ -11,6 +11,20 @@ in_nft_amount = 3
 out_nft_amount = 5
 coll_amount = 2
 
+def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
+	logging.info(
+		'\n=========wNFT=============\nwNFT:{},{}\nInAsset: {}\nCollrecords:\n{}\nunWrapDestinition: {}'
+		'\nFees: {} \nLocks: {} \nRoyalty: {} \n rules: {} \n=========================='.format(
+		_wnft721, _wTokenId,
+		_wrapper.getWrappedToken(_wnft721, _wTokenId)[0],
+		_wrapper.getWrappedToken(_wnft721, _wTokenId)[1],
+		_wrapper.getWrappedToken(_wnft721, _wTokenId)[2],
+		_wrapper.getWrappedToken(_wnft721, _wTokenId)[3],
+		_wrapper.getWrappedToken(_wnft721, _wTokenId)[4],
+		_wrapper.getWrappedToken(_wnft721, _wTokenId)[5],
+		_wrapper.getWrappedToken(_wnft721, _wTokenId)[6],
+	))
+
 def test_addColl(accounts, wrapper, wnft721, niftsy20,  mockHacker721_1, erc1155mock1, erc721mock1):
 	#make test data
 	mockHacker721_1.setFailReciever(accounts[9],2)
@@ -45,11 +59,12 @@ def test_addColl(accounts, wrapper, wnft721, niftsy20,  mockHacker721_1, erc1155
 	#burn wrapped original 721 token
 	mockHacker721_1.burn(ORIGINAL_NFT_IDs[0])
 
-	logging.info('\nwNFT:{},{}\nInAsset:{}\nCollrecords:\n{}'.format(
-		wnft721, wTokenId,
-		wrapper.getWrappedToken(wnft721, wTokenId)[0],
-		wrapper.getWrappedToken(wnft721, wTokenId)[1]
-	))
+	# logging.info('\nwNFT:{},{}\nInAsset:{}\nCollrecords:\n{}'.format(
+	# 	wnft721, wTokenId,
+	# 	wrapper.getWrappedToken(wnft721, wTokenId)[0],
+	# 	wrapper.getWrappedToken(wnft721, wTokenId)[1]
+	# ))
+	wnft_pretty_print(wrapper, wnft721, wTokenId)
 
 	#revert must be 
 	with reverts ("ERC721: owner query for nonexistent token"):
@@ -61,12 +76,12 @@ def test_addColl(accounts, wrapper, wnft721, niftsy20,  mockHacker721_1, erc1155
 	
 	#Emergency mode
 	tx = wrapper.unWrap(3, wnft721.address, wTokenId, True, {"from": accounts[3]})
-	logging.info('\nwNFT:{},{}\nInAsset:{}\nCollrecords:\n{}'.format(
-		wnft721, wTokenId,
-		wrapper.getWrappedToken(wnft721, wTokenId)[0],
-		wrapper.getWrappedToken(wnft721, wTokenId)[1]
-	))
-	logging.info(tx.events)
+	# logging.info('\nwNFT:{},{}\nInAsset:{}\nCollrecords:\n{}'.format(
+	# 	wnft721, wTokenId,
+	# 	wrapper.getWrappedToken(wnft721, wTokenId)[0],
+	# 	wrapper.getWrappedToken(wnft721, wTokenId)[1]
+	# ))
+	wnft_pretty_print(wrapper, wnft721, wTokenId)
 
 	assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[2]
 	assert erc1155mock1.balanceOf(accounts[2], ORIGINAL_NFT_IDs[0]) == coll_amount
