@@ -72,7 +72,7 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, mo
 
 	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[2]
 	assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[2]
-	assert erc1155mock1.balanceOf(accounts[2], ORIGINAL_NFT_IDs[0]) == in_nft_amount
+	assert erc1155mock1.balanceOf(accounts[2], ORIGINAL_NFT_IDs[0]) == coll_amount
 	assert wrapper.balance() == 0
 	assert accounts[2].balance() == eth_balance_acc+eth_balance_contract
 
