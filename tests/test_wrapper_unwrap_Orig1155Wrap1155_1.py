@@ -13,7 +13,7 @@ coll_amount = 2
 
 def test_addColl(accounts, erc1155mock, wrapper, wnft1155, niftsy20,  mockHacker1155_1, erc1155mock1, erc721mock1):
 	#make test data
-	mockHacker1155_1.setFailReciever(accounts[9],2)
+	mockHacker1155_1.setFailReciever(accounts[9],2) #will be block transfer from wrapper to account
 	mockHacker1155_1.setWrapper(wrapper.address)
 	makeNFTForTest1155(accounts, mockHacker1155_1, ORIGINAL_NFT_IDs, in_nft_amount)
 	
@@ -55,5 +55,5 @@ def test_addColl(accounts, erc1155mock, wrapper, wnft1155, niftsy20,  mockHacker
 	wrapper.unWrap(4, wnft1155.address, wTokenId, True, {"from": accounts[3]})
 
 	assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[2]
-	assert erc1155mock1.balanceOf(accounts[2], ORIGINAL_NFT_IDs[0]) == in_nft_amount
+	assert erc1155mock1.balanceOf(accounts[2], ORIGINAL_NFT_IDs[0]) == coll_amount
 
