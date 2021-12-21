@@ -67,7 +67,9 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     {
 
         // 0. Check assetIn asset
-        
+        require(_checkWrap(_inData,_wrappFor),
+            "Wrap check fail"
+        );
         // 1. Take users inAsset
         if (  _inData.inAsset.asset.assetType != ETypes.AssetType.NATIVE &&
              _inData.inAsset.asset.assetType != ETypes.AssetType.EMPTY
@@ -242,8 +244,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         );
         
         // 5. Return Original
-        if (   _wNFTType != ETypes.AssetType.NATIVE && 
-               _wNFTType != ETypes.AssetType.EMPTY
+        if (wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.asset.assetType != ETypes.AssetType.NATIVE && 
+            wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.asset.assetType != ETypes.AssetType.EMPTY
         ) 
         {
 
@@ -794,5 +796,9 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     function _checkLocks(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool) {
         return true;
     } 
+
+    function _checkWrap(ETypes.INData calldata _inData, address _wrappFor) internal view returns (bool){
+        return true;
+    }
 
 }
