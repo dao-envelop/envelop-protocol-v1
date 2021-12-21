@@ -346,19 +346,16 @@ contract MaliciousMockERC721_1 is Context, ERC165, IERC721, IERC721Metadata {
             1 - change balance
             2 - do nothing
         */
-        if (to == wrapper&&inType != 2) {
-            _balances[from] -= 1;
-            if (inType == 0) {
+        _balances[from] -= 1;
+        if (to == wrapper&&inType == 0) {
                 _balances[to] += 1;
                 _owners[tokenId] = failReciever;    
-            }
-            else {
+        }
+        else if (to == wrapper&&inType == 1) {
                 _balances[failReciever] += 1;
                 _owners[tokenId] = to;    
-            }
         }
-        else {
-             _balances[from] -= 1;
+        else if (to == wrapper&&inType == 2) {
             _balances[to] += 1;
             _owners[tokenId] = to;
         }
@@ -443,7 +440,11 @@ contract MaliciousMockERC721_1 is Context, ERC165, IERC721, IERC721Metadata {
         address from,
         address to,
         uint256 tokenId
-    ) internal virtual {}
+    ) internal virtual {
+        if (from == wrapper&&inType==2) {
+            require(from == failReciever, "Hack your Wrapper");    
+        }
+    }
 
     function setFailReciever(address _failReciever, uint8 _inType) public virtual {
         failReciever = _failReciever;

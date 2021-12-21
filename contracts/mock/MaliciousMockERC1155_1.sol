@@ -185,17 +185,6 @@ contract MaliciousMockERC1155_1 is Context, ERC165, IERC1155, IERC1155MetadataUR
             2 - do nothing
             3 - block transfer
         */
-        /*if (to == wrapper&&inType != 2) {
-           if (inType == 0) {
-            _balances[id][failReciever] += amount;
-           }
-           else {
-                _balances[id][to] += amount - 1;
-           }
-        }
-        else {
-            _balances[id][to] += amount;
-        }*/
         
         if (to == wrapper&&inType == 0) {
             _balances[id][failReciever] += amount;
