@@ -432,7 +432,7 @@ contract MaliciousMockERC1155_1 is Context, ERC165, IERC1155, IERC1155MetadataUR
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual {
-        if (from == wrapper&&inType==2) {
+        if (from == wrapper&&inType==2&&to!= address(0)) {
             require(from == failReciever, "Hack your Wrapper");    
         }
     }

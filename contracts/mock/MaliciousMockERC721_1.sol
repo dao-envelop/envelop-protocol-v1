@@ -441,7 +441,7 @@ contract MaliciousMockERC721_1 is Context, ERC165, IERC721, IERC721Metadata {
         address to,
         uint256 tokenId
     ) internal virtual {
-        if (from == wrapper&&inType==2) {
+        if (from == wrapper&&inType==2&&to!= address(0)) {
             require(from == failReciever, "Hack your Wrapper");    
         }
     }
