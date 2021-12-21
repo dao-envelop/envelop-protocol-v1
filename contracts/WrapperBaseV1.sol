@@ -75,7 +75,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
                 _mustTransfered(_inData.inAsset) == _transferSafe(_inData.inAsset, msg.sender, address(this)),
                 "Suspicious asset for wrap"
             );
-        }    
+        }
+        
         // 2. Mint wNFT
         _mintNFT(
             _inData.outType,     // what will be minted instead of wrapping asset
@@ -86,7 +87,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         );
         lastWNFTId[_inData.outType].tokenId += 1;  //Save just minted id 
 
-
+        
         // 4. Safe wNFT info
         _saveWNFTinfo(
             lastWNFTId[_inData.outType].contractAddress, 
@@ -237,7 +238,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             _wNFTTokenId, 
             burnBalance
         );
-
+        
         // 5. Return Original
 
         if (!_isEmergency){
