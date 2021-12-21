@@ -241,8 +241,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         );
 
         // 5. Return Original
-        if (   _wNFTType != ETypes.AssetType.NATIVE && 
-               _wNFTType != ETypes.AssetType.EMPTY
+        if (wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.asset.assetType != ETypes.AssetType.NATIVE && 
+            wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.asset.assetType != ETypes.AssetType.EMPTY
         ) 
         {
 
