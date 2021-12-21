@@ -65,11 +65,17 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         nonReentrant 
         returns (ETypes.AssetItem memory) 
     {
+
         // 1. Take users inAsset
-        require(
-            _mustTransfered(_inData.inAsset) == _transferSafe(_inData.inAsset, msg.sender, address(this)),
-            "Suspicious asset for wrap"
-        );
+        if (   _inData.inAsset.asset.assetType != ETypes.AssetType.NATIVE 
+            && _inData.inAsset.asset.assetType != ETypes.AssetType.EMPTY
+        ) 
+        {
+            require(
+                _mustTransfered(_inData.inAsset) == _transferSafe(_inData.inAsset, msg.sender, address(this)),
+                "Suspicious asset for wrap"
+            );
+        }    
         // 2. Mint wNFT
         _mintNFT(
             _inData.outType,     // what will be minted instead of wrapping asset
@@ -179,7 +185,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     }
 
     function unWrap(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId, bool _isEmergency) public virtual {
-        // 0. Check core protocol logic
+        // 0. Check core protocol logic:
+        // - who and what possible to unwrap
         uint256 burnBalance;
         if (_wNFTType == ETypes.AssetType.ERC721) {
             // Only token owner can UnWrap
@@ -189,7 +196,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             );    
         } else if (_wNFTType == ETypes.AssetType.ERC1155) {
             require(
-                IERC1155Mintable(_wNFTAddress).totalSupply(_wNFTTokenId) == IERC1155Mintable(_wNFTAddress).balanceOf(msg.sender, _wNFTTokenId),
+                IERC1155Mintable(_wNFTAddress).totalSupply(_wNFTTokenId) 
+                == IERC1155Mintable(_wNFTAddress).balanceOf(msg.sender, _wNFTTokenId),
                 'ERC115 unwrap available only for all totalSupply'
             );
             burnBalance = IERC1155Mintable(_wNFTAddress).totalSupply(_wNFTTokenId);
@@ -216,6 +224,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         ///  Place for hook                        ////
         ///////////////////////////////////////////////
         // 4. Safe return collateral to appropriate benificiary
+
         if (!_beforeUnWrapHook(_wNFTAddress, _wNFTTokenId, _isEmergency)) {
             return;
         }
@@ -231,12 +240,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
 
         // 5. Return Original
 
-        // TODO   Check GAS - this is UNSafe transfer version may be little cheaper
-        // _transfer(
-        //     wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
-        //     address(this),
-        //     wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
-        // );
         if (!_isEmergency){
             _transferSafe(
                 wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
@@ -629,6 +632,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
             if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.assetType != ETypes.AssetType.EMPTY) {
                 if (_emergency) {
+                    // In case of something is wrong with any collateral (attack)
+                    // user can use  this mode  for skip  malicious asset
                     transfered = _transferEmergency(
                         wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i],
                         address(this),
@@ -641,6 +646,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
                         wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
                     );
                 }
+
+                // we collect info about contracts with not standard behavior
                 if (transfered != wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].amount ) {
                     emit SuspiciousFail(
                         _wNFTAddress, 
@@ -648,6 +655,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
                         wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.contractAddress
                     );
                 }
+
+                // mark collateral record as returned
                 wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.assetType = ETypes.AssetType.EMPTY;                
             }
             // dont pop due in some case it c can be very costly
