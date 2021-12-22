@@ -80,6 +80,11 @@ def wrapper(accounts, WrapperBaseV1, techERC20):
     t = accounts[0].deploy(WrapperBaseV1, techERC20.address )
     yield t
 
+@pytest.fixture(scope="module")
+def wrapperRent(accounts, WrapperForRent, techERC20):
+    t = accounts[0].deploy(WrapperForRent, techERC20.address )
+    yield t
+
 
 @pytest.fixture(scope="module")
 def niftsy20(accounts, Niftsy):
