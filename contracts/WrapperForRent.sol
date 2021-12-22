@@ -57,6 +57,7 @@ contract WrapperForRent is WrapperBaseV1 {
                 IERC1155Mintable(_wNFTAddress).balanceOf(burnFor, _wNFTTokenId)
                 ,'ERC115 unwrap available only for all totalSupply'
             );
+            // Only token owner or unwraper can UnWrap
             require(burnFor == msg.sender 
                 || wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition == msg.sender,
                 'Only owner or unWrapDestinition can unwrap it'
