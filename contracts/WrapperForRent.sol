@@ -20,7 +20,6 @@ contract WrapperForRent is WrapperBaseV1 {
         public 
         override
         payable 
-        nonReentrant 
         returns (ETypes.AssetItem memory) 
     {
         ETypes.AssetItem memory wNFT_= super.wrap(_inData, _collateral, _wrappFor);
