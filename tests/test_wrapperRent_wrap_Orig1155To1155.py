@@ -24,8 +24,10 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 
 	#make test data
 	makeNFTForTest1155(accounts, erc1155mock, ORIGINAL_NFT_IDs, in_nft_amount)
+	erc1155mock.setApprovalForAll(wrapperRent.address, True, {"from": accounts[1]})
 
-	token_property = (in_type, wrapperRent)
+
+	token_property = (in_type, erc1155mock)
 	token_data = (token_property, ORIGINAL_NFT_IDs[0], coll_amount)
 	
 	fee = []
