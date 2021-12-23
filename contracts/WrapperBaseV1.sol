@@ -827,35 +827,26 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
 
     function _checkWrap(ETypes.INData calldata _inData, address _wrappFor) internal view returns (bool enabled){
         // Lets check that inAsset 
-        ETypes.WNFT memory _w = _getWrappedToken(
-            _inData.inAsset.asset.contractAddress,
-            _inData.inAsset.tokenId 
-        );
         // 0x0002 - this rule disable wrap already wrappednFT (NO matryoshka)
-        enabled = !_checkRule(0x0002, _w.rules) 
-        && _wrappFor != address(this);
+        enabled = !_checkRule(0x0002, _getWrappedToken(
+            _inData.inAsset.asset.contractAddress, 
+            _inData.inAsset.tokenId).rules
+            ) 
+            && _wrappFor != address(this);
         return enabled;
     }
     
-    function _checkUnwrap(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool enabled){
+    function _checkUnwrap(address _wNFTAddress, uint256 _wNFTTokenId) internal view virtual returns (bool enabled){
         // Lets wNFT rules 
-        ETypes.WNFT memory _w = _getWrappedToken(
-            _wNFTAddress,
-            _wNFTTokenId 
-        );
-        // 0x0001 - this rule disable wrap already wrappednFT (NO matryoshka)
-        enabled = !_checkRule(0x0001, _w.rules); 
+        // 0x0001 - this rule disable unwrap wrappednFT 
+        enabled = !_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
         return enabled;
     }
 
     function _checkAddCollateral(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool enabled){
         // Lets check wNFT rules 
-        ETypes.WNFT memory _w = _getWrappedToken(
-            _wNFTAddress,
-            _wNFTTokenId 
-        );
-        // 0x0001 - this rule disable wrap already wrappednFT (NO matryoshka)
-        enabled = !_checkRule(0x0008, _w.rules); 
+        // 0x0008 - this rule disable add collateral
+        enabled = !_checkRule(0x0008, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
         return enabled;
     }
 
