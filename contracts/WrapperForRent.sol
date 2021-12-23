@@ -50,7 +50,7 @@ contract WrapperForRent is WrapperBaseV1 {
 
         } else if (_wNFTType == ETypes.AssetType.ERC1155) {
             burnBalance = IERC1155Mintable(_wNFTAddress).totalSupply(_wNFTTokenId);
-            burnFor = rentersOf[_wNFTAddress][_wNFTTokenId] ;
+            burnFor = rentersOf[_wNFTAddress][_wNFTTokenId];
             require(
                 burnBalance ==
                 IERC1155Mintable(_wNFTAddress).balanceOf(burnFor, _wNFTTokenId)

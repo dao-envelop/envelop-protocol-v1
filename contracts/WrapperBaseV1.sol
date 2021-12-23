@@ -15,7 +15,23 @@ import "./LibEnvelopTypes.sol";
 import "../interfaces/IERC721Mintable.sol";
 import "../interfaces/IERC1155Mintable.sol";
 
-
+// #### Envelop ProtocolV1 Rules
+// 15   14   13   12   11   10   9   8   7   6   5   4   3   2   1   0  <= Bit number(dec)
+// ------------------------------------------------------------------------------------  
+//  1    1    1    1    1    1   1   1   1   1   1   1   1   1   1   1
+//  |    |    |    |    |    |   |   |   |   |   |   |   |   |   |   |
+//  |    |    |    |    |    |   |   |   |   |   |   |   |   |   |   +-No_Unwrap
+//  |    |    |    |    |    |   |   |   |   |   |   |   |   |   +-No_Wrap 
+//  |    |    |    |    |    |   |   |   |   |   |   |   |   +-No_Transfer
+//  |    |    |    |    |    |   |   |   |   |   |   |   +-No_Collateral
+//  |    |    |    |    |    |   |   |   |   |   |   +-reserved_core
+//  |    |    |    |    |    |   |   |   |   |   +-reserved_core
+//  |    |    |    |    |    |   |   |   |   +-reserved_core  
+//  |    |    |    |    |    |   |   |   +-reserved_core
+//  |    |    |    |    |    |   |   |
+//  |    |    |    |    |    |   |   |
+//  +----+----+----+----+----+---+---+
+//      for use in extendings
 /**
  * @title Non-Fungible Token Wrapper
  * @dev Make  wraping for existing ERC721 & ERC1155 and empty 
@@ -114,7 +130,11 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             msg.value,                                    // nativeCollateralAmount
             _inData.rules                                 // rules
         );
-        return ETypes.AssetItem(ETypes.Asset(ETypes.AssetType(0), address(0)),0,0);
+        return ETypes.AssetItem(
+            ETypes.Asset(_inData.outType, lastWNFTId[_inData.outType].contractAddress),
+            lastWNFTId[_inData.outType].tokenId,
+            _inData.outBalance
+        );
     }
 
     function wrapUnsafe(ETypes.INData calldata _inData, ETypes.AssetItem[] calldata _collateral, address _wrappFor) 
@@ -160,7 +180,11 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             msg.value,                                    // nativeCollateralAmount
             _inData.rules                                 // rules
         );
-        return ETypes.AssetItem(ETypes.Asset(ETypes.AssetType(0), address(0)),0,0);
+        return ETypes.AssetItem(
+            ETypes.Asset(_inData.outType, lastWNFTId[_inData.outType].contractAddress),
+            lastWNFTId[_inData.outType].tokenId,
+            _inData.outBalance
+        );
     }
 
     function wrapSafe(
@@ -197,13 +221,15 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         
         // 1. Check  rules, such as unWrapless
         require(
-            _checkRules(_wNFTAddress, _wNFTTokenId)
+            _checkUnwrap(_wNFTAddress, _wNFTTokenId),
+            "UnWrap check fail"
+
         );
 
-        // 2. Check  locks
-        require(
-            _checkLocks(_wNFTAddress, _wNFTTokenId)
-        );
+        // 2. Check  locks = move to _checkUnwrap
+        // require(
+        //     _checkLocks(_wNFTAddress, _wNFTTokenId)
+        // );
 
         // 3. Charge Fee Hook
         require(
@@ -673,6 +699,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         return true;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     function _mustTransfered(ETypes.AssetItem calldata _assetForTransfer) internal pure returns(uint256 mustTransfered) {
         // Available for wrap assets must be good transferable (stakable).
         // So for erc721  mustTransfered always be 1
@@ -774,16 +802,46 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
 
     }
 
+    function _getWrappedToken(address _wNFTAddress, uint256 _wNFTTokenId) internal view virtual returns (ETypes.WNFT memory) {
+        // TODO  extend  this function in future implementation
+        // to get info  from  external wNFT storages(old versions)
+        return wrappedTokens[_wNFTAddress][_wNFTTokenId];
+    } 
+
     function _checkRules(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool) {
         return true;
     }
 
+    function _checkRule(bytes2 _rule, bytes2 _wNFTrules) internal view returns (bool) {
+        return _rule == _rule & _wNFTrules;
+    }
+
     function _checkLocks(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool) {
+        // Lets check that inAsset 
         return true;
     } 
 
-    function _checkWrap(ETypes.INData calldata _inData, address _wrappFor) internal view returns (bool){
-        return true;
+    function _checkWrap(ETypes.INData calldata _inData, address _wrappFor) internal view returns (bool enabled){
+        // Lets check that inAsset 
+        ETypes.WNFT memory _w = _getWrappedToken(
+            _inData.inAsset.asset.contractAddress,
+            _inData.inAsset.tokenId 
+        );
+        // 0x0002 - this rule disable wrap already wrappednFT (NO matryoshka)
+        enabled = !_checkRule(0x0002, _w.rules) 
+        && _wrappFor != address(this);
+        return enabled;
+    }
+    
+    function _checkUnwrap(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool enabled){
+        // Lets wNFT rules 
+        ETypes.WNFT memory _w = _getWrappedToken(
+            _wNFTAddress,
+            _wNFTTokenId 
+        );
+        // 0x0001 - this rule disable wrap already wrappednFT (NO matryoshka)
+        enabled = !_checkRule(0x0001, _w.rules); 
+        return enabled;
     }
 
     function _checkCore(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) 
