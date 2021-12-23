@@ -58,7 +58,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	royalty,
 	out_type,
 	out_nft_amount,
-	'0'
+	'10'
 	)
 
 
@@ -86,8 +86,8 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	# 	wnft1155.safeTransferFrom(accounts[3], accounts[9], wTokenId, 1, '', {"from": accounts[3]})
 
 	# #refuse to deposit collateral
-	# with reverts("r"):
-	# 	wrapperRent.addCollateral(wnft1155.address, wTokenId, [], {"from": accounts[1], "value": "1 ether"})
+	with reverts("Forbidden add collateral"):
+		wrapperRent.addCollateral(wnft1155.address, wTokenId, [], {"from": accounts[1], "value": "1 ether"})
 
 	#refuse to wrap wNFT
 	wnft1155.setApprovalForAll(wrapperRent, True, {"from": accounts[3]})

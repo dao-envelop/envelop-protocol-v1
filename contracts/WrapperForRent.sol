@@ -33,10 +33,6 @@ contract WrapperForRent is WrapperBaseV1 {
     /////////////////////////////////////////////////////////////////////
     function _checkUnwrap(address _wNFTAddress, uint256 _wNFTTokenId) internal view override returns (bool enabled){
         // Lets wNFT rules 
-        // ETypes.WNFT memory _w = _getWrappedToken(
-        //     _wNFTAddress,
-        //     _wNFTTokenId 
-        // );
         // 0x0001 - this rule disable unwrap wrappednFT 
         if (_getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition != msg.sender) {
             enabled = !_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules);
