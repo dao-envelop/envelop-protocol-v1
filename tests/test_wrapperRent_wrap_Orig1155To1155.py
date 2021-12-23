@@ -12,8 +12,8 @@ eth_amount = "4 ether"
 
 def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
 	logging.info(
-		'\n=========wNFT=============\nwNFT:{},{}\nInAsset: {}\nCollrecords:\n{}\nunWrapDestinition: {}'
-		'\nFees: {} \nLocks: {} \nRoyalty: {} \n rules: {} \n=========================='.format(
+		'\n=========wNFT=============\nwNFT:{0},{1}\nInAsset: {2}\nCollrecords:\n{3}\nunWrapDestinition: {4}'
+		'\nFees: {5} \nLocks: {6} \nRoyalty: {7} \n rules: {8}({9:0>16b}) \n=========================='.format(
 		_wnft721, _wTokenId,
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[0],
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[1],
@@ -22,6 +22,8 @@ def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[4],
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[5],
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[6],
+		int(_wrapper.getWrappedToken(_wnft721, _wTokenId)[6].hex()),
+		
 	))
 
 def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
@@ -56,7 +58,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	royalty,
 	out_type,
 	out_nft_amount,
-	'3'
+	'10'
 	)
 
 
