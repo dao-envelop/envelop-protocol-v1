@@ -221,13 +221,15 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         
         // 1. Check  rules, such as unWrapless
         require(
-            _checkRules(_wNFTAddress, _wNFTTokenId)
+            _checkUnwrap(_wNFTAddress, _wNFTTokenId),
+            "UnWrap check fail"
+
         );
 
-        // 2. Check  locks
-        require(
-            _checkLocks(_wNFTAddress, _wNFTTokenId)
-        );
+        // 2. Check  locks = move to _checkUnwrap
+        // require(
+        //     _checkLocks(_wNFTAddress, _wNFTTokenId)
+        // );
 
         // 3. Charge Fee Hook
         require(
@@ -821,13 +823,24 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
 
     function _checkWrap(ETypes.INData calldata _inData, address _wrappFor) internal view returns (bool enabled){
         // Lets check that inAsset 
-        // 0x0002 - this rule disable wrap already wrappednFT (NO matryoshka)
         ETypes.WNFT memory _w = _getWrappedToken(
             _inData.inAsset.asset.contractAddress,
             _inData.inAsset.tokenId 
         );
+        // 0x0002 - this rule disable wrap already wrappednFT (NO matryoshka)
         enabled = !_checkRule(0x0002, _w.rules) 
         && _wrappFor != address(this);
+        return enabled;
+    }
+    
+    function _checkUnwrap(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool enabled){
+        // Lets wNFT rules 
+        ETypes.WNFT memory _w = _getWrappedToken(
+            _wNFTAddress,
+            _wNFTTokenId 
+        );
+        // 0x0001 - this rule disable wrap already wrappednFT (NO matryoshka)
+        enabled = !_checkRule(0x0001, _w.rules); 
         return enabled;
     }
 
