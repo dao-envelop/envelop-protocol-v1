@@ -29,7 +29,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     uint256 constant public MAX_TIME_TO_UNWRAP = 365 days;
     //uint256 constant public MAX_FEE_THRESHOLD_PERCENT = 1; //percent from project token totalSupply
 
-    uint256 public MAX_COLLATERAL_SLOTS = 20;
+    uint256 public MAX_COLLATERAL_SLOTS = 300;
     address public protocolTechToken;
     address public protocolWhiteList;
     address public transferProxy;
