@@ -56,14 +56,28 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	royalty,
 	out_type,
 	out_nft_amount,
-	'0'
+	'2'
 	)
+
+
 
 	wrapperRent.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 	wTokenId = wrapperRent.lastWNFTId(out_type)[1]
 	wnft_pretty_print(wrapperRent, wnft1155, wTokenId)
 	assert erc1155mock.balanceOf(wrapperRent.address, ORIGINAL_NFT_IDs[0]) == coll_amount
 	assert wnft1155.balanceOf(accounts[3], wTokenId) == out_nft_amount
+    
+    # wNFT2 = ( ((in_type, wnft1155), wTokenId, out_nft_amount),
+	# accounts[2], #leasingPool
+	# fee,
+	# lock,
+	# royalty,
+	# out_type,
+	# out_nft_amount,
+	# '0'
+	# )
+	#wrapperRent.wrap(wNFT2, [], accounts[3], {"from": accounts[3]})
+	
 
 	#refuse to transfer
 	# with reverts("r"):

@@ -134,7 +134,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             ETypes.Asset(_inData.outType, lastWNFTId[_inData.outType].contractAddress),
             lastWNFTId[_inData.outType].tokenId,
             _inData.outBalance
-            );
+        );
     }
 
     function wrapUnsafe(ETypes.INData calldata _inData, ETypes.AssetItem[] calldata _collateral, address _wrappFor) 
@@ -180,7 +180,11 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             msg.value,                                    // nativeCollateralAmount
             _inData.rules                                 // rules
         );
-        return ETypes.AssetItem(ETypes.Asset(ETypes.AssetType(0), address(0)),0,0);
+        return ETypes.AssetItem(
+            ETypes.Asset(_inData.outType, lastWNFTId[_inData.outType].contractAddress),
+            lastWNFTId[_inData.outType].tokenId,
+            _inData.outBalance
+        );
     }
 
     function wrapSafe(
@@ -806,13 +810,25 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         return true;
     }
 
+    function _checkRule(bytes2 _rule, bytes2 _wNFTrules) internal view returns (bool) {
+        return _rule == _rule & _wNFTrules;
+    }
+
     function _checkLocks(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool) {
         // Lets check that inAsset 
         return true;
     } 
 
-    function _checkWrap(ETypes.INData calldata _inData, address _wrappFor) internal view returns (bool){
-        return true;
+    function _checkWrap(ETypes.INData calldata _inData, address _wrappFor) internal view returns (bool enabled){
+        // Lets check that inAsset 
+        // 0x0002 - this rule disable wrap already wrappednFT (NO matryoshka)
+        ETypes.WNFT memory _w = _getWrappedToken(
+            _inData.inAsset.asset.contractAddress,
+            _inData.inAsset.tokenId 
+        );
+        enabled = !_checkRule(0x0002, _w.rules) 
+        && _wrappFor != address(this);
+        return enabled;
     }
 
     function _checkCore(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) 
