@@ -31,7 +31,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	token_data = (token_property, ORIGINAL_NFT_IDs[0], coll_amount)
 	
 	fee = []
-	lock = [('0x0', chain.time() + 100), ('0x0', chain.time() + 200)]
+	lock = []
 	royalty = []
 
 	wNFT = ( token_data,
@@ -65,7 +65,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	token_data = (token_property, wTokenId, coll_amount)
 	
 	fee = []
-	lock = [('0x0', chain.time() + 100), ('0x0', chain.time() + 200)]
+	lock = []
 	royalty = []
 
 	wNFT = ( token_data,
@@ -78,5 +78,13 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	'0'
 	)
 	
+	#refuse to wrap again
 	with reverts("r"):
 		wrapperRent.wrap(wNFT, [], accounts[4], {"from": accounts[3]})
+
+	#refuse to unwrap by owner
+	with reverts("r"):
+		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
+
+	#unwrap by UnwrapDestinition
+	wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})

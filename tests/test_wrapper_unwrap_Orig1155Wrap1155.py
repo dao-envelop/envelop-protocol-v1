@@ -25,9 +25,8 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20):
 	before_eth_balance = wrapper.getERC20CollateralBalance(wnft1155.address, wTokenId, zero_address)
 	before_acc_balance = accounts[2].balance()
 
-
-
-	wrapper.unWrap(4, wnft1155.address, wTokenId, {"from": accounts[3]})
+	#unwrap by UnwrapDestinition
+	wrapper.unWrap(4, wnft1155.address, wTokenId, {"from": accounts[2]})
 	
 	#checks
 	assert wrapper.balance() == 0

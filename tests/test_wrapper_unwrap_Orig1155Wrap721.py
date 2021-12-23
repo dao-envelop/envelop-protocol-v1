@@ -26,8 +26,8 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft721, niftsy20):
 	before_acc_balance = accounts[2].balance()
 
 
-
-	wrapper.unWrap(3, wnft721.address, wTokenId, {"from": accounts[3]})
+	#unwrap by UnwrapDestinition
+	wrapper.unWrap(3, wnft721.address, wTokenId, {"from": accounts[2]})
 	
 	#checks
 	assert wrapper.balance() == 0
