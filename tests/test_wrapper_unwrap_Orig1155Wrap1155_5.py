@@ -18,7 +18,7 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
 
     ORIGINAL_NFT_IDs = []
     i=1
-    while i<127:
+    while i<251:
         ORIGINAL_NFT_IDs.append(i)
         i+=1
 
@@ -38,7 +38,7 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
     makeNFTForTest721(accounts, erc721mock1, ORIGINAL_NFT_IDs)
     erc721mock1.approve(wrapper.address, ORIGINAL_NFT_IDs[0], {"from": accounts[1]})
     i = 1
-    while i < 50:
+    while i < 126:
         erc721mock1.transferFrom(accounts[0], accounts[1], ORIGINAL_NFT_IDs[i], {"from": accounts[0]})
         erc721mock1.approve(wrapper.address, ORIGINAL_NFT_IDs[i], {"from": accounts[1]})
         logging.info(i)
@@ -49,7 +49,7 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
     erc1155mock1.setApprovalForAll(wrapper.address,True, {"from": accounts[1]})
 
     i = 1
-    while i < 50:
+    while i < 126:
         erc1155mock1.safeTransferFrom(accounts[0], accounts[1], ORIGINAL_NFT_IDs[i], in_nft_amount, "", {"from": accounts[0]})
         logging.info(i)
         i += 1
@@ -73,16 +73,17 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
     #collateral.append(weth_data)
 
     i = 0
-    while i < 49:
+    while i < 10:
         collateral.append((erc721_property, ORIGINAL_NFT_IDs[i], 0))
         i += 1
         logging.info(i)
 
     i = 0
-    while i < 49:
+    while i < 10:
         collateral.append((erc1155_property, ORIGINAL_NFT_IDs[i], in_nft_amount))
         i += 1
         logging.info(i)
+
 
     fee = []
     lock = []
@@ -102,5 +103,12 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
     wrapper.wrap(wNFT, collateral, accounts[3], {"from": accounts[1]})
     logging.info (collateral)
     wTokenId = wrapper.lastWNFTId(out_type)[1]
+
+    i= 10
+    while i< 110:
+        wrapper.addCollateral(wnft1155.address, wTokenId, [(erc721_property, ORIGINAL_NFT_IDs[i], 0)], {"from": accounts[1]})
+        wrapper.addCollateral(wnft1155.address, wTokenId, [(erc1155_property, ORIGINAL_NFT_IDs[i], in_nft_amount)], {"from": accounts[1]})
+        logging.info(i)
+        i +=1
 
     tx= wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
