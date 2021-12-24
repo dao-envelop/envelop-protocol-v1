@@ -115,11 +115,22 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             _inData
         );
 
-        _addCollateral(
-            lastWNFTId[_inData.outType].contractAddress, 
-            lastWNFTId[_inData.outType].tokenId, 
-            _collateral
-        );
+        if (_checkAddCollateral(
+                lastWNFTId[_inData.outType].contractAddress, 
+                lastWNFTId[_inData.outType].tokenId
+            )) 
+        {
+
+            _addCollateral(
+                lastWNFTId[_inData.outType].contractAddress, 
+                lastWNFTId[_inData.outType].tokenId, 
+                _collateral
+            );
+
+        } 
+         
+
+        
 
         emit WrappedV1(
             _inData.inAsset.asset.contractAddress,        // inAssetAddress
@@ -165,11 +176,19 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             _inData
         );
 
-        _addCollateral(
-            lastWNFTId[_inData.outType].contractAddress, 
-            lastWNFTId[_inData.outType].tokenId, 
-            _collateral
-        );
+        if (_checkAddCollateral(
+                lastWNFTId[_inData.outType].contractAddress, 
+                lastWNFTId[_inData.outType].tokenId
+            )) 
+        {
+
+            _addCollateral(
+                lastWNFTId[_inData.outType].contractAddress, 
+                lastWNFTId[_inData.outType].tokenId, 
+                _collateral
+            );
+
+        }
 
         emit WrappedV1(
             _inData.inAsset.asset.contractAddress,        // inAssetAddress
@@ -201,6 +220,13 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         uint256 _wNFTTokenId, 
         ETypes.AssetItem[] calldata _collateral
     ) external payable virtual {
+        require(
+            _checkAddCollateral(
+                _wNFTAddress, 
+                _wNFTTokenId
+            ),
+            "Forbidden add collateral"
+        );
         _addCollateral(
             _wNFTAddress, 
             _wNFTTokenId, 
@@ -519,10 +545,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         ETypes.AssetItem[] calldata _collateral
     ) internal virtual 
     {
-        require(
-            _checkAddCollateral(_wNFTAddress, _wNFTTokenId),
-            "Forbidden add collateral"
-        );
+        
         // Process Native Colleteral
         if (msg.value > 0) {
             _updateCollateralInfo(
