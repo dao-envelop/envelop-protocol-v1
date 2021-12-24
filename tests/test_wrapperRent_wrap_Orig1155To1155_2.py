@@ -106,7 +106,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 		wrapperRent.wrap(wNFT, [], accounts[4], {"from": accounts[3]})
 
 	#refuse unwrap by owner
-	with reverts("Only unWrapDestinition can unwrap it"):
+	with reverts("Only unWrapDestinition can unwrap forbidden wnft"):
 		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
 
 	#unwrap by UnwrapDestinition
