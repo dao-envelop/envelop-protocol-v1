@@ -31,20 +31,20 @@ contract WrapperForRent is WrapperBaseV1 {
     /////////////////////////////////////////////////////////////////////
     //                    Internals                                    //
     /////////////////////////////////////////////////////////////////////
-    function _checkUnwrap(address _wNFTAddress, uint256 _wNFTTokenId) internal view override returns (bool enabled){
-        // Lets wNFT rules 
-        // 0x0001 - this rule disable unwrap wrappednFT 
-        if (_getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition != msg.sender) {
-            enabled = !_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules);
-        } else {
-        	enabled = true;
-        }
-        return enabled;
-    }
+    // function _checkUnwrap(address _wNFTAddress, uint256 _wNFTTokenId) internal view override returns (bool enabled){
+    //     // Lets wNFT rules 
+    //     // 0x0001 - this rule disable unwrap wrappednFT 
+    //     if (_getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition != msg.sender) {
+    //         enabled = !_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules);
+    //     } else {
+    //     	enabled = true;
+    //     }
+    //     return enabled;
+    // }
 
 
  
-    function _checkCore(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) 
+    function _checkCoreUnwrap(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) 
         internal 
         view 
         override 
@@ -67,11 +67,12 @@ contract WrapperForRent is WrapperBaseV1 {
                 ,'ERC115 unwrap available only for all totalSupply'
             );
             // Only token owner or unwraper can UnWrap
-            require(
-            	//_getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition == msg.sender,
-            	_checkUnwrap(_wNFTAddress, _wNFTTokenId),
-                'Only unWrapDestinition can unwrap it'
-            );
+            if (_getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition != msg.sender) {
+             	require(
+            	   !_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules),
+                   'Only unWrapDestinition can unwrap forbidden wnft'
+                );
+            }
 
             return (burnFor, burnBalance);
             

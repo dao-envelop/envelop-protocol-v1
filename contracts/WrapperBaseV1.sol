@@ -242,15 +242,15 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     function unWrap(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId, bool _isEmergency) public virtual {
         // 0. Check core protocol logic:
         // - who and what possible to unwrap
-        (address burnFor, uint256 burnBalance) = _checkCore(_wNFTType, _wNFTAddress, _wNFTTokenId);
+        (address burnFor, uint256 burnBalance) = _checkCoreUnwrap(_wNFTType, _wNFTAddress, _wNFTTokenId);
         
         
-        // 1. Check  rules, such as unWrapless
-        require(
-            _checkUnwrap(_wNFTAddress, _wNFTTokenId),
-            "UnWrap check fail"
+        // // 1. Check  rules, such as unWrapless
+        // require(
+        //     _checkUnwrap(_wNFTAddress, _wNFTTokenId),
+        //     "UnWrap check fail"
 
-        );
+        // );
 
         // 2. Check  locks = move to _checkUnwrap
         // require(
@@ -859,12 +859,12 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         return enabled;
     }
     
-    function _checkUnwrap(address _wNFTAddress, uint256 _wNFTTokenId) internal view virtual returns (bool enabled){
-        // Lets wNFT rules 
-        // 0x0001 - this rule disable unwrap wrappednFT 
-        enabled = !_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
-        return enabled;
-    }
+    // function _checkUnwrap(address _wNFTAddress, uint256 _wNFTTokenId) internal view virtual returns (bool enabled){
+    //     // Lets wNFT rules 
+    //     // 0x0001 - this rule disable unwrap wrappednFT 
+    //     enabled = !_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
+    //     return enabled;
+    // }
 
     function _checkAddCollateral(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool enabled){
         // Lets check wNFT rules 
@@ -873,12 +873,19 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         return enabled;
     }
 
-    function _checkCore(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) 
+    function _checkCoreUnwrap(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) 
         internal 
         view 
         virtual 
         returns (address burnFor, uint256 burnBalance) 
     {
+        
+        // Lets wNFT rules 
+        // 0x0001 - this rule disable unwrap wrappednFT 
+        require(!_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules),
+            "UnWrapp forbidden by author"
+        );
+
         if (_wNFTType == ETypes.AssetType.ERC721) {
             // Only token owner can UnWrap
             burnFor = IERC721Mintable(_wNFTAddress).ownerOf(_wNFTTokenId);
