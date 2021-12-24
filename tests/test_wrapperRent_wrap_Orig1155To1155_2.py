@@ -13,6 +13,7 @@ eth_amount = "4 ether"
 #not wrap again
 #not add collateral
 #not transfer
+#not unwrap
 def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
 	logging.info(
 		'\n=========wNFT=============\nwNFT:{0},{1}\nInAsset: {2}\nCollrecords:\n{3}\nunWrapDestinition: {4}'
@@ -61,7 +62,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	royalty,
 	out_type,
 	out_nft_amount,
-	Web3.toBytes(0x000A)
+	Web3.toBytes(0x000F)
 	)
 
 
@@ -116,13 +117,6 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	with reverts("Wrap check fail"):
 		wrapperRent.wrap(wNFT, [], accounts[4], {"from": accounts[3]})
 
-	#unwrap by other user
-	with reverts("Only unWrapDestinition can unwrap it"):
-		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[9]})
-
-	#unwrap by owner
-	with reverts("Only unWrapDestinition can unwrap it"):
-		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
-
 	#unwrap by UnwrapDestinition
-	wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})
+	with reverts("r"):
+		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})
