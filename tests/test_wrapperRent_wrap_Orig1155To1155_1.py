@@ -10,9 +10,9 @@ zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
 eth_amount = "4 ether"
 
-#not wrap again
+#wrap again
 #not add collateral
-#not transfer
+#transfer
 def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
 	logging.info(
 		'\n=========wNFT=============\nwNFT:{0},{1}\nInAsset: {2}\nCollrecords:\n{3}\nunWrapDestinition: {4}'
@@ -61,7 +61,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	royalty,
 	out_type,
 	out_nft_amount,
-	Web3.toBytes(0x0004)
+	Web3.toBytes(0x0008)
 	)
 
 
@@ -85,8 +85,8 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	
 
 	#refuse to transfer
-	with reverts("Trasfer was disabled by author"):
-		wnft1155.safeTransferFrom(accounts[3], accounts[9], wTokenId, 1, '', {"from": accounts[3]})
+	# with reverts("r"):
+	# 	wnft1155.safeTransferFrom(accounts[3], accounts[9], wTokenId, 1, '', {"from": accounts[3]})
 
 	#refuse to deposit collateral
 	with reverts("Forbidden add collateral"):
@@ -112,17 +112,9 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	'0'
 	)
 	
-	#refuse to wrap again
-	with reverts("Wrap check fail"):
-		wrapperRent.wrap(wNFT, [], accounts[4], {"from": accounts[3]})
+	# wrap again
+	wrapperRent.wrap(wNFT, [], accounts[4], {"from": accounts[3]})
 
-	#unwrap by other user
-	with reverts("Only unWrapDestinition can unwrap it"):
-		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[9]})
-
-	#unwrap by owner
-	with reverts("Only unWrapDestinition can unwrap it"):
-		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
-
-	#unwrap by UnwrapDestinition
-	wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})
+	#try to unwrap when wnft has already been wrapped
+	with reverts("ERC115 unwrap available only for all totalSupply"):
+		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})
