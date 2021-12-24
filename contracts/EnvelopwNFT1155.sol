@@ -81,10 +81,14 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
                 //                THERE IS NO RULE CHECKs
 
             } else {
+                // Check Core Protocol Rules
                 require(
                     !(bytes2(0x0004) == (bytes2(0x0004) & _wnft.rules)),
                     "Trasfer was disabled by author"
                 );
+
+                // Check and charge Fee and pay Royalties
+                
             }
         }
     }
