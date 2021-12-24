@@ -3,6 +3,7 @@
 pragma solidity 0.8.10;
 
 //import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
+import "../contracts/LibEnvelopTypes.sol";
 
 interface IWrapper  {
 
@@ -45,6 +46,11 @@ interface IWrapper  {
         uint256 indexed wrappedId, 
         address indexed failedContractAddress
     );
+
+    function getWrappedToken(address _wNFTAddress, uint256 _wNFTTokenId) 
+        external 
+        view 
+        returns (ETypes.WNFT memory);
     // event NewFee(uint256 feeAmount, uint256 startDate);
     // event NiftsyProtocolTransfer(
     //     uint256 indexed wrappedTokenId, 

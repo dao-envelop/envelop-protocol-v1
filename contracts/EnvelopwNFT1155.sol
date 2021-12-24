@@ -5,7 +5,7 @@ pragma solidity 0.8.10;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-
+import "../interfaces/IWrapper.sol";
 //v0.0.1
 contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
     using Strings for uint256;
@@ -63,7 +63,7 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal virtual override {
+    ) internal  override {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
 
         require(true, "ERC1155Pausable: token transfer while paused");
