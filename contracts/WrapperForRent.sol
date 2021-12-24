@@ -67,7 +67,9 @@ contract WrapperForRent is WrapperBaseV1 {
                 ,'ERC115 unwrap available only for all totalSupply'
             );
             // Only token owner or unwraper can UnWrap
-            require(_getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition == msg.sender,
+            require(
+            	//_getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition == msg.sender,
+            	_checkUnwrap(_wNFTAddress, _wNFTTokenId),
                 'Only unWrapDestinition can unwrap it'
             );
 
