@@ -13,7 +13,7 @@ eth_amount = "4 ether"
 #not wrap again
 #not add collateral
 #not transfer
-#not unwrap
+#not unwrap by owner
 def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
 	logging.info(
 		'\n=========wNFT=============\nwNFT:{0},{1}\nInAsset: {2}\nCollrecords:\n{3}\nunWrapDestinition: {4}'
@@ -65,28 +65,15 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	Web3.toBytes(0x000F)
 	)
 
-
-
 	wrapperRent.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 	wTokenId = wrapperRent.lastWNFTId(out_type)[1]
 	wnft_pretty_print(wrapperRent, wnft1155, wTokenId)
 	assert erc1155mock.balanceOf(wrapperRent.address, ORIGINAL_NFT_IDs[0]) == coll_amount
 	assert wnft1155.balanceOf(accounts[3], wTokenId) == out_nft_amount
-	#wrapperRent.addCollateral(wnft1155.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[0], coll_amount)], {'from': accounts[0]})
-    # wNFT2 = ( ((in_type, wnft1155), wTokenId, out_nft_amount),
-	# accounts[2], #leasingPool
-	# fee,
-	# lock,
-	# royalty,
-	# out_type,
-	# out_nft_amount,
-	# '0'
-	# )
-	#wrapperRent.wrap(wNFT2, [], accounts[3], {"from": accounts[3]})
-	
+
 
 	#refuse to transfer
-	# with reverts("r"):
+	#with reverts("r"):
 	# 	wnft1155.safeTransferFrom(accounts[3], accounts[9], wTokenId, 1, '', {"from": accounts[3]})
 
 	#refuse to deposit collateral
@@ -117,6 +104,9 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	with reverts("Wrap check fail"):
 		wrapperRent.wrap(wNFT, [], accounts[4], {"from": accounts[3]})
 
+	#refuse unwrap by owner
+	with reverts("Only unWrapDestinition can unwrap it"):
+		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
+
 	#unwrap by UnwrapDestinition
-	with reverts("r"):
-		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})
+	wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})
