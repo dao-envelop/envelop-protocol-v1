@@ -115,3 +115,6 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 
 	#unwrap by UnwrapDestinition
 	wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})
+
+	assert erc1155mock.balanceOf(accounts[2], ORIGINAL_NFT_IDs[0]) == coll_amount
+	assert wnft1155.balanceOf(accounts[3], wTokenId) == 0
