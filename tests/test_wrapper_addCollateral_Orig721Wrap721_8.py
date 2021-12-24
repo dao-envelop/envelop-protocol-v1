@@ -63,6 +63,14 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, er
     assert collateral[5] == ((2, weth.address), 0, 10*amount)
     assert collateral[6] == ((4, erc1155mock1.address), ORIGINAL_NFT_IDs[1], coll_amount-1)
 
+    #check 
+    assert wrapper.getERC20CollateralBalance(wnft721.address, wTokenId, dai.address) == amount
+    assert wrapper.getERC20CollateralBalance(wnft721.address, wTokenId, weth.address) == 10*amount
+    assert wrapper._getNativeCollateralBalance(wnft721.address, wTokenId) == "1 ether"
+    assert wrapper._getERC20CollateralBalance(wnft721.address, wTokenId, dai.address) == (amount, 3)
+    assert wrapper._getERC20CollateralBalance(wnft721.address, wTokenId, weth.address) == (10*amount, 5)
+
+
 
     contract_eth_balance = wrapper.balance()
     before_dai_balance = wrapper.getERC20CollateralBalance(wnft721.address, wTokenId, dai.address)
