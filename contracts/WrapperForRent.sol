@@ -69,8 +69,11 @@ contract WrapperForRent is WrapperBaseV1 {
             // Only token owner or unwraper can UnWrap
             if (_getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition != msg.sender) {
              	require(
-            	   !_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules),
+                   !_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules), 
                    'Only unWrapDestinition can unwrap forbidden wnft'
+                );
+                require(msg.sender == burnFor,
+                   'Only unWrapDestinition or owner can unwrap this wnft'
                 );
             }
 
