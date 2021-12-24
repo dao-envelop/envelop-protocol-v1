@@ -12,8 +12,8 @@ eth_amount = "4 ether"
 
 def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
 	logging.info(
-		'\n=========wNFT=============\nwNFT:{},{}\nInAsset: {}\nCollrecords:\n{}\nunWrapDestinition: {}'
-		'\nFees: {} \nLocks: {} \nRoyalty: {} \n rules: {} \n=========================='.format(
+		'\n=========wNFT=============\nwNFT:{0},{1}\nInAsset: {2}\nCollrecords:\n{3}\nunWrapDestinition: {4}'
+		'\nFees: {5} \nLocks: {6} \nRoyalty: {7} \n rules: {8}({9:0>16b}) \n=========================='.format(
 		_wnft721, _wTokenId,
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[0],
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[1],
@@ -22,6 +22,8 @@ def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[4],
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[5],
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[6],
+		int(_wrapper.getWrappedToken(_wnft721, _wTokenId)[6].hex()),
+		
 	))
 
 def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
@@ -56,7 +58,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	royalty,
 	out_type,
 	out_nft_amount,
-	'0'
+	'10'
 	)
 
 
@@ -66,7 +68,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	wnft_pretty_print(wrapperRent, wnft1155, wTokenId)
 	assert erc1155mock.balanceOf(wrapperRent.address, ORIGINAL_NFT_IDs[0]) == coll_amount
 	assert wnft1155.balanceOf(accounts[3], wTokenId) == out_nft_amount
-    
+	#wrapperRent.addCollateral(wnft1155.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[0], coll_amount)], {'from': accounts[0]})
     # wNFT2 = ( ((in_type, wnft1155), wTokenId, out_nft_amount),
 	# accounts[2], #leasingPool
 	# fee,
@@ -84,8 +86,8 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	# 	wnft1155.safeTransferFrom(accounts[3], accounts[9], wTokenId, 1, '', {"from": accounts[3]})
 
 	# #refuse to deposit collateral
-	# with reverts("r"):
-	# 	wrapperRent.addCollateral(wnft1155.address, wTokenId, [], {"from": accounts[1], "value": "1 ether"})
+	with reverts("Forbidden add collateral"):
+		wrapperRent.addCollateral(wnft1155.address, wTokenId, [], {"from": accounts[1], "value": "1 ether"})
 
 	#refuse to wrap wNFT
 	wnft1155.setApprovalForAll(wrapperRent, True, {"from": accounts[3]})

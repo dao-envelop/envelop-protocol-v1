@@ -31,6 +31,17 @@ contract WrapperForRent is WrapperBaseV1 {
     /////////////////////////////////////////////////////////////////////
     //                    Internals                                    //
     /////////////////////////////////////////////////////////////////////
+    function _checkUnwrap(address _wNFTAddress, uint256 _wNFTTokenId) internal view override returns (bool enabled){
+        // Lets wNFT rules 
+        // 0x0001 - this rule disable unwrap wrappednFT 
+        if (_getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition != msg.sender) {
+            enabled = !_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules);
+        } else {
+        	enabled = true;
+        }
+        return enabled;
+    }
+
 
  
     function _checkCore(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) 
@@ -42,9 +53,8 @@ contract WrapperForRent is WrapperBaseV1 {
         if (_wNFTType == ETypes.AssetType.ERC721) {
             // Only token owner or unwraper can UnWrap
             burnFor = IERC721Mintable(_wNFTAddress).ownerOf(_wNFTTokenId);
-            require(burnFor == msg.sender 
-                || wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition == msg.sender,
-                'Only owner or unWrapDestinition can unwrap it'
+            require(_getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition == msg.sender,
+                'Only unWrapDestinition can unwrap it'
             ); 
             return (burnFor, burnBalance);
 
@@ -57,9 +67,8 @@ contract WrapperForRent is WrapperBaseV1 {
                 ,'ERC115 unwrap available only for all totalSupply'
             );
             // Only token owner or unwraper can UnWrap
-            require(burnFor == msg.sender 
-                || wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition == msg.sender,
-                'Only owner or unWrapDestinition can unwrap it'
+            require(_getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition == msg.sender,
+                'Only unWrapDestinition can unwrap it'
             );
 
             return (burnFor, burnBalance);

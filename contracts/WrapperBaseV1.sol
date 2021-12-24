@@ -519,6 +519,10 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         ETypes.AssetItem[] calldata _collateral
     ) internal virtual 
     {
+        require(
+            _checkAddCollateral(_wNFTAddress, _wNFTTokenId),
+            "Forbidden add collateral"
+        );
         // Process Native Colleteral
         if (msg.value > 0) {
             _updateCollateralInfo(
@@ -823,24 +827,26 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
 
     function _checkWrap(ETypes.INData calldata _inData, address _wrappFor) internal view returns (bool enabled){
         // Lets check that inAsset 
-        ETypes.WNFT memory _w = _getWrappedToken(
-            _inData.inAsset.asset.contractAddress,
-            _inData.inAsset.tokenId 
-        );
         // 0x0002 - this rule disable wrap already wrappednFT (NO matryoshka)
-        enabled = !_checkRule(0x0002, _w.rules) 
-        && _wrappFor != address(this);
+        enabled = !_checkRule(0x0002, _getWrappedToken(
+            _inData.inAsset.asset.contractAddress, 
+            _inData.inAsset.tokenId).rules
+            ) 
+            && _wrappFor != address(this);
         return enabled;
     }
     
-    function _checkUnwrap(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool enabled){
+    function _checkUnwrap(address _wNFTAddress, uint256 _wNFTTokenId) internal view virtual returns (bool enabled){
         // Lets wNFT rules 
-        ETypes.WNFT memory _w = _getWrappedToken(
-            _wNFTAddress,
-            _wNFTTokenId 
-        );
-        // 0x0001 - this rule disable wrap already wrappednFT (NO matryoshka)
-        enabled = !_checkRule(0x0001, _w.rules); 
+        // 0x0001 - this rule disable unwrap wrappednFT 
+        enabled = !_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
+        return enabled;
+    }
+
+    function _checkAddCollateral(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool enabled){
+        // Lets check wNFT rules 
+        // 0x0008 - this rule disable add collateral
+        enabled = !_checkRule(0x0008, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
         return enabled;
     }
 
@@ -854,7 +860,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             // Only token owner can UnWrap
             burnFor = IERC721Mintable(_wNFTAddress).ownerOf(_wNFTTokenId);
             require(burnFor == msg.sender, 
-                'Only owner or unWrapDestinition can unwrap it'
+                'Only owner or can unwrap it'
             ); 
             return (burnFor, burnBalance);
 
