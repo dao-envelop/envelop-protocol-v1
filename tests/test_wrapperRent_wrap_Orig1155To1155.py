@@ -3,6 +3,7 @@ import logging
 from brownie import chain, Wei, reverts
 LOGGER = logging.getLogger(__name__)
 from makeTestData import makeNFTForTest721, makeNFTForTest1155
+from web3 import Web3
 
 ORIGINAL_NFT_IDs = [10000,11111,22222]
 zero_address = '0x0000000000000000000000000000000000000000'
@@ -13,7 +14,7 @@ eth_amount = "4 ether"
 def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
 	logging.info(
 		'\n=========wNFT=============\nwNFT:{0},{1}\nInAsset: {2}\nCollrecords:\n{3}\nunWrapDestinition: {4}'
-		'\nFees: {5} \nLocks: {6} \nRoyalty: {7} \n rules: {8}({9:0>16b}) \n=========================='.format(
+		'\nFees: {5} \nLocks: {6} \nRoyalty: {7} \nrules: {8}({9:0>16b}) \n=========================='.format(
 		_wnft721, _wTokenId,
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[0],
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[1],
@@ -22,7 +23,7 @@ def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[4],
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[5],
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[6],
-		int(_wrapper.getWrappedToken(_wnft721, _wTokenId)[6].hex()),
+		Web3.toInt(_wrapper.getWrappedToken(_wnft721, _wTokenId)[6]),
 		
 	))
 
@@ -58,7 +59,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	royalty,
 	out_type,
 	out_nft_amount,
-	'8'
+	Web3.toBytes(0x000A)
 	)
 
 

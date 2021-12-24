@@ -353,7 +353,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     }
 
     function getWrappedToken(address _wNFTAddress, uint256 _wNFTTokenId) public view returns (ETypes.WNFT memory) {
-        return wrappedTokens[_wNFTAddress][_wNFTTokenId];
+        return _getWrappedToken(_wNFTAddress,_wNFTTokenId);
 
     } 
     /////////////////////////////////////////////////////////////////////
@@ -840,7 +840,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     }
 
     function _checkRule(bytes2 _rule, bytes2 _wNFTrules) internal view returns (bool) {
-        return _rule == _rule & _wNFTrules;
+        return _rule == (_rule & _wNFTrules);
     }
 
     function _checkLocks(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool) {
