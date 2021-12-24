@@ -79,6 +79,7 @@ def test_unwrap(accounts, erc1155mock, wrapper, wnft1155, niftsy20):
 
 	#transfer
 	wnft1155.safeTransferFrom(accounts[3], accounts[9], wTokenId, 1, '', {"from": accounts[3]})
+	wnft1155.safeTransferFrom(accounts[9], accounts[3], wTokenId, 1, '', {"from": accounts[9]})
 
 	# deposit collateral
 	wrapper.addCollateral(wnft1155.address, wTokenId, [], {"from": accounts[1], "value": "1 ether"})

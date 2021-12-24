@@ -72,22 +72,11 @@ def test_unwrap(accounts, erc1155mock, wrapper, wnft1155, niftsy20):
 	wnft_pretty_print(wrapper, wnft1155, wTokenId)
 	assert erc1155mock.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[0]) == coll_amount
 	assert wnft1155.balanceOf(accounts[3], wTokenId) == out_nft_amount
-	#wrapper.addCollateral(wnft1155.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[0], coll_amount)], {'from': accounts[0]})
-    # wNFT2 = ( ((in_type, wnft1155), wTokenId, out_nft_amount),
-	# accounts[2], #leasingPool
-	# fee,
-	# lock,
-	# royalty,
-	# out_type,
-	# out_nft_amount,
-	# '0'
-	# )
-	#wrapper.wrap(wNFT2, [], accounts[3], {"from": accounts[3]})
 	
 
 	#refuse to transfer
-	# with reverts("r"):
-	# 	wnft1155.safeTransferFrom(accounts[3], accounts[9], wTokenId, 1, '', {"from": accounts[3]})
+	with reverts("Trasfer was disabled by author"):
+	 	wnft1155.safeTransferFrom(accounts[3], accounts[9], wTokenId, 1, '', {"from": accounts[3]})
 
 	#refuse to deposit collateral
 	with reverts("Forbidden add collateral"):

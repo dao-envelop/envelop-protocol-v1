@@ -56,13 +56,13 @@ def test_unwrap(accounts, erc1155mock, wrapper, wnft1155, niftsy20):
 	royalty = []
 
 	wNFT = ( token_data,
-	accounts[2], #leasingPool
-	fee,
-	lock,
-	royalty,
-	out_type,
-	out_nft_amount,
-	Web3.toBytes(0x0008)
+		accounts[2], #leasingPool
+		fee,
+		lock,
+		royalty,
+		out_type,
+		out_nft_amount,
+		Web3.toBytes(0x0008)
 	)
 
 
@@ -72,50 +72,54 @@ def test_unwrap(accounts, erc1155mock, wrapper, wnft1155, niftsy20):
 	wnft_pretty_print(wrapper, wnft1155, wTokenId)
 	assert erc1155mock.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[0]) == coll_amount
 	assert wnft1155.balanceOf(accounts[3], wTokenId) == out_nft_amount
-	#wrapper.addCollateral(wnft1155.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[0], coll_amount)], {'from': accounts[0]})
-    # wNFT2 = ( ((in_type, wnft1155), wTokenId, out_nft_amount),
-	# accounts[2], #leasingPool
-	# fee,
-	# lock,
-	# royalty,
-	# out_type,
-	# out_nft_amount,
-	# '0'
-	# )
-	#wrapper.wrap(wNFT2, [], accounts[3], {"from": accounts[3]})
 	
 
-	#refuse to transfer
-	# with reverts("r"):
-	# 	wnft1155.safeTransferFrom(accounts[3], accounts[9], wTokenId, 1, '', {"from": accounts[3]})
+	#transfer
+	wnft1155.safeTransferFrom(accounts[3], accounts[9], wTokenId, 1, '', {"from": accounts[3]})
+	wnft1155.safeTransferFrom(accounts[9], accounts[3], wTokenId, 1, '', {"from": accounts[9]})
 
 	#refuse to deposit collateral
 	with reverts("Forbidden add collateral"):
 		wrapper.addCollateral(wnft1155.address, wTokenId, [], {"from": accounts[1], "value": "1 ether"})
 
-	#refuse to wrap wNFT
-	wnft1155.setApprovalForAll(wrapper, True, {"from": accounts[3]})
+	#unwrap
+	wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
 
+	# wrap again
+	token_data = (token_property, ORIGINAL_NFT_IDs[1], coll_amount)
+	erc1155mock.safeTransferFrom(accounts[0], accounts[1], ORIGINAL_NFT_IDs[1], in_nft_amount, "", {"from":accounts[0]})
+	
+
+	wNFT = ( token_data,
+		accounts[2], #leasingPool
+		fee,
+		lock,
+		royalty,
+		out_type,
+		out_nft_amount,
+		'0'
+	)
+	wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
+	wTokenId = wrapper.lastWNFTId(out_type)[1]
+
+	#wrap wrapped token
 	token_property = (in_type, wnft1155)
-	token_data = (token_property, wTokenId, coll_amount)
+	token_data = (token_property, wTokenId, out_nft_amount)
 	
 	fee = []
 	lock = []
 	royalty = []
 
 	wNFT = ( token_data,
-	accounts[2], #leasingPool
-	fee,
-	lock,
-	royalty,
-	out_type,
-	out_nft_amount,
-	'0'
+		accounts[2], #leasingPool
+		fee,
+		lock,
+		royalty,
+		out_type,
+		out_nft_amount,
+		'0'
 	)
 	
-	# wrap again
+	# wrap wrapped nft
+	wnft1155.setApprovalForAll(wrapper.address, True, {"from": accounts[3]})
 	wrapper.wrap(wNFT, [], accounts[4], {"from": accounts[3]})
-
-	#try to unwrap when wnft has already been wrapped
-	with reverts("ERC115 unwrap available only for all totalSupply"):
-		wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})

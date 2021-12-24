@@ -101,7 +101,6 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	)
 	
 	
-
 	#refuse to wrap again
 	with reverts("Wrap check fail"):
 		wrapperRent.wrap(wNFT, [], accounts[4], {"from": accounts[3]})
