@@ -69,16 +69,24 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
             ETypes.WNFT memory _wnft = IWrapper(wrapperMinter).getWrappedToken(
                 address(this),ids[i]
             );
-            if (from != address(0) || to != address(0)) {
+            if (
+                  (from == address(0) || to == address(0)) // mint & burn 
+               || (from == address(this) || to == address(this)) //  wrap & unwrap
+            )  
+            {
+                // In case Minting *new* wNFT (during new wrap)
+                // In case Burn wNFT (during Unwrap) 
+                // In case transfer *original* NFT from *this* contract  during UNWrap
+                // In case transfer *original* wNFT to *this* contract during double Wrap  
+                //                THERE IS NO RULE CHECKs
+
+            } else {
                 require(
                     !(bytes2(0x0004) == (bytes2(0x0004) & _wnft.rules)),
                     "Trasfer was disabled by author"
                 );
             }
         }
-        
-
-        require(true, "ERC1155Pausable: token transfer while paused");
     }
     
     
