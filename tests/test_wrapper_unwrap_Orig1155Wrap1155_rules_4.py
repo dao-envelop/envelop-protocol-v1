@@ -67,14 +67,23 @@ def test_unwrap(accounts, erc1155mock, wrapper, wnft1155, niftsy20):
 
 
 
-	wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
+	tx = wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 	wTokenId = wrapper.lastWNFTId(out_type)[1]
+
+	logging.info('tx.events = {}'.format(tx.events['WrappedV1']))
+
+	'''assert data_var[0][0] == out_type
+	assert data_var[0][1] == wnft1155.address
+	assert data_var[1] == wTokenId
+	assert data_var[2] == out_nft_amount'''
+
+
 	wnft_pretty_print(wrapper, wnft1155, wTokenId)
 	assert erc1155mock.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[0]) == coll_amount
 	assert wnft1155.balanceOf(accounts[3], wTokenId) == out_nft_amount
 	
 	#unwrap by owner
-	with reverts("UnWrap check fail"):
+	with reverts("UnWrapp forbidden by author"):
 		wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
 
 	#transfer
@@ -106,5 +115,7 @@ def test_unwrap(accounts, erc1155mock, wrapper, wnft1155, niftsy20):
 	)
 	
 	wrapper.wrap(wNFT, [], accounts[4], {"from": accounts[3]})
+
+	
 
 	
