@@ -56,7 +56,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	royalty,
 	out_type,
 	out_nft_amount,
-	'3'
+	'0'
 	)
 
 
