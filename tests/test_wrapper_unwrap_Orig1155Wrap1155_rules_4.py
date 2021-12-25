@@ -69,14 +69,18 @@ def test_unwrap(accounts, erc1155mock, wrapper, wnft1155, niftsy20):
 
 	tx = wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 	wTokenId = wrapper.lastWNFTId(out_type)[1]
+	event = tx.events['WrappedV1']
 
-	logging.info('tx.events = {}'.format(tx.events['WrappedV1']))
+	logging.info('tx.events = {}'.format(event))
 
-	'''assert data_var[0][0] == out_type
-	assert data_var[0][1] == wnft1155.address
-	assert data_var[1] == wTokenId
-	assert data_var[2] == out_nft_amount'''
-
+	assert event['inAssetAddress'] == erc1155mock.address
+	assert event['outAssetAddress'] == wnft1155
+	assert event['inAssetTokenId'] == ORIGINAL_NFT_IDs[0]
+	assert event['outTokenId'] == wTokenId
+	assert event['wnftFirstOwner'] == accounts[3]
+	assert event['nativeCollateralAmount'] == 0
+	assert event['rules'] == '0x0001'
+	
 
 	wnft_pretty_print(wrapper, wnft1155, wTokenId)
 	assert erc1155mock.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[0]) == coll_amount

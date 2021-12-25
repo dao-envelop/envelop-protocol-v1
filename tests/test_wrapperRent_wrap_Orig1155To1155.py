@@ -110,7 +110,17 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[9]})
 
 	#unwrap by owner
-	wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
+	tx = wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
+	event = tx.events['UnWrappedV1']
+	logging.info(event)
+
+	assert event['wrappedAddress'] == wnft1155
+	assert event['originalAddress'] == erc1155mock.address
+	assert event['wrappedId'] == wTokenId
+	assert event['originalTokenId'] == ORIGINAL_NFT_IDs[0]
+	assert event['beneficiary'] == accounts[2]
+	assert event['nativeCollateralAmount'] == 0
+	assert event['rules'] == '0x000A'
 
 	#unwrap by UnwrapDestinition
 	#wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})
