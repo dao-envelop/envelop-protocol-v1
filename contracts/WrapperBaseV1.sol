@@ -355,6 +355,22 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
     function getWrappedToken(address _wNFTAddress, uint256 _wNFTTokenId) public view returns (ETypes.WNFT memory) {
         return _getWrappedToken(_wNFTAddress,_wNFTTokenId);
 
+    }
+
+    function getOriginalURI(address _wNFTAddress, uint256 _wNFTTokenId) public view returns(string memory) {
+        ETypes.AssetItem memory _wnftInAsset = _getWrappedToken(
+                _wNFTAddress, _wNFTTokenId
+        ).inAsset;
+
+        if (_wnftInAsset.asset.assetType == ETypes.AssetType.ERC721) {
+            return IERC721Metadata(_wnftInAsset.asset.contractAddress).tokenURI(_wnftInAsset.tokenId);
+        
+        } else if (_wnftInAsset.asset.assetType == ETypes.AssetType.ERC1155) {
+            return IERC1155MetadataURI(_wnftInAsset.asset.contractAddress).uri(_wnftInAsset.tokenId);
+        
+        } else {
+            return '';
+        } 
     } 
     /////////////////////////////////////////////////////////////////////
     //                    Internals                                    //

@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../interfaces/IWrapper.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 //v0.0.1
 contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
     using Strings for uint256;
@@ -88,35 +89,23 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
                 );
 
                 // Check and charge Fee and pay Royalties
-                
+
             }
         }
     }
     
     
-    function uri(uint256 _tokenID) public view virtual override 
-        returns (string memory) 
+    function uri(uint256 _tokenID) public view override 
+        returns (string memory _uri) 
     {
-        return string(abi.encodePacked(
-            ERC1155.uri(0),
-            _tokenID.toString()
-            )
-        );
+        _uri = IWrapper(wrapperMinter).getOriginalURI(address(this), _tokenID);
+        if (bytes(_uri).length == 0) {
+            _uri = string(abi.encodePacked(
+                ERC1155.uri(0),
+                _tokenID.toString()
+                )
+            );
+        }
+            
     }
-
-    /**
-     * @dev Function returns tokenURI of **underline original token** 
-     *
-     * @param _tokenId id of protocol token (new wrapped token)
-     */
-    // function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-    //     NFT storage nft = wrappedTokens[_tokenId];
-    //     if (nft.tokenContract != address(0)) {
-    //         return IERC721Metadata(nft.tokenContract).tokenURI(nft.tokenId);
-    //     } else {
-    //         return ERC721.tokenURI(_tokenId);
-    //     }    
-    // }
-
-    
 }

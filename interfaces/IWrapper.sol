@@ -51,6 +51,11 @@ interface IWrapper  {
         external 
         view 
         returns (ETypes.WNFT memory);
+
+    function getOriginalURI(address _wNFTAddress, uint256 _wNFTTokenId) 
+        external 
+        view 
+        returns(string memory);    
     // event NewFee(uint256 feeAmount, uint256 startDate);
     // event NiftsyProtocolTransfer(
     //     uint256 indexed wrappedTokenId, 
