@@ -129,7 +129,17 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
 
         } 
          
-
+        // Charge Fee Hook 
+        // There is No Any Fees in Protocol
+        // So this hook can be used in b2b extensions of Envelop Protocol 
+        // 0x02 - feeType for WrapFee
+        _chargeFees(
+            lastWNFTId[_inData.outType].contractAddress, 
+            lastWNFTId[_inData.outType].tokenId, 
+            msg.sender, 
+            address(this), 
+            0x02
+        );
         
 
         emit WrappedV1(
@@ -220,6 +230,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         uint256 _wNFTTokenId, 
         ETypes.AssetItem[] calldata _collateral
     ) external payable virtual {
+
         require(
             _checkAddCollateral(
                 _wNFTAddress, 
@@ -257,10 +268,12 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         //     _checkLocks(_wNFTAddress, _wNFTTokenId)
         // );
 
-        // 3. Charge Fee Hook
-        require(
-            _chargeFees(_wNFTAddress, _wNFTTokenId)
-        );
+        // 3. Charge Fee Hook 
+        // There is No Any Fees in Protocol
+        // So this hook can be used in b2b extensions of Envelop Protocol 
+        // 0x02 - feeType for UnWrapFee
+        // 
+        _chargeFees(_wNFTAddress, _wNFTTokenId, msg.sender, address(this), 0x02);
         uint256 nativeCollateralAmount = _getNativeCollateralBalance(_wNFTAddress, _wNFTTokenId);
         ///////////////////////////////////////////////
         ///  Place for hook                        ////
@@ -310,6 +323,23 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             wrappedTokens[_wNFTAddress][_wNFTTokenId].rules 
         );
     } 
+
+    function chargeFees(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId, 
+        address _from, 
+        address _to,
+        bytes1 _feeType
+    ) 
+        external  
+        returns (bool) 
+    {
+        require(
+            _chargeFees(_wNFTAddress, _wNFTTokenId, _from, _to, _feeType),
+            "Charge Fee Error"
+        );
+        return true;
+    }
     /////////////////////////////////////////////////////////////////////
     //                    Admin functions                              //
     /////////////////////////////////////////////////////////////////////
@@ -678,7 +708,13 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         }
     }
 
-    function _chargeFees(address _wNFTAddress, uint256 _wNFTTokenId) internal  returns (bool) {
+    function _chargeFees(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId, 
+        address _from, 
+        address _to,
+        bytes1 _feeType
+    ) internal  returns (bool) {
         return true;
     }
 

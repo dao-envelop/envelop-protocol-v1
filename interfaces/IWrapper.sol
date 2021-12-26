@@ -55,7 +55,17 @@ interface IWrapper  {
     function getOriginalURI(address _wNFTAddress, uint256 _wNFTTokenId) 
         external 
         view 
-        returns(string memory);    
+        returns(string memory); 
+
+    function chargeFees(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId, 
+        address _from, 
+        address _to,
+        bytes1 _feeType
+    ) 
+        external  
+        returns (bool);        
     // event NewFee(uint256 feeAmount, uint256 startDate);
     // event NiftsyProtocolTransfer(
     //     uint256 indexed wrappedTokenId, 

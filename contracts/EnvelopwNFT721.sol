@@ -5,6 +5,7 @@ pragma solidity 0.8.10;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "../interfaces/IWrapper.sol";
 
 //v0.0.1
 contract EnvelopwNFT721 is ERC721Enumerable, Ownable {
@@ -71,8 +72,34 @@ contract EnvelopwNFT721 is ERC721Enumerable, Ownable {
     ) internal virtual override {
         super._beforeTokenTransfer(from, to, tokenId);
 
-        //DUMMY
-        require(true, "ERC721Pausable: token transfer while paused");
+        ETypes.WNFT memory _wnft = IWrapper(wrapperMinter).getWrappedToken(
+                address(this),tokenId
+            );
+            if (
+                  (from == address(0) || to == address(0)) // mint & burn 
+               || (from == address(this) || to == address(this)) //  wrap & unwrap
+            )  
+            {
+                // In case Minting *new* wNFT (during new wrap)
+                // In case Burn wNFT (during Unwrap) 
+                // In case transfer *original* NFT from *this* contract  during UNWrap
+                // In case transfer *original* wNFT to *this* contract during double Wrap  
+                //                THERE IS NO RULE CHECKs
+
+            } else {
+                // Check Core Protocol Rules
+                require(
+                    !(bytes2(0x0004) == (bytes2(0x0004) & _wnft.rules)),
+                    "Trasfer was disabled by author"
+                );
+
+                // Check and charge Transfer Fee and pay Royalties
+                if (_wnft.fees.length > 0) {
+                    IWrapper(wrapperMinter).chargeFees(address(this), tokenId, from, to, 0x00);    
+                }
+                
+
+            }
     }
     
     
@@ -89,14 +116,13 @@ contract EnvelopwNFT721 is ERC721Enumerable, Ownable {
      *
      * @param _tokenId id of protocol token (new wrapped token)
      */
-    // function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-    //     NFT storage nft = wrappedTokens[_tokenId];
-    //     if (nft.tokenContract != address(0)) {
-    //         return IERC721Metadata(nft.tokenContract).tokenURI(nft.tokenId);
-    //     } else {
-    //         return ERC721.tokenURI(_tokenId);
-    //     }    
-    // }
+    function tokenURI(uint256 _tokenId) public view override returns (string memory _uri) {
+        _uri = IWrapper(wrapperMinter).getOriginalURI(address(this), _tokenId);
+        if (bytes(_uri).length == 0) {
+            _uri = ERC721.tokenURI(_tokenId);
+        }
+        return _uri;
+    }
 
     
 }

@@ -87,7 +87,11 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
                     "Trasfer was disabled by author"
                 );
 
-                // Check and charge Fee and pay Royalties
+                // Check and charge Transfer Fee and pay Royalties
+                if (_wnft.fees.length > 0) {
+                    IWrapper(wrapperMinter).chargeFees(address(this), ids[i], from, to, 0x00);    
+                }
+                
 
             }
         }
