@@ -11,6 +11,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "../interfaces/IERC20Extended.sol";
 import "../interfaces/IFeeRoyaltyCharger.sol";
 import "../interfaces/IWrapper.sol";
+import "../interfaces/IAdvancedWhiteList.sol";
 import "./LibEnvelopTypes.sol";
 import "../interfaces/IERC721Mintable.sol";
 import "../interfaces/IERC1155Mintable.sol";
@@ -41,8 +42,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
 
 
 
-    uint256 constant public MAX_ROYALTY_PERCENT = 5000;
-    uint256 constant public MAX_TIME_TO_UNWRAP = 365 days;
+    //uint256 constant public MAX_ROYALTY_PERCENT = 5000;
+    //uint256 constant public MAX_TIME_TO_UNWRAP = 365 days;
     //uint256 constant public MAX_FEE_THRESHOLD_PERCENT = 1; //percent from project token totalSupply
 
     uint256 public MAX_COLLATERAL_SLOTS = 300;
@@ -87,7 +88,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             "Wrap check fail"
         );
         // 1. Take users inAsset
-        if (  _inData.inAsset.asset.assetType != ETypes.AssetType.NATIVE &&
+        if ( _inData.inAsset.asset.assetType != ETypes.AssetType.NATIVE &&
              _inData.inAsset.asset.assetType != ETypes.AssetType.EMPTY
         ) 
         {
@@ -117,7 +118,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
 
         if (_checkAddCollateral(
                 lastWNFTId[_inData.outType].contractAddress, 
-                lastWNFTId[_inData.outType].tokenId
+                lastWNFTId[_inData.outType].tokenId,
+                _collateral
             )) 
         {
 
@@ -188,7 +190,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
 
         if (_checkAddCollateral(
                 lastWNFTId[_inData.outType].contractAddress, 
-                lastWNFTId[_inData.outType].tokenId
+                lastWNFTId[_inData.outType].tokenId,
+                _collateral
             )) 
         {
 
@@ -234,7 +237,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         require(
             _checkAddCollateral(
                 _wNFTAddress, 
-                _wNFTTokenId
+                _wNFTTokenId,
+                _collateral
             ),
             "Forbidden add collateral"
         );
@@ -908,20 +912,50 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             _inData.inAsset.tokenId).rules
             ) 
             && _wrappFor != address(this);
+        // Check WhiteList Logic
+        if  (protocolWhiteList != address(0)) {
+            require(
+                !IAdvancedWhiteList(protocolWhiteList).getItem(_inData.inAsset.asset.contractAddress).disabledForWrap,
+                "WL:Asset disabled for wrap"
+            );
+            require(
+                (_inData.rules
+                & IAdvancedWhiteList(protocolWhiteList).getItem(_inData.inAsset.asset.contractAddress).rulesEnabled)
+                ==  _inData.rules,
+                "WL:Some rules are disabled fro this asset"
+            );
+        }    
         return enabled;
     }
     
-    // function _checkUnwrap(address _wNFTAddress, uint256 _wNFTTokenId) internal view virtual returns (bool enabled){
-    //     // Lets wNFT rules 
-    //     // 0x0001 - this rule disable unwrap wrappednFT 
-    //     enabled = !_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
-    //     return enabled;
-    // }
-
-    function _checkAddCollateral(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool enabled){
+    function _checkAddCollateral(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId, 
+        ETypes.AssetItem[] calldata _collateral
+    ) 
+        internal 
+        view 
+        returns (bool enabled)
+    {
         // Lets check wNFT rules 
         // 0x0008 - this rule disable add collateral
         enabled = !_checkRule(0x0008, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
+        
+        // Check WhiteList Logic
+        if  (protocolWhiteList != address(0)) {
+            for (uint256 i = MAX_COLLATERAL_SLOTS; i < _collateral.length; i ++){
+                if (_collateral[i].asset.assetType != ETypes.AssetType.NATIVE) {
+                    require(
+                        IAdvancedWhiteList(protocolWhiteList).getItem(
+                        _collateral[i].asset.contractAddress
+                        ).enabledForCollateral,
+                        "WL:Some assets Not enabled for collateral"
+                    );
+
+                }
+            }
+            
+        }
         return enabled;
     }
 

@@ -61,4 +61,13 @@ library ETypes {
 
     }
 
+    struct AdvWhiteListItem {
+        bool enabledForFee;
+        bool enabledForCollateral;
+        bool enabledRemoveFromCollateral;
+        bool disabledForWrap;
+        bytes2 rulesEnabled;
+        address transferFeeModel;
+    }
+
 }
