@@ -274,9 +274,9 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         // 3. Charge Fee Hook 
         // There is No Any Fees in Protocol
         // So this hook can be used in b2b extensions of Envelop Protocol 
-        // 0x02 - feeType for UnWrapFee
+        // 0x03 - feeType for UnWrapFee
         // 
-        _chargeFees(_wNFTAddress, _wNFTTokenId, msg.sender, address(this), 0x02);
+        _chargeFees(_wNFTAddress, _wNFTTokenId, msg.sender, address(this), 0x03);
         uint256 nativeCollateralAmount = _getNativeCollateralBalance(_wNFTAddress, _wNFTTokenId);
         ///////////////////////////////////////////////
         ///  Place for hook                        ////
@@ -718,6 +718,12 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         address _to,
         bytes1 _feeType
     ) internal  returns (bool) {
+        // For Transfer Fee^
+        // - get fee token
+        // - get modelAddress
+        // - get arrays of beneficiaries 
+        // - get transfer list from external model by feetype(with royalties)
+        // - execute transfers
         return true;
     }
 
