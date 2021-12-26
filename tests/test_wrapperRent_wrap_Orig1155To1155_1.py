@@ -79,16 +79,8 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	with reverts("Forbidden add collateral"):
 		wrapperRent.addCollateral(wnft1155.address, wTokenId, [], {"from": accounts[1], "value": "1 ether"})
 
-	#refuse to unwrap by owner
-	with reverts("Only unWrapDestinition can unwrap it"):
-		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
-
-	#unwrap by owner
-	with reverts("Only unWrapDestinition can unwrap it"):
-		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
-
-	#unwrap by UnwrapDestinition
-	wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})
+	# unwrap by owner
+	wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
 
 	
 	#wrap wNFT

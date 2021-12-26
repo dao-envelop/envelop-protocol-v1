@@ -64,6 +64,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	out_nft_amount,
 	Web3.toBytes(0x000F)
 	)
+	logging.info('{}'.format(Web3.toBytes(0x000F)))
 
 	wrapperRent.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 	wTokenId = wrapperRent.lastWNFTId(out_type)[1]
@@ -106,8 +107,13 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 		wrapperRent.wrap(wNFT, [], accounts[4], {"from": accounts[3]})
 
 	#refuse unwrap by owner
-	with reverts("Only unWrapDestinition can unwrap it"):
+	with reverts("Only unWrapDestinition can unwrap forbidden wnft"):
 		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
 
 	#unwrap by UnwrapDestinition
 	wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})
+
+
+	((4,0x5bF8D8E84Ae2Ee9514bA37B18cfe1b868992ee6f,2,5), 0x989FA3062bc4329B2E3c5907c48Ea48a38437fB7,[],[],[],4,5,0x000f)
+
+	0xbD7E5fB7525ED8583893ce1B1f93E21CC0cf02F6
