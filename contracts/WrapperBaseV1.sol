@@ -249,29 +249,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         );
     }
 
-    // In wraperbase implementation this function will work only
-    // for white list collateral with special flag.  Anybode able
-    // call this function but receiver always be one
-    function removeCollateral(
-        address _wNFTAddress, 
-        uint256 _wNFTTokenId, 
-        ETypes.AssetItem calldata _collateralItem,
-        address _receiver
-    ) external virtual {
-        require(
-            (wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition != address(0) 
-            && wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition != address(this)),
-            "Undefined receiver"
-        );
-        _removeCollateralItem(
-            _wNFTAddress, 
-            _wNFTTokenId,
-            _collateralItem, 
-            wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
-        );
-    } 
-
-
     function unWrap(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) external virtual {
         unWrap(_wNFTType,_wNFTAddress, _wNFTTokenId, false);
     }
@@ -732,54 +709,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
                 return;
             }
         }
-    }
-
-    function _removeCollateralItem(
-        address _wNFTAddress, 
-        uint256 _wNFTTokenId, 
-        ETypes.AssetItem calldata _collateralItem,
-        address _receiver
-    ) internal virtual {
-        // Check WhiteList Logic
-        if  (protocolWhiteList != address(0)) {
-            if (_collateralItem.asset.assetType != ETypes.AssetType.NATIVE) {
-                require(
-                    IAdvancedWhiteList(protocolWhiteList).getItem(
-                    _collateralItem.asset.contractAddress
-                    ).enabledRemoveFromCollateral,
-                    "WL:Asset Not enabled for remove"
-                );
-
-            }
-        }
-        // we need know index in collateral array
-        (uint256 _amnt, uint256 _index) = _getCollateralBalanceAndIndex(
-                _wNFTAddress, 
-                _wNFTTokenId,
-                _collateralItem.asset.assetType, 
-                _collateralItem.asset.contractAddress,
-                _collateralItem.tokenId
-        );
-
-        // Only this assets can be removed
-        if ((_collateralItem.asset.assetType == ETypes.AssetType.ERC1155)
-           || (_collateralItem.asset.assetType == ETypes.AssetType.ERC721) 
-           || (_collateralItem.asset.assetType == ETypes.AssetType.ERC20)
-        ) 
-        {
-            wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount -= _collateralItem.amount;
-
-            // case full remove 
-            if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount == 0) {
-                wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].asset.assetType = ETypes.AssetType.EMPTY;
-            }
-
-        }
-
-        require(
-            _mustTransfered(_collateralItem) == _transferSafe(_collateralItem, address(this), _receiver),
-            "Suspicious asset for wrap or collateral"
-        );
     }
 
     function _chargeFees(

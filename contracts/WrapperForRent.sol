@@ -10,13 +10,13 @@ contract WrapperForRent is WrapperBaseV1 {
     // mapping from wNFT to wNFT Holder(tenant).
     // we need this map because there is no single owner in ERC1155
     // and for unwrap we need know who  hold  wNFT 
-	mapping(address => mapping(uint256 => address)) public rentersOf;
+    mapping(address => mapping(uint256 => address)) public rentersOf;
 
-	constructor(address _erc20) WrapperBaseV1(_erc20){
+    constructor(address _erc20) WrapperBaseV1(_erc20){
 
-	}
+    }
 
-	function wrap(ETypes.INData calldata _inData, ETypes.AssetItem[] calldata _collateral, address _wrappFor) 
+    function wrap(ETypes.INData calldata _inData, ETypes.AssetItem[] calldata _collateral, address _wrappFor) 
         public 
         override
         payable 
@@ -24,26 +24,10 @@ contract WrapperForRent is WrapperBaseV1 {
     {
         ETypes.AssetItem memory wNFT_= super.wrap(_inData, _collateral, _wrappFor);
         rentersOf[wNFT_.asset.contractAddress][wNFT_.tokenId] = _wrappFor;  
-    	return wNFT_;
+        return wNFT_;
 
     }
 
-    /////////////////////////////////////////////////////////////////////
-    //                    Internals                                    //
-    /////////////////////////////////////////////////////////////////////
-    // function _checkUnwrap(address _wNFTAddress, uint256 _wNFTTokenId) internal view override returns (bool enabled){
-    //     // Lets wNFT rules 
-    //     // 0x0001 - this rule disable unwrap wrappednFT 
-    //     if (_getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition != msg.sender) {
-    //         enabled = !_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules);
-    //     } else {
-    //     	enabled = true;
-    //     }
-    //     return enabled;
-    // }
-
-
- 
     function _checkCoreUnwrap(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) 
         internal 
         view 
@@ -68,7 +52,7 @@ contract WrapperForRent is WrapperBaseV1 {
             );
             // Only token owner or unwraper can UnWrap
             if (_getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition != msg.sender) {
-             	require(
+                require(
                    !_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules), 
                    'Only unWrapDestinition can unwrap forbidden wnft'
                 );
