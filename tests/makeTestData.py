@@ -44,7 +44,7 @@ def makeFromERC1155ToERC1155(accounts, erc1155mock, wrapper, dai, weth, wnft1155
     eth_data = (eth_property, 0, Wei(eth_amount))
 
     fee = [('0x0', Wei(1e18), niftsy20.address)]
-    lock = [('0x0', chain.time() + 100), ('0x0', chain.time() + 200)]
+    lock = [('0x0', chain.time() + 100)]
     royalty = [(accounts[1], 100), (accounts[2], 200)]
 
     wNFT = ( erc1155_data,

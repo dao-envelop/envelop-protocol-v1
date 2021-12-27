@@ -1014,7 +1014,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             // Only token owner can UnWrap
             burnFor = IERC721Mintable(_wNFTAddress).ownerOf(_wNFTTokenId);
             require(burnFor == msg.sender, 
-                'Only owner or can unwrap it'
+                'Only owner can unwrap it'
             ); 
             return (burnFor, burnBalance);
 

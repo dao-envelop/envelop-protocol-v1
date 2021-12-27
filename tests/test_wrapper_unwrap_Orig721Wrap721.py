@@ -14,6 +14,12 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20):
 
 	#make wrap NFT 721
 	wTokenId = makeFromERC721ToERC721(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, ORIGINAL_NFT_IDs[0], accounts[3])
+
+	#check tokenUri
+	orig_token_uri = wrapper.getOriginalURI(wnft721.address, wTokenId)
+	logging.info(wrapper.getOriginalURI(wnft721.address, wTokenId))
+	logging.info(wnft721.baseURI())
+	assert orig_token_uri.find(wnft721.baseURI(), 0) == -1
 	
 	assert wnft721.ownerOf(wTokenId) == accounts[3]
 
@@ -25,10 +31,21 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20):
 
 
 	#unwrap by not owner and UnwrapDestinition
-	with reverts("Only owner or unWrapDestinition can unwrap it"):
+	with reverts("Only owner can unwrap it"):
 		wrapper.unWrap(3, wnft721.address, wTokenId, {"from": accounts[9]})
 	#unwrap by owner
+	with reverts("TimeLock error"):
+		wrapper.unWrap(3, wnft721.address, wTokenId, {"from": accounts[3]})
+
+	chain.sleep(120)
+	chain.mine()
+
+	#unwrap by UnwrapDestinition
+	with reverts("Only owner can unwrap it"):
+		wrapper.unWrap(3, wnft721.address, wTokenId, {"from": accounts[2]})
+
 	wrapper.unWrap(3, wnft721.address, wTokenId, {"from": accounts[3]})
+
 	
 	#checks
 	assert wrapper.balance() == 0
