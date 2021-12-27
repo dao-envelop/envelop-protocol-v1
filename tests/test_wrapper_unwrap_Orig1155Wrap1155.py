@@ -25,8 +25,26 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20):
 	before_eth_balance = wrapper.getERC20CollateralBalance(wnft1155.address, wTokenId, zero_address)
 	before_acc_balance = accounts[2].balance()
 
+	#check tokenUri
+	orig_token_uri = wrapper.getOriginalURI(wnft1155.address, wTokenId)
+	logging.info(orig_token_uri)
+	logging.info(wnft1155.uri(wTokenId))
+	logging.info(erc1155mock.uri(0))
+	logging.info(wnft1155.baseurl())
+	assert orig_token_uri.find(wnft1155.baseurl(), 0) == -1
+	
+
+
+
+	chain.sleep(120)
+	chain.mine()
+
 	#unwrap by UnwrapDestinition
-	wrapper.unWrap(4, wnft1155.address, wTokenId, {"from": accounts[2]})
+	with reverts("ERC115 unwrap available only for all totalSupply"):
+		wrapper.unWrap(4, wnft1155.address, wTokenId, {"from": accounts[2]})
+
+	#unwrap by owner
+	wrapper.unWrap(4, wnft1155.address, wTokenId, {"from": accounts[3]})
 	
 	#checks
 	assert wrapper.balance() == 0

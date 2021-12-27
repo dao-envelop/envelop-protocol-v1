@@ -17,9 +17,13 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20):
 
 	#check tokenUri
 	orig_token_uri = wrapper.getOriginalURI(wnft721.address, wTokenId)
-	logging.info(wrapper.getOriginalURI(wnft721.address, wTokenId))
+	logging.info(orig_token_uri)
+	logging.info(wnft721.tokenURI(wTokenId))
 	logging.info(wnft721.baseURI())
-	assert orig_token_uri.find(wnft721.baseURI(), 0) == -1
+	logging.info(erc721mock.tokenURI(ORIGINAL_NFT_IDs[0]))
+	assert orig_token_uri.find(wnft721.baseURI()) == -1
+	assert orig_token_uri == erc721mock.tokenURI(ORIGINAL_NFT_IDs[0])
+
 	
 	assert wnft721.ownerOf(wTokenId) == accounts[3]
 
