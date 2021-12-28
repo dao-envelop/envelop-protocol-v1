@@ -169,7 +169,12 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         returns (ETypes.AssetItem memory) 
     {
         // 1. Take users inAsset
-        _transfer(_inData.inAsset, msg.sender, address(this));
+        if ( _inData.inAsset.asset.assetType != ETypes.AssetType.NATIVE &&
+             _inData.inAsset.asset.assetType != ETypes.AssetType.EMPTY
+            )
+        { 
+            _transfer(_inData.inAsset, msg.sender, address(this));
+        }
         // 2. Mint wNFT
         _mintNFT(
             _inData.outType,     // what will be minted instead of wrapping asset
@@ -719,7 +724,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         bytes1 _feeType
     ) internal  returns (bool) {
         // For Transfer Fee^
-        // - get fee token
+        // - get fee token from wNFT(default - is zero)
         // - get modelAddress
         // - get arrays of beneficiaries 
         // - get transfer list from external model by feetype(with royalties)
