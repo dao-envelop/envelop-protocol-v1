@@ -1,6 +1,6 @@
 import pytest
 import logging
-from brownie import chain, Wei
+from brownie import chain, Wei, reverts
 LOGGER = logging.getLogger(__name__)
 from makeTestData import makeNFTForTest721, makeNFTForTest1155
 
@@ -76,6 +76,12 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft721, niftsy20, er
     eth_contract_balance = wrapper.balance()
     eth_acc_balance = accounts[2].balance()
 
+    with reverts("TimeLock error"):
+        wrapper.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[3]} )
+
+    chain.sleep(250)
+    chain.mine()
+
     wrapper.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[3]} )
 
     assert dai.balanceOf(accounts[2]) == call_amount
@@ -105,6 +111,7 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft721, niftsy20, er
 
     erc721_data = (erc721_property, ORIGINAL_NFT_IDs[1], 0)
     erc1155_data = (erc1155_property, ORIGINAL_NFT_IDs[1], in_nft_amount)
+    lock = [('0x0', chain.time() + 100), ('0x0', chain.time() + 200)]
 
     wNFT = ( empty_data,
         accounts[2],
@@ -128,10 +135,14 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft721, niftsy20, er
     assert wnft721.ownerOf(wTokenId) == accounts[3]
 
 
-
     eth_contract_balance = wrapper.balance()
     eth_acc_balance = accounts[2].balance()
 
+    with reverts("TimeLock error"):
+        wrapper.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[3]} )
+
+    chain.sleep(250)
+    chain.mine()
 
     wrapper.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[3]} )
 

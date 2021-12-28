@@ -47,10 +47,11 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, er
 	erc721mock.approve(wrapper.address, ORIGINAL_NFT_IDs[2], {"from": accounts[9]})
 	with reverts(""):
 		wrapper.addCollateral(wnft721.address, wTokenId, [((4, erc721mock.address), ORIGINAL_NFT_IDs[2], 0)], {'from': accounts[9]})	
-
+	
 	#with asset data - ERC721 token. Msg.Sender is not owner of token
-	wrapper.addCollateral(wnft721.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[2], 0)], {'from': accounts[8]})
-
+	with reverts(""):
+		wrapper.addCollateral(wnft721.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[2], 0)], {'from': accounts[8]})
+	
 	#with asset data - ERC721 token. Second token to collateral
 	wrapper.addCollateral(wnft721.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[2], 0)], {'from': accounts[9]})
 

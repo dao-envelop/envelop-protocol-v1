@@ -70,13 +70,11 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
 
 	with reverts("Suspicious asset for wrap"):
 		wrapper.wrap(wNFT, [dai_data, weth_data, erc721_data, erc1155_data], accounts[3], {"from": accounts[1], "value": eth_amount})
-	wTokenId = wrapper.lastWNFTId(out_type)[1]
     
 	assert dai.balanceOf(wrapper.address) == 0
 	assert weth.balanceOf(wrapper.address) == 0
 	assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[1]
 	assert erc1155mock1.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[0]) == 0
 	assert wrapper.balance() == 0
-	assert wnft1155.balanceOf(accounts[3], wTokenId) == 0
     
 	

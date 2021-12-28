@@ -25,7 +25,18 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft1155, niftsy20):
 	before_eth_balance = wrapper.getERC20CollateralBalance(wnft1155.address, wTokenId, zero_address)
 	before_acc_balance = accounts[2].balance()
 
+	#check tokenUri
+	orig_token_uri = wrapper.getOriginalURI(wnft1155.address, wTokenId)
+	logging.info(orig_token_uri)
+	logging.info(wnft1155.uri(wTokenId))
+	logging.info(erc721mock.tokenURI(ORIGINAL_NFT_IDs[0]))
+	logging.info(erc721mock)
+	logging.info(wnft1155.baseurl())
+	assert orig_token_uri.find(wnft1155.baseurl(), 0) == -1
+	assert orig_token_uri == erc721mock.tokenURI(ORIGINAL_NFT_IDs[0])
 
+	chain.sleep(120)
+	chain.mine()
 
 	wrapper.unWrap(4, wnft1155.address, wTokenId, {"from": accounts[3]})
 	

@@ -25,9 +25,9 @@ def main():
 	in_type = 4
 	out_type = 4
 	in_nft_amount = 5
-	out_nft_amount = 5
+	out_nft_amount = 5 
 	
-	original_nft_id = 4
+	original_nft_id = 4 #increase number +1 to mint new original NFT 
 	price = "2 gwei"
 
 	original_nft_contract.mint(accounts[0], original_nft_id, in_nft_amount, {"from": accounts[0], "gas_price": price})

@@ -112,8 +112,3 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 
 	#unwrap by UnwrapDestinition
 	wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})
-
-
-	((4,0x5bF8D8E84Ae2Ee9514bA37B18cfe1b868992ee6f,2,5), 0x989FA3062bc4329B2E3c5907c48Ea48a38437fB7,[],[],[],4,5,0x000f)
-
-	0xbD7E5fB7525ED8583893ce1B1f93E21CC0cf02F6
