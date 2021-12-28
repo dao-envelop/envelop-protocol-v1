@@ -107,5 +107,5 @@ def test_unwrap(accounts, erc1155mock, wrapper, wnft1155, niftsy20):
 		wrapper.wrap(wNFT, [], accounts[4], {"from": accounts[3]})
 
 	#refuse unwrap by owner
-	with reverts("UnWrap check fail"):
+	with reverts("UnWrapp forbidden by author"):
 		wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})

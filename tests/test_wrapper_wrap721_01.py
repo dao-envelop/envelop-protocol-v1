@@ -80,7 +80,6 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
     assert wnft721.ownerOf(wrapper.lastWNFTId(out_type)[1]) == accounts[3].address
     assert wnft721.totalSupply() == 1
 
-
     #logging.info(wNFT)
     assert wNFT[0] == erc721_data
     assert wNFT[1] == [eth_data, dai_data, weth_data]
@@ -89,5 +88,12 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
     assert wNFT[4] == lock
     assert wNFT[5] == royalty
     assert wNFT[6] == '0x0' 
+    
+    with reverts("TimeLock error"):
+        wrapper.unWrap(3, wnft721, wTokenId, {'from': accounts[3]})
+
+    chain.sleep(250)
+    chain.mine()
+
     wrapper.unWrap(3, wnft721, wTokenId, {'from': accounts[3]})
         

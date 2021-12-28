@@ -37,12 +37,6 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20):
 	#unwrap by not owner and UnwrapDestinition
 	with reverts("Only owner can unwrap it"):
 		wrapper.unWrap(3, wnft721.address, wTokenId, {"from": accounts[9]})
-	#unwrap by owner
-	with reverts("TimeLock error"):
-		wrapper.unWrap(3, wnft721.address, wTokenId, {"from": accounts[3]})
-
-	chain.sleep(120)
-	chain.mine()
 
 	#unwrap by UnwrapDestinition
 	with reverts("Only owner can unwrap it"):

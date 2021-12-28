@@ -77,6 +77,12 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
     eth_contract_balance = wrapper.balance()
     eth_acc_balance = accounts[2].balance()
 
+    with reverts("TimeLock error"):
+        wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]} )
+
+    chain.sleep(250)
+    chain.mine()
+
     wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]} )
 
     assert dai.balanceOf(accounts[2]) == call_amount
@@ -106,6 +112,7 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
 
     erc721_data = (erc721_property, ORIGINAL_NFT_IDs[1], 0)
     erc1155_data = (erc1155_property, ORIGINAL_NFT_IDs[1], in_nft_amount)
+    lock = [('0x0', chain.time() + 100), ('0x0', chain.time() + 200)]
 
     wNFT = ( empty_data,
         accounts[2],
@@ -139,6 +146,14 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
         wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]} )
 
     wnft1155.safeTransferFrom(accounts[4], accounts[3], wTokenId, 1, "", {"from": accounts[4]} )
+
+
+
+    with reverts("TimeLock error"):
+        wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]} )
+
+    chain.sleep(250)
+    chain.mine()
     
     wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]} )    
 

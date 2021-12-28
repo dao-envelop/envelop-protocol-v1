@@ -44,7 +44,7 @@ def makeFromERC1155ToERC1155(accounts, erc1155mock, wrapper, dai, weth, wnft1155
     eth_data = (eth_property, 0, Wei(eth_amount))
 
     fee = [('0x0', Wei(1e18), niftsy20.address)]
-    lock = [('0x0', chain.time() + 100)]
+    lock = []
     royalty = [(accounts[1], 100), (accounts[2], 200)]
 
     wNFT = ( erc1155_data,
@@ -87,7 +87,7 @@ def makeFromERC721ToERC721(accounts, erc721mock, wrapper, dai, weth, wnft721, ni
     eth_data = (eth_property, 0, Wei(eth_amount))
 
     fee = [('0x0', Wei(1e18), niftsy20.address)]
-    lock = [('0x0', chain.time() + 10), ('0x0', chain.time() + 20)]
+    lock = []
     royalty = [(accounts[1], 100), (accounts[2], 200)]
 
     wNFT = ( erc721_data,
@@ -134,7 +134,7 @@ def makeFromERC721ToERC1155(accounts, erc721mock, wrapper, dai, weth, wnft1155, 
     eth_data = (eth_property, 0, Wei(eth_amount))
 
     fee = [('0x0', Wei(1e18), niftsy20.address)]
-    lock = [('0x0', chain.time() + 10), ('0x0', chain.time() + 20)]
+    lock = []
     royalty = [(accounts[1], 100), (accounts[2], 200)]
 
     wNFT = ( erc721_data,
@@ -198,7 +198,7 @@ def makeFromERC1155ToERC721(accounts, erc1155mock, wrapper, dai, weth, wnft721, 
     eth_data = (eth_property, 0, Wei(eth_amount))
 
     fee = [('0x0', Wei(1e18), niftsy20.address)]
-    lock = [('0x0', chain.time() + 10), ('0x0', chain.time() + 20)]
+    lock = []
     royalty = [(accounts[1], 100), (accounts[2], 200)]
 
     wNFT = ( erc1155_data,
@@ -252,7 +252,7 @@ def makeFromERC1155ToERC1155WithoutCollateral(accounts, erc1155mock, wrapper, wn
     erc1155_data = (erc1155_property, ORIGINAL_NFT_ID, in_nft_amount)
     
     fee = [('0x0', Wei(1e18), niftsy20.address)]
-    lock = [('0x0', chain.time() + 100), ('0x0', chain.time() + 200)]
+    lock = []
     royalty = [(accounts[1], 100), (accounts[2], 200)]
 
     wNFT = ( erc1155_data,
@@ -283,7 +283,7 @@ def makeFromERC721ToERC721WithoutCollateral(accounts, erc721mock, wrapper, wnft7
     erc721_data = (erc721_property, ORIGINAL_NFT_ID, 1)
 
     fee = [('0x0', Wei(1e18), niftsy20.address)]
-    lock = [('0x0', chain.time() + 10), ('0x0', chain.time() + 20)]
+    lock = []
     royalty = [(accounts[1], 100), (accounts[2], 200)]
 
     wNFT = ( erc721_data,
@@ -319,7 +319,7 @@ def makeFromERC721ToERC1155WithoutCollateral(accounts, erc721mock, wrapper, wnft
     erc721_data = (erc721_property, ORIGINAL_NFT_ID, 1)
 
     fee = [('0x0', Wei(1e18), niftsy20.address)]
-    lock = [('0x0', chain.time() + 10), ('0x0', chain.time() + 20)]
+    lock = []
     royalty = [(accounts[1], 100), (accounts[2], 200)]
 
     wNFT = ( erc721_data,
@@ -369,7 +369,7 @@ def makeFromERC1155ToERC721WithoutCollateral(accounts, erc1155mock, wrapper, wnf
     erc1155_data = (erc1155_property, ORIGINAL_NFT_ID, in_nft_amount)
 
     fee = [('0x0', Wei(1e18), niftsy20.address)]
-    lock = [('0x0', chain.time() + 10), ('0x0', chain.time() + 20)]
+    lock = []
     royalty = [(accounts[1], 100), (accounts[2], 200)]
 
     wNFT = ( erc1155_data,
