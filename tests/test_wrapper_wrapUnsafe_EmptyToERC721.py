@@ -9,17 +9,11 @@ zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
 eth_amount = "4 ether"
 
-def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, erc1155mock1, erc721mock1):
+def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft721, niftsy20, erc1155mock1, erc721mock1):
     #make wrap NFT with empty
-
-    with reverts("Ownable: caller is not the owner"):
-        wrapper.setTrustedAddres(accounts[1], True, {"from": accounts[1]})
-
-    
     in_type = 0
-    out_type = 4
+    out_type = 3
     in_nft_amount = 3
-    out_nft_amount = 5
 
     dai.transfer(accounts[1], call_amount, {"from": accounts[0]})
     weth.transfer(accounts[1], 2*call_amount, {"from": accounts[0]})
@@ -36,8 +30,8 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
     erc1155mock1.setApprovalForAll(wrapper.address,True, {"from": accounts[1]})
 
     if (wrapper.lastWNFTId(out_type)[1] == 0):
-        wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
-    wnft1155.setMinterStatus(wrapper.address, {"from": accounts[0]})
+        wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
+    wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
     empty_property = (in_type, zero_address)
     dai_property = (2, dai.address)
@@ -63,17 +57,13 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
         lock,
         royalty,
         out_type,
-        out_nft_amount,
+        0,
         '0'
         )
-
-    with reverts("Only trusted address"):
-        wrapper.wrapUnsafe(wNFT, [dai_data, weth_data, erc721_data, erc1155_data], accounts[3], {"from": accounts[1], "value": eth_amount})
 
     wrapper.setTrustedAddres(accounts[1], True, {"from": accounts[0]})
 
     wrapper.wrapUnsafe(wNFT, [dai_data, weth_data, erc721_data, erc1155_data], accounts[3], {"from": accounts[1], "value": eth_amount})
-
     wTokenId = wrapper.lastWNFTId(out_type)[1]
 
     assert dai.balanceOf(wrapper.address) == call_amount
@@ -81,7 +71,7 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
     assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == wrapper.address
     assert erc1155mock1.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[0]) == in_nft_amount
     assert wrapper.balance() == eth_amount
-    assert wnft1155.balanceOf(accounts[3], wTokenId) == out_nft_amount
+    assert wnft721.ownerOf(wTokenId) == accounts[3]
 
 
 
@@ -89,19 +79,19 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
     eth_acc_balance = accounts[2].balance()
 
     with reverts("TimeLock error"):
-        wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]} )
+        wrapper.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[3]} )
 
     chain.sleep(250)
     chain.mine()
 
-    wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]} )
+    wrapper.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[3]} )
 
     assert dai.balanceOf(accounts[2]) == call_amount
     assert weth.balanceOf(accounts[2]) == 2*call_amount
     assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[2]
     assert erc1155mock1.balanceOf(accounts[2], ORIGINAL_NFT_IDs[0]) == in_nft_amount
     assert wrapper.balance() == 0
-    assert wnft1155.balanceOf(accounts[3], wTokenId) == 0
+    assert wnft721.balanceOf(accounts[3]) == 0
     assert accounts[2].balance() == eth_acc_balance + eth_contract_balance
 
     logging.info(wTokenId)
@@ -131,7 +121,7 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
         lock,
         royalty,
         out_type,
-        out_nft_amount,
+        0,
         '0'
         )
 
@@ -144,36 +134,27 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
     assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[1]) == wrapper.address
     assert erc1155mock1.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[1]) == in_nft_amount
     assert wrapper.balance() == eth_amount
-    assert wnft1155.balanceOf(accounts[3], wTokenId) == out_nft_amount
-
+    assert wnft721.ownerOf(wTokenId) == accounts[3]
 
 
     eth_contract_balance = wrapper.balance()
     eth_acc_balance = accounts[2].balance()
 
-    wnft1155.safeTransferFrom(accounts[3], accounts[4], wTokenId, 1, "", {"from": accounts[3]} )
-
-    with reverts("ERC115 unwrap available only for all totalSupply"):
-        wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]} )
-
-    wnft1155.safeTransferFrom(accounts[4], accounts[3], wTokenId, 1, "", {"from": accounts[4]} )
-
-
-
     with reverts("TimeLock error"):
-        wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]} )
+        wrapper.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[3]} )
 
     chain.sleep(250)
     chain.mine()
-    
-    wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]} )    
+
+    wrapper.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[3]} )
 
     assert dai.balanceOf(accounts[2]) == 2*call_amount
     assert weth.balanceOf(accounts[2]) == 4*call_amount
     assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[1]) == accounts[2]
     assert erc1155mock1.balanceOf(accounts[2], ORIGINAL_NFT_IDs[1]) == in_nft_amount
     assert wrapper.balance() == 0
-    assert wnft1155.balanceOf(accounts[3], wTokenId) == 0
+    assert wnft721.balanceOf(accounts[3]) == 0
     assert accounts[2].balance() == eth_acc_balance + eth_contract_balance
+
 
 
