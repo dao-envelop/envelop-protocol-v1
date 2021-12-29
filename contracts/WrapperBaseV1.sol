@@ -193,20 +193,13 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             _inData
         );
 
-        if (_checkAddCollateral(
-                lastWNFTId[_inData.outType].contractAddress, 
-                lastWNFTId[_inData.outType].tokenId,
-                _collateral
-            )) 
-        {
+        
 
-            _addCollateral(
-                lastWNFTId[_inData.outType].contractAddress, 
-                lastWNFTId[_inData.outType].tokenId, 
-                _collateral
-            );
-
-        }
+        _addCollateral(
+            lastWNFTId[_inData.outType].contractAddress, 
+            lastWNFTId[_inData.outType].tokenId, 
+            _collateral
+        );
 
         emit WrappedV1(
             _inData.inAsset.asset.contractAddress,        // inAssetAddress
