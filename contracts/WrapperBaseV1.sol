@@ -254,6 +254,24 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         );
     }
 
+    function addCollateralUnsafe(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId, 
+        ETypes.AssetItem[] calldata _collateral
+    ) 
+        external 
+        payable 
+        virtual 
+        onlyTrusted 
+    {
+
+        _addCollateral(
+            _wNFTAddress, 
+            _wNFTTokenId, 
+            _collateral
+        );
+    }
+
     function unWrap(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) external virtual {
         unWrap(_wNFTType,_wNFTAddress, _wNFTTokenId, false);
     }
