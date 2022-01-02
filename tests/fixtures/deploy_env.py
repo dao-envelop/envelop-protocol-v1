@@ -107,11 +107,11 @@ def whiteLists(accounts, AdvancedWhiteList):
 #     techERC20.addMinter(t.address, {'from': accounts[0]})
 #     yield t 
 
-# @pytest.fixture(scope="module")
-# def trmodel(accounts, TransferRoyaltyModel01, wrapper, niftsy20):
-#     t = accounts[0].deploy(TransferRoyaltyModel01, wrapper.address)
-#     wrapper.editPartnersItem(niftsy20.address, True, t.address, False,{'from': accounts[0]})
-#     yield t 
+#@pytest.fixture(scope="module")
+#def trmodel(accounts, TransferRoyaltyModel01, wrapper, niftsy20):
+#    t = accounts[0].deploy(TransferRoyaltyModel01, wrapper.address)
+#    wrapper.editPartnersItem(niftsy20.address, True, t.address, False,{'from': accounts[0]})
+#    yield t 
 
 
 
