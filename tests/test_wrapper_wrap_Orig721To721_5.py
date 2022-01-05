@@ -9,7 +9,7 @@ zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
 eth_amount = "4 ether"
 
-def test_addCollateral(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc1155mock1, erc721mock1, whiteLists):
+def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc1155mock1, erc721mock1, whiteLists):
     #make wrap NFT with empty
     in_type = 3
     out_type = 3
