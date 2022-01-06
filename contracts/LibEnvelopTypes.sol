@@ -68,4 +68,9 @@ library ETypes {
         address transferFeeModel;
     }
 
+    struct Rules {
+        bytes2 onlythis;
+        bytes2 disabled;
+    }
+
 }

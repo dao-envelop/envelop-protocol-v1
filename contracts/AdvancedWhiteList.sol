@@ -12,6 +12,7 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
     
     mapping(address => ETypes.WhiteListItem) internal whiteList;
     mapping(address => bool) internal blackList;
+    mapping(address => ETypes.Rules) internal rulesChecker;
     address[] public whiteListedArray;
     address[] public blackListedArray;
 
@@ -94,6 +95,12 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
         }
         emit BlackListItemChanged(_asset, _isBlackListed);
     }
+
+    function setRules(address _asset, bytes2 _only, bytes2 _disabled) public onlyOwner {
+        rulesChecker[_asset].onlythis = _only;
+        rulesChecker[_asset].disabled = _disabled;
+    }
+
     /////////////////////////////////////////////////////////////////////////////////////////////
     
     function getWLItem(address _asset) external view returns (ETypes.WhiteListItem memory) {
@@ -125,23 +132,27 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
         return whiteList[_asset].enabledRemoveFromCollateral;
     }
     
+    function rulesEnabled(address _asset, bytes2 _rules) external view returns (bool) {
 
-    // function removeBLItem(address _asset) external onlyOwner {
-    //     uint256 deletedIndex;
-    //     for (uint256 i = 0; i < blackListedArray.length; i ++){
-    //         if (blackListedArray[i] == _asset) {
-    //             deletedIndex = i;
-    //             break;
-    //         }
-    //     }
-    //     // Check that deleting item is not last array member
-    //     // because in solidity we can remove only last item from array
-    //     if (deletedIndex != blackListedArray.length - 1) {
-    //         // just replace deleted item with last item
-    //         blackListedArray[i] = blackListedArray[blackListedArray.length - 1];
-    //     } 
-    //     blackListedArray.pop();
-    //     delete blackList[_asset];
-    //     emit BlackListItemChanged(_asset, false);
-    // }
+        if (rulesChecker[_asset].onlythis != 0x0000) {
+            return rulesChecker[_asset].onlythis == _rules;
+        }
+
+        if (rulesChecker[_asset].disabled != 0x0000) {
+            return (rulesChecker[_asset].disabled & _rules) == 0x0000;
+        }
+        return true;
+    }
+
+    function validateRules(address _asset, bytes2 _rules) external view returns (bytes2) {
+        if (rulesChecker[_asset].onlythis != 0x0000) {
+            return rulesChecker[_asset].onlythis;
+        }
+
+        if (rulesChecker[_asset].disabled != 0x0000) {
+            return (~rulesChecker[_asset].disabled) & _rules;
+        }
+        return _rules;
+    }
+
 }
