@@ -8,8 +8,16 @@ import "../contracts/LibEnvelopTypes.sol";
 interface IAdvancedWhiteList  {
 
 
-    event WhiteListItemChanged(address indexed asset, ETypes.AdvWhiteListItem item);
-    function getItem(address _asset) external view returns (ETypes.AdvWhiteListItem memory);
-    function setItem(address _asset, ETypes.AdvWhiteListItem calldata _issetItem) external; 
-    function removeItem(address _asset) external;
+    event WhiteListItemChanged(
+        address indexed asset,
+        bool enabledForFee,
+        bool enabledForCollateral,
+        bool enabledRemoveFromCollateral,
+        address transferFeeModel
+    );
+    event BlackListItemChanged(
+        address indexed asset,
+        bool isBlackListed
+    );
+    function getWLItem(address _asset) external view returns (ETypes.WhiteListItem memory);
 }
