@@ -15,11 +15,7 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
     address[] public whiteListedArray;
     address[] public blackListedArray;
 
-    //event WhiteListItemChanged(address indexed asset, ETypes.WhiteListItem item);
 
-    function getWLItem(address _asset) external view returns (ETypes.WhiteListItem memory) {
-        return whiteList[_asset];
-    }
 
     /////////////////////////////////////////////////////////////////////
     //                    Admin functions                              //
@@ -98,6 +94,37 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
         }
         emit BlackListItemChanged(_asset, _isBlackListed);
     }
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    
+    function getWLItem(address _asset) external view returns (ETypes.WhiteListItem memory) {
+        return whiteList[_asset];
+    }
+
+    function getWLItemCount() external view returns (uint256) {
+        return whiteListedArray.length;
+    }
+
+     
+    function getBLItem(address _asset) external view returns (bool) {
+        return blackList[_asset];
+    }
+
+    function getBLItemCount() external view returns (uint256) {
+        return blackListedArray.length;
+    }
+
+    function enabledForCollateral(address _asset) external view returns (bool) {
+        return whiteList[_asset].enabledForCollateral;
+    }
+
+    function enabledForFee(address _asset) external view returns (bool) {
+        return whiteList[_asset].enabledForFee;
+    }
+
+    function enabledRemoveFromCollateral(address _asset) external view returns (bool) {
+        return whiteList[_asset].enabledRemoveFromCollateral;
+    }
+    
 
     // function removeBLItem(address _asset) external onlyOwner {
     //     uint256 deletedIndex;
