@@ -32,17 +32,10 @@ def test_addCollateral(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy
 
     #switch on white list
     wrapper.setWhiteList(whiteLists.address, {"from": accounts[0]})
+    wrapper.setTrustedAddres(accounts[1], True, {"from": accounts[0]})
 
-    #try to add collaterall
-    with reverts("WL:Some assets Not enabled for collateral"):
-        wrapper.addCollateral(wnft721.address, wTokenId, [erc721_data], {"from": accounts[1], "value": eth_amount})
-
-    #add items in whiteList
-    wl_data = (False, True, False,  False, '0x0', accounts[9])
-    whiteLists.setItem(erc721mock1.address, wl_data, {"from": accounts[0]})
-
-    #add collaterall
-    tx = wrapper.addCollateral(wnft721.address, wTokenId, [erc721_data], {"from": accounts[1], "value": eth_amount})
+    #add collaterall unsafe
+    tx = wrapper.addCollateralUnsafe(wnft721.address, wTokenId, [erc721_data], {"from": accounts[1], "value": eth_amount})
 
     logging.info(tx.gas_used)
 
