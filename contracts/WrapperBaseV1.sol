@@ -965,18 +965,16 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             ) 
             && _wrappFor != address(this);
         // Check WhiteList Logic
-        // if  (protocolWhiteList != address(0)) {
-        //     require(
-        //         !IAdvancedWhiteList(protocolWhiteList).getItem(_inData.inAsset.asset.contractAddress).disabledForWrap,
-        //         "WL:Asset disabled for wrap"
-        //     );
-        //     require(
-        //         (_inData.rules
-        //         & IAdvancedWhiteList(protocolWhiteList).getItem(_inData.inAsset.asset.contractAddress).rulesEnabled)
-        //         ==  _inData.rules,
-        //         "WL:Some rules are disabled fro this asset"
-        //     );
-        // }    
+        if  (protocolWhiteList != address(0)) {
+            require(
+                !IAdvancedWhiteList(protocolWhiteList).getBLItem(_inData.inAsset.asset.contractAddress),
+                "WL:Asset disabled for wrap"
+            );
+            require(
+                IAdvancedWhiteList(protocolWhiteList).rulesEnabled(_inData.inAsset.asset.contractAddress, _inData.rules),
+                "WL:Some rules are disabled fro this asset"
+            );
+        }    
         return enabled;
     }
     
@@ -996,11 +994,10 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         // Check WhiteList Logic
         if  (protocolWhiteList != address(0)) {
             for (uint256 i = 0; i < _collateral.length; i ++){
-                if (_collateral[i].asset.assetType != ETypes.AssetType.NATIVE) {
+                if (_collateral[i].asset.assetType != ETypes.AssetType.EMPTY) {
                     require(
-                        IAdvancedWhiteList(protocolWhiteList).getWLItem(
-                        _collateral[i].asset.contractAddress
-                        ).enabledForCollateral,
+                        IAdvancedWhiteList(protocolWhiteList).enabledForCollateral(
+                        _collateral[i].asset.contractAddress),
                         "WL:Some assets are not enabled for collateral"
                     );
 

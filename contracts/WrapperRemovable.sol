@@ -4,9 +4,10 @@ pragma solidity 0.8.10;
 
 import "./WrapperBaseV1.sol";
 
+
 contract WrapperRemovable is WrapperBaseV1 {
     
-    constructor(address _erc20) WrapperBaseV1(_erc20){
+    constructor(address _erc20) WrapperBaseV1(_erc20) {
 
     }
 
