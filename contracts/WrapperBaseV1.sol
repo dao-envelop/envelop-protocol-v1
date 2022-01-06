@@ -193,8 +193,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             _inData
         );
 
-        
-
         _addCollateral(
             lastWNFTId[_inData.outType].contractAddress, 
             lastWNFTId[_inData.outType].tokenId, 
@@ -967,18 +965,18 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             ) 
             && _wrappFor != address(this);
         // Check WhiteList Logic
-        if  (protocolWhiteList != address(0)) {
-            require(
-                !IAdvancedWhiteList(protocolWhiteList).getItem(_inData.inAsset.asset.contractAddress).disabledForWrap,
-                "WL:Asset disabled for wrap"
-            );
-            require(
-                (_inData.rules
-                & IAdvancedWhiteList(protocolWhiteList).getItem(_inData.inAsset.asset.contractAddress).rulesEnabled)
-                ==  _inData.rules,
-                "WL:Some rules are disabled fro this asset"
-            );
-        }    
+        // if  (protocolWhiteList != address(0)) {
+        //     require(
+        //         !IAdvancedWhiteList(protocolWhiteList).getItem(_inData.inAsset.asset.contractAddress).disabledForWrap,
+        //         "WL:Asset disabled for wrap"
+        //     );
+        //     require(
+        //         (_inData.rules
+        //         & IAdvancedWhiteList(protocolWhiteList).getItem(_inData.inAsset.asset.contractAddress).rulesEnabled)
+        //         ==  _inData.rules,
+        //         "WL:Some rules are disabled fro this asset"
+        //     );
+        // }    
         return enabled;
     }
     
@@ -1000,10 +998,10 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             for (uint256 i = 0; i < _collateral.length; i ++){
                 if (_collateral[i].asset.assetType != ETypes.AssetType.NATIVE) {
                     require(
-                        IAdvancedWhiteList(protocolWhiteList).getItem(
+                        IAdvancedWhiteList(protocolWhiteList).getWLItem(
                         _collateral[i].asset.contractAddress
                         ).enabledForCollateral,
-                        "WL:Some assets Not enabled for collateral"
+                        "WL:Some assets are not enabled for collateral"
                     );
 
                 }

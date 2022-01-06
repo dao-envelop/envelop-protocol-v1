@@ -45,7 +45,7 @@ contract WrapperRemovable is WrapperBaseV1 {
         if  (protocolWhiteList != address(0)) {
             if (_collateralItem.asset.assetType != ETypes.AssetType.NATIVE) {
                 require(
-                    IAdvancedWhiteList(protocolWhiteList).getItem(
+                    IAdvancedWhiteList(protocolWhiteList).getWLItem(
                     _collateralItem.asset.contractAddress
                     ).enabledRemoveFromCollateral,
                     "WL:Asset Not enabled for remove"

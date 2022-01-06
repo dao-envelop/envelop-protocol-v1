@@ -3,60 +3,145 @@
 pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-//import "../interfaces/IWrapper.sol";
+import "../interfaces/IAdvancedWhiteList.sol";
 import "./LibEnvelopTypes.sol";
 //import "../interfaces/IERC721Mintable.sol";
 
-contract AdvancedWhiteList is Ownable {
+contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
 
-    address[] public listAssets;
-    mapping(address => ETypes.AdvWhiteListItem) internal whiteList;
+    
+    mapping(address => ETypes.WhiteListItem) internal whiteList;
+    mapping(address => bool) internal blackList;
+    address[] public whiteListedArray;
+    address[] public blackListedArray;
 
-    event WhiteListItemChanged(address indexed asset, ETypes.AdvWhiteListItem item);
 
-    function getItem(address _asset) external view returns (ETypes.AdvWhiteListItem memory) {
-        return whiteList[_asset];
-    }
 
     /////////////////////////////////////////////////////////////////////
     //                    Admin functions                              //
     /////////////////////////////////////////////////////////////////////
-    function setItem(address _asset, ETypes.AdvWhiteListItem calldata _issetItem) external onlyOwner {
-        whiteList[_asset] = _issetItem;
+    function setWLItem(address _asset, ETypes.WhiteListItem calldata _assetItem) external onlyOwner {
+        whiteList[_asset] = _assetItem;
         bool alreadyExist;
-        for (uint256 i = 0; i < listAssets.length; i ++) {
-            if (listAssets[i] == _asset){
+        for (uint256 i = 0; i < whiteListedArray.length; i ++) {
+            if (whiteListedArray[i] == _asset){
                 alreadyExist = true;
                 break;
             }
-            if (alreadyExist) {
-               listAssets.push(_asset); 
+            if (!alreadyExist) {
+               whiteListedArray.push(_asset); 
             }
         }
-        emit WhiteListItemChanged(_asset, _issetItem);
+        emit WhiteListItemChanged(
+            _asset, 
+            _assetItem.enabledForFee, 
+            _assetItem.enabledForCollateral, 
+            _assetItem.enabledRemoveFromCollateral,
+            _assetItem.transferFeeModel
+        );
 
     }
 
-    function removeItem(address _asset) external onlyOwner {
+    function removeWLItem(address _asset) external onlyOwner {
         uint256 deletedIndex;
-        for (uint256 i = 0; i < listAssets.length; i ++) {
-            if (listAssets[i] == _asset){
+        for (uint256 i = 0; i < whiteListedArray.length; i ++) {
+            if (whiteListedArray[i] == _asset){
                 deletedIndex = i;
                 break;
             }
-            // Check that deleting item is not last array member
-            // because in solidity we can remove only last item from array
-            if (deletedIndex != listAssets.length - 1) {
-                // just replace deleted item with last item
-                listAssets[i] = listAssets[listAssets.length - 1];
-            } 
-            listAssets.pop();
         }
+        // Check that deleting item is not last array member
+        // because in solidity we can remove only last item from array
+        if (deletedIndex != whiteListedArray.length - 1) {
+            // just replace deleted item with last item
+            whiteListedArray[deletedIndex] = whiteListedArray[whiteListedArray.length - 1];
+        } 
+        whiteListedArray.pop();
         delete whiteList[_asset];
         emit WhiteListItemChanged(
             _asset, 
-            ETypes.AdvWhiteListItem(false, false, false, false, 0x0000, address(0))
+            false, false, false, address(0)
         );
-        
     }
+
+    function setBLItem(address _asset, bool _isBlackListed) external onlyOwner {
+        blackList[_asset] = _isBlackListed;
+        if (_isBlackListed) {
+            for (uint256 i = 0; i < blackListedArray.length; i ++){
+                if (blackListedArray[i] == _asset) {
+                    return;
+                }
+            }
+            // There is no this address in array so  just add it
+            blackListedArray.push(_asset);
+        } else {
+            uint256 deletedIndex;
+            for (uint256 i = 0; i < blackListedArray.length; i ++){
+                if (blackListedArray[i] == _asset) {
+                    deletedIndex = i;
+                    break;
+                }
+            }
+            // Check that deleting item is not last array member
+            // because in solidity we can remove only last item from array
+            if (deletedIndex != blackListedArray.length - 1) {
+                // just replace deleted item with last item
+                blackListedArray[deletedIndex] = blackListedArray[blackListedArray.length - 1];
+            } 
+            blackListedArray.pop();
+            delete blackList[_asset];
+
+        }
+        emit BlackListItemChanged(_asset, _isBlackListed);
+    }
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    
+    function getWLItem(address _asset) external view returns (ETypes.WhiteListItem memory) {
+        return whiteList[_asset];
+    }
+
+    function getWLItemCount() external view returns (uint256) {
+        return whiteListedArray.length;
+    }
+
+     
+    function getBLItem(address _asset) external view returns (bool) {
+        return blackList[_asset];
+    }
+
+    function getBLItemCount() external view returns (uint256) {
+        return blackListedArray.length;
+    }
+
+    function enabledForCollateral(address _asset) external view returns (bool) {
+        return whiteList[_asset].enabledForCollateral;
+    }
+
+    function enabledForFee(address _asset) external view returns (bool) {
+        return whiteList[_asset].enabledForFee;
+    }
+
+    function enabledRemoveFromCollateral(address _asset) external view returns (bool) {
+        return whiteList[_asset].enabledRemoveFromCollateral;
+    }
+    
+
+    // function removeBLItem(address _asset) external onlyOwner {
+    //     uint256 deletedIndex;
+    //     for (uint256 i = 0; i < blackListedArray.length; i ++){
+    //         if (blackListedArray[i] == _asset) {
+    //             deletedIndex = i;
+    //             break;
+    //         }
+    //     }
+    //     // Check that deleting item is not last array member
+    //     // because in solidity we can remove only last item from array
+    //     if (deletedIndex != blackListedArray.length - 1) {
+    //         // just replace deleted item with last item
+    //         blackListedArray[i] = blackListedArray[blackListedArray.length - 1];
+    //     } 
+    //     blackListedArray.pop();
+    //     delete blackList[_asset];
+    //     emit BlackListItemChanged(_asset, false);
+    // }
 }
