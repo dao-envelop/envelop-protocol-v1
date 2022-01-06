@@ -995,7 +995,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         
         // Check WhiteList Logic
         if  (protocolWhiteList != address(0)) {
-            for (uint256 i = MAX_COLLATERAL_SLOTS; i < _collateral.length; i ++){
+            for (uint256 i = 0; i < _collateral.length; i ++){
                 if (_collateral[i].asset.assetType != ETypes.AssetType.NATIVE) {
                     require(
                         IAdvancedWhiteList(protocolWhiteList).getWLItem(
