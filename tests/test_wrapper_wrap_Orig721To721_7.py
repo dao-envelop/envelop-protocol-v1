@@ -110,5 +110,8 @@ def test_wrap1(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc1
 
     wrapper.addCollateral(wnft721.address, wTokenId, [dai_data], {"from": accounts[1]})
 
+    assert dai.balanceOf(wrapper.address) == 2*call_amount+1
+
+
 
 
