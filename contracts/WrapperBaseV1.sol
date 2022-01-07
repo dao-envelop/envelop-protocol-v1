@@ -972,7 +972,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
             );
             require(
                 IAdvancedWhiteList(protocolWhiteList).rulesEnabled(_inData.inAsset.asset.contractAddress, _inData.rules),
-                "WL:Some rules are disabled fro this asset"
+                "WL:Some rules are disabled for this asset"
             );
 
             for (uint256 i = 0; i < _inData.fees.length; i ++){
