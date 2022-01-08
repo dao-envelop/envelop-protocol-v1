@@ -22,6 +22,7 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
     //                    Admin functions                              //
     /////////////////////////////////////////////////////////////////////
     function setWLItem(address _asset, ETypes.WhiteListItem calldata _assetItem) external onlyOwner {
+        require(_assetItem.transferFeeModel != address(0), 'Cant be zero, use default instead');
         whiteList[_asset] = _assetItem;
         bool alreadyExist;
         for (uint256 i = 0; i < whiteListedArray.length; i ++) {
@@ -111,6 +112,14 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
         return whiteListedArray.length;
     }
 
+    function getWLAddressByIndex(uint256 _index) external view returns (address) {
+        return whiteListedArray[_index];
+    }
+
+    function getWLAddresses() external view returns (address[] memory) {
+        return whiteListedArray;
+    }
+
      
     function getBLItem(address _asset) external view returns (bool) {
         return blackList[_asset];
@@ -118,6 +127,14 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
 
     function getBLItemCount() external view returns (uint256) {
         return blackListedArray.length;
+    }
+
+    function getBLAddressByIndex(uint256 _index) external view returns (address) {
+        return blackListedArray[_index];
+    }
+
+    function getBLAddresses() external view returns (address[] memory) {
+        return blackListedArray;
     }
 
     function enabledForCollateral(address _asset) external view returns (bool) {

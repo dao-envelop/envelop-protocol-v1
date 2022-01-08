@@ -47,6 +47,13 @@ interface IWrapper  {
         address indexed failedContractAddress
     );
 
+    event EnvelopFee(
+        address indexed receiver,
+        address indexed wNFTConatract,
+        uint256 indexed wNFTTokenId,
+        uint256 amount
+    );
+
     function getWrappedToken(address _wNFTAddress, uint256 _wNFTTokenId) 
         external 
         view 

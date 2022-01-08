@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 //import "./TechToken.sol";
 import "../interfaces/IERC20Extended.sol";
-import "../interfaces/IFeeRoyaltyCharger.sol";
+import "../interfaces/IFeeRoyaltyModel.sol";
 import "../interfaces/IWrapper.sol";
 import "../interfaces/IAdvancedWhiteList.sol";
 import "./LibEnvelopTypes.sol";
@@ -37,7 +37,7 @@ import "../interfaces/IERC1155Mintable.sol";
  * @title Non-Fungible Token Wrapper
  * @dev Make  wraping for existing ERC721 & ERC1155 and empty 
  */
-contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoyaltyCharger,*/ IWrapper, Ownable {
+contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper, Ownable {
     using SafeERC20 for IERC20Extended;
 
 
@@ -135,7 +135,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         // There is No Any Fees in Protocol
         // So this hook can be used in b2b extensions of Envelop Protocol 
         // 0x02 - feeType for WrapFee
-        _chargeFees(
+        chargeFees(
             lastWNFTId[_inData.outType].contractAddress, 
             lastWNFTId[_inData.outType].tokenId, 
             msg.sender, 
@@ -290,7 +290,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         // So this hook can be used in b2b extensions of Envelop Protocol 
         // 0x03 - feeType for UnWrapFee
         // 
-        _chargeFees(_wNFTAddress, _wNFTTokenId, msg.sender, address(this), 0x03);
+        chargeFees(_wNFTAddress, _wNFTTokenId, msg.sender, address(this), 0x03);
         uint256 nativeCollateralAmount = _getNativeCollateralBalance(_wNFTAddress, _wNFTTokenId);
         ///////////////////////////////////////////////
         ///  Place for hook                        ////
@@ -348,13 +348,55 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         address _to,
         bytes1 _feeType
     ) 
-        external  
+        public
+        virtual  
         returns (bool) 
     {
-        require(
-            _chargeFees(_wNFTAddress, _wNFTTokenId, _from, _to, _feeType),
-            "Charge Fee Error"
+        //TODO  only wNFT contract can  execute  this(=charge fee)
+        require(msg.sender == _wNFTAddress || msg.sender == address(this), 
+            "Only for wFFT or wrapper"
         );
+        for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].fees.length; i ++){
+            /////////////////////////////////////////
+            // For Transfer Fee -0x00             ///  
+            /////////////////////////////////////////
+            if (wrappedTokens[_wNFTAddress][_wNFTTokenId].fees[i].feeType == 0x00){
+               // - get modelAddress.  Default feeModel adddress always live in
+               // protocolTechToken. When white list used it is possible override that model
+               address feeModel = protocolTechToken;
+                if  (protocolWhiteList != address(0)) {
+                    feeModel = IAdvancedWhiteList(protocolWhiteList).getWLItem(
+                        wrappedTokens[_wNFTAddress][_wNFTTokenId].fees[i].token).transferFeeModel;
+                }
+
+                // - get transfer list from external model by feetype(with royalties)
+                (ETypes.AssetItem[] memory assetItems, address[] memory from, address[] memory to) =
+                    IFeeRoyaltyModel(feeModel).getTransfersList(
+                        wrappedTokens[_wNFTAddress][_wNFTTokenId].fees[i],
+                        wrappedTokens[_wNFTAddress][_wNFTTokenId].royalties,
+                        _from, 
+                        _to 
+                    );
+                // - execute transfers
+                uint256 actualTransfered;
+                for (uint256 j = 0; j < to.length; i ++){
+                    // if transfer receiver(to) = zeroaddress lets consider
+                    // address(this) as receiver. in this case received amount
+                    // will be collateral
+                    if (to[j]== address(0)){
+                        to[j]= address(this);
+                        _updateCollateralInfo(
+                          _wNFTAddress, 
+                          _wNFTTokenId, 
+                           assetItems[j]
+                        ); 
+                    }
+                    actualTransfered = _transferSafe(assetItems[j], from[j], to[j]);
+                    emit EnvelopFee(to[j], _wNFTAddress, _wNFTTokenId, actualTransfered); 
+                }
+            }
+            //////////////////////////////////////////
+        }
         return true;
     }
     /////////////////////////////////////////////////////////////////////
@@ -725,21 +767,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
         }
     }
 
-    function _chargeFees(
-        address _wNFTAddress, 
-        uint256 _wNFTTokenId, 
-        address _from, 
-        address _to,
-        bytes1 _feeType
-    ) internal  returns (bool) {
-        // For Transfer Fee^
-        // - get fee token from wNFT(default - is zero)
-        // - get modelAddress
-        // - get arrays of beneficiaries 
-        // - get transfer list from external model by feetype(with royalties)
-        // - execute transfers
-        return true;
-    }
 
     /**
      * @dev This hook may be overriden in inheritor contracts for extend
@@ -982,8 +1009,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder,/*IFeeRoy
                         "WL:Some assets are not enabled for fee"
                     );
             }
-
-
         }    
         return enabled;
     }
