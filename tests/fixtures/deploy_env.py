@@ -71,8 +71,8 @@ def wnft1155(accounts, EnvelopwNFT1155):
     yield wnft
 
 @pytest.fixture(scope="module")
-def techERC20(accounts, TechToken):
-    erc20 = accounts[0].deploy(TechToken)
+def techERC20(accounts, TechTokenV1):
+    erc20 = accounts[0].deploy(TechTokenV1)
     yield erc20 
 
 @pytest.fixture(scope="module")
