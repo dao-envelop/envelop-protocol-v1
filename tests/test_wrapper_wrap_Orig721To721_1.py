@@ -9,7 +9,7 @@ zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
 eth_amount = "4 ether"
 
-def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, erc1155mock1, erc721mock1, mockHacker721_1):
+def test_wrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, erc1155mock1, erc721mock1, mockHacker721_1):
     #make wrap NFT with empty
 	in_type = 3
 	out_type = 3
