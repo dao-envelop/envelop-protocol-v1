@@ -27,7 +27,7 @@ def test_addCollateral(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy
     
     token_data = (token_property, ORIGINAL_NFT_IDs[0], 0)
     
-    fee = [('0x0', Wei(1e18), niftsy20.address)]
+    fee = []
     lock = []
     royalty = [(accounts[1], 100), (accounts[2], 200)]
 
