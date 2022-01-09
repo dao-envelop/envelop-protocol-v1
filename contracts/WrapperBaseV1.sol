@@ -211,14 +211,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         );
     }
 
-    function wrapSafe(
-        ETypes.INData calldata _inData, 
-        ETypes.AssetItem[] calldata _collateral, 
-        address _wrappFor
-    ) public returns (ETypes.AssetItem memory) {
-        //TODO many Checks
-        return wrap(_inData, _collateral, _wrappFor);
-    }
 
     function addCollateral(
         address _wNFTAddress, 
@@ -980,7 +972,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
                     "TransferFeeLock error"
                 );
             }
-
         }
         return true;
     }
@@ -1047,10 +1038,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
                         _collateral[i].asset.contractAddress),
                         "WL:Some assets are not enabled for collateral"
                     );
-
                 }
             }
-            
         }
         return enabled;
     }
