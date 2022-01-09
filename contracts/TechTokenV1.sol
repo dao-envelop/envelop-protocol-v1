@@ -7,7 +7,7 @@ import "./MinterRole.sol";
 import "./FeeRoyaltyModelV1_00.sol";
 
 
-contract TechToken is ERC20, MinterRole, FeeRoyaltyModelV1_00 {
+contract TechTokenV1 is ERC20, MinterRole, FeeRoyaltyModelV1_00 {
 
     constructor()
     ERC20("Virtual Envelop Transfer Fee Token", "vENVLP")

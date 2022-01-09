@@ -11,8 +11,8 @@ contract FeeRoyaltyModelV1_00 is IFeeRoyaltyModel {
     address public wrapper;
 
     function registerModel() external {
+        require(wrapper == address(0), 'Already registered');
         wrapper = msg.sender;
-
     }
 
     function getTransfersList(
