@@ -7,7 +7,7 @@ from makeTestData import makeNFTForTest721, makeNFTForTest1155
 ORIGINAL_NFT_IDs = [10000,11111,22222]
 zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
-eth_amount = "4 ether"
+eth_amount = "1 ether"
 
 def test_wrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, erc1155mock1, erc721mock1, mockHacker721_1):
     #make wrap NFT with empty
@@ -54,9 +54,9 @@ def test_wrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, erc
 	erc721_data = (erc721_property, ORIGINAL_NFT_IDs[0], 0)
 	erc1155_data = (erc1155_property, ORIGINAL_NFT_IDs[0], in_nft_amount)
 
-	fee = [('0x0', Wei(1e18), niftsy20.address)]
+	fee = []
 	lock = [('0x0', chain.time() + 100), ('0x0', chain.time() + 200)]
-	royalty = [(accounts[1], 100), (accounts[2], 200)]
+	royalty = []
 
 	wNFT = ( hack_data,
 		accounts[2],

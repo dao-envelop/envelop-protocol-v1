@@ -7,7 +7,7 @@ from makeTestData import makeNFTForTest721, makeNFTForTest1155
 ORIGINAL_NFT_IDs = [10000,11111,22222]
 zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
-eth_amount = "4 ether"
+eth_amount = "1 ether"
 
 def test_wrap(accounts, erc721mock, wrapper, wnft721, whiteLists, erc1155mock, erc721mock1):
     #make wrap NFT with empty

@@ -8,7 +8,7 @@ from web3 import Web3
 ORIGINAL_NFT_IDs = [10000,11111,22222]
 zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
-eth_amount = "4 ether"
+eth_amount = "1 ether"
 
 #can wrap again
 #can add collateral

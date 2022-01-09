@@ -5,7 +5,7 @@ LOGGER = logging.getLogger(__name__)
 
 zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
-eth_amount = "4 ether"
+eth_amount = "1 ether"
 
 
 def makeNFTForTest721(accounts, erc721mock, original_nft_ids):
@@ -251,9 +251,9 @@ def makeFromERC1155ToERC1155WithoutCollateral(accounts, erc1155mock, wrapper, wn
 
     erc1155_data = (erc1155_property, ORIGINAL_NFT_ID, in_nft_amount)
     
-    fee = [('0x0', Wei(1e18), niftsy20.address)]
+    fee = []
     lock = []
-    royalty = [(accounts[1], 100), (accounts[2], 200)]
+    royalty = []
 
     wNFT = ( erc1155_data,
         accounts[2],

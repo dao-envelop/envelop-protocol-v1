@@ -6,7 +6,7 @@ from makeTestData import makeNFTForTest721, makeNFTForTest1155
 
 zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
-eth_amount = "4 ether"
+eth_amount = "1 ether"
 
 def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, erc1155mock1, erc721mock1):
     #make wrap NFT with empty

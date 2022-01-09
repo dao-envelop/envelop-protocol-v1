@@ -7,7 +7,7 @@ from makeTestData import makeNFTForTest1155, makeFromERC721ToERC721WithoutCollat
 ORIGINAL_NFT_IDs = [10000,11111,22222]
 zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
-eth_amount = "4 ether"
+eth_amount = "1 ether"
 
 def test_addCollateral(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc721mock1, whiteLists):
     #make wrap NFT with empty

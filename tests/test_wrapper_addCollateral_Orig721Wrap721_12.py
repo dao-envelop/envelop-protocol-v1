@@ -7,7 +7,7 @@ from makeTestData import makeNFTForTest1155, makeFromERC721ToERC721WithoutCollat
 ORIGINAL_NFT_IDs = [10000,11111,22222]
 zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
-eth_amount = "4 ether"
+eth_amount = "1 ether"
 
 def test_addCollateral(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc1155mock, whiteLists):
     #make wrap NFT with empty
@@ -34,12 +34,12 @@ def test_addCollateral(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy
     wrapper.setWhiteList(whiteLists.address, {"from": accounts[0]})
 
     #try to add collaterall
-    with reverts("WL:Some assets Not enabled for collateral"):
+    with reverts("WL:Some assets are not enabled for collateral"):
         wrapper.addCollateral(wnft721.address, wTokenId, [erc1155_data], {"from": accounts[1], "value": eth_amount})
 
     #add items in whiteList
-    wl_data = (False, True, False,  False, '0x0', accounts[9])
-    whiteLists.setItem(erc1155mock.address, wl_data, {"from": accounts[0]})
+    wl_data = (False, True, False, accounts[9])
+    whiteLists.setWLItem(erc1155mock.address, wl_data, {"from": accounts[0]})
 
     #add collaterall
     wrapper.addCollateral(wnft721.address, wTokenId, [erc1155_data], {"from": accounts[1], "value": eth_amount})

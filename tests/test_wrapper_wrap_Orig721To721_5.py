@@ -7,7 +7,7 @@ from makeTestData import makeNFTForTest721, makeNFTForTest1155
 ORIGINAL_NFT_IDs = [10000,11111,22222]
 zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
-eth_amount = "4 ether"
+eth_amount = "1 ether"
 
 def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc1155mock1, erc721mock1, whiteLists):
     #make wrap NFT with empty
@@ -33,9 +33,9 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc11
     token_data = (token_property, ORIGINAL_NFT_IDs[0], 0)
     erc721_data = (erc721_property, ORIGINAL_NFT_IDs[0], 0)
 
-    fee = [('0x0', Wei(1e18), niftsy20.address)]
+    fee = []
     lock = []
-    royalty = [(accounts[1], 100), (accounts[2], 200)]
+    royalty = []
 
     wNFT = ( token_data,
         accounts[2],
@@ -51,11 +51,11 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc11
     #switch on white list
     wrapper.setWhiteList(whiteLists.address, {"from": accounts[0]})
 
-    with reverts("WL:Some assets Not enabled for collateral"):
+    with reverts("WL:Some assets are not enabled for collateral"):
         wrapper.wrap(wNFT, [erc721_data], accounts[3], {"from": accounts[1], "value": eth_amount})
 
-    wl_data = (False, True, False, False, '0x0', zero_address)
-    whiteLists.setItem(erc721mock1.address, wl_data, {"from": accounts[0]})
+    wl_data = (False, True, False, accounts[9])
+    whiteLists.setWLItem(erc721mock1.address, wl_data, {"from": accounts[0]})
 
     wrapper.wrap(wNFT, [erc721_data], accounts[3], {"from": accounts[1], "value": eth_amount})    
     wTokenId = wrapper.lastWNFTId(out_type)[1]
