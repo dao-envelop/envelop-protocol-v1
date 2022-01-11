@@ -110,6 +110,9 @@ def test_wrap1(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc1
 
     assert dai.balanceOf(wrapper.address) == 2*call_amount+1
 
+    #delete last element in array
+    whiteLists.removeWLItem(dai.address, {"from": accounts[0]})
+
 
 
 

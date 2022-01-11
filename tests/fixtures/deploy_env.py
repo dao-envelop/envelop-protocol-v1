@@ -101,6 +101,11 @@ def whiteLists(accounts, AdvancedWhiteList):
     wl = accounts[0].deploy(AdvancedWhiteList)
     yield wl 
 
+@pytest.fixture(scope="module")
+def trFeeModel(accounts, FeeRoyaltyModelV1_00):
+    tr = accounts[0].deploy(FeeRoyaltyModelV1_00)
+    yield tr 
+
     
 
 # @pytest.fixture(scope="module")
