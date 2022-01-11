@@ -38,5 +38,6 @@ contract FeeRoyaltyModelV1_00 is IFeeRoyaltyModel {
             from_[i] = _from;
             to_[i] = _royalties[i].beneficiary;
         }
+    return (assetItems_, from_, to_);
     }
 }
