@@ -752,7 +752,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
                         );
                     // - execute transfers
                     uint256 actualTransfered;
-                    for (uint256 j = 0; j < to.length; i ++){
+                    for (uint256 j = 0; j < to.length; j ++){
                         // if transfer receiver(to) = address(this) lets consider
                         // wNFT as receiver. in this case received amount
                         // will be added to collateral
