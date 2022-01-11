@@ -42,15 +42,13 @@ contract WrapperRemovable is WrapperBaseV1 {
         ETypes.AssetItem calldata _collateralItem,
         address _receiver
     ) internal virtual {
-        // Check WhiteList Logic
-        if  (protocolWhiteList != address(0)) {
-            if (_collateralItem.asset.assetType != ETypes.AssetType.EMPTY) {
-                require(
-                    IAdvancedWhiteList(protocolWhiteList).enabledRemoveFromCollateral(
-                    _collateralItem.asset.contractAddress),
-                    "WL:Asset Not enabled for remove"
-                );
-            }
+        require(protocolWhiteList != address(0), "Only with whitelist");
+        if (_collateralItem.asset.assetType != ETypes.AssetType.EMPTY) {
+            require(
+                IAdvancedWhiteList(protocolWhiteList).enabledRemoveFromCollateral(
+                _collateralItem.asset.contractAddress),
+                "WL:Asset Not enabled for remove"
+            );
         }
         // we need know index in collateral array
         (uint256 _amnt, uint256 _index) = _getCollateralBalanceAndIndex(
