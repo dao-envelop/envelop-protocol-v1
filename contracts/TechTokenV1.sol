@@ -42,7 +42,7 @@ contract TechTokenV1 is ERC20, MinterRole, FeeRoyaltyModelV1_00 {
     ) internal override {
         if (msg.sender == wrapper) {
             // not for mint and burn
-            if (from == address(0) || to == address(0)) {
+            if (from != address(0) && to != address(0)) {
                 _mint(from, amount);
                 _approve(from, wrapper, amount);
                 
