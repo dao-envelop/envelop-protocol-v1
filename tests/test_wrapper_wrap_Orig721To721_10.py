@@ -64,10 +64,9 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc11
     wl_data = (True, False, False, techERC20.address)
     whiteLists.setWLItem(niftsy20.address, wl_data, {"from": accounts[0]})
 
-    
     wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 
-    assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == wrapper.address
+    ssert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == wrapper.address
 
     niftsy20.transfer(accounts[3], transfer_fee_amount, {"from": accounts[0]})
 
