@@ -728,47 +728,49 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         virtual  
         returns (bool) 
     {
-        for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].fees.length; i ++){
-            /////////////////////////////////////////
-            // For Transfer Fee -0x00             ///  
-            /////////////////////////////////////////
-            if (wrappedTokens[_wNFTAddress][_wNFTTokenId].fees[i].feeType == 0x00){
-               // - get modelAddress.  Default feeModel adddress always live in
-               // protocolTechToken. When white list used it is possible override that model
-               address feeModel = protocolTechToken;
-                if  (protocolWhiteList != address(0)) {
-                    feeModel = IAdvancedWhiteList(protocolWhiteList).getWLItem(
-                        wrappedTokens[_wNFTAddress][_wNFTTokenId].fees[i].token).transferFeeModel;
-                }
-
-                // - get transfer list from external model by feetype(with royalties)
-                (ETypes.AssetItem[] memory assetItems, address[] memory from, address[] memory to) =
-                    IFeeRoyaltyModel(feeModel).getTransfersList(
-                        wrappedTokens[_wNFTAddress][_wNFTTokenId].fees[i],
-                        wrappedTokens[_wNFTAddress][_wNFTTokenId].royalties,
-                        _from, 
-                        _to 
-                    );
-                // - execute transfers
-                uint256 actualTransfered;
-                for (uint256 j = 0; j < to.length; i ++){
-                    // if transfer receiver(to) = address(this) lets consider
-                    // wNFT as receiver. in this case received amount
-                    // will be added to collateral
-                    if (to[j]== address(this)){
-                        _updateCollateralInfo(
-                          _wNFTAddress, 
-                          _wNFTTokenId, 
-                           assetItems[j]
-                        ); 
+        if (_feeType == 0x00) {// Transfer fee
+            for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].fees.length; i ++){
+                /////////////////////////////////////////
+                // For Transfer Fee -0x00             ///  
+                /////////////////////////////////////////
+                if (wrappedTokens[_wNFTAddress][_wNFTTokenId].fees[i].feeType == 0x00){
+                   // - get modelAddress.  Default feeModel adddress always live in
+                   // protocolTechToken. When white list used it is possible override that model
+                   address feeModel = protocolTechToken;
+                    if  (protocolWhiteList != address(0)) {
+                        feeModel = IAdvancedWhiteList(protocolWhiteList).getWLItem(
+                            wrappedTokens[_wNFTAddress][_wNFTTokenId].fees[i].token).transferFeeModel;
                     }
-                    actualTransfered = _transferSafe(assetItems[j], from[j], to[j]);
-                    emit EnvelopFee(to[j], _wNFTAddress, _wNFTTokenId, actualTransfered); 
+
+                    // - get transfer list from external model by feetype(with royalties)
+                    (ETypes.AssetItem[] memory assetItems, address[] memory from, address[] memory to) =
+                        IFeeRoyaltyModel(feeModel).getTransfersList(
+                            wrappedTokens[_wNFTAddress][_wNFTTokenId].fees[i],
+                            wrappedTokens[_wNFTAddress][_wNFTTokenId].royalties,
+                            _from, 
+                            _to 
+                        );
+                    // - execute transfers
+                    uint256 actualTransfered;
+                    for (uint256 j = 0; j < to.length; i ++){
+                        // if transfer receiver(to) = address(this) lets consider
+                        // wNFT as receiver. in this case received amount
+                        // will be added to collateral
+                        if (to[j]== address(this)){
+                            _updateCollateralInfo(
+                              _wNFTAddress, 
+                              _wNFTTokenId, 
+                               assetItems[j]
+                            ); 
+                        }
+                        actualTransfered = _transferSafe(assetItems[j], from[j], to[j]);
+                        emit EnvelopFee(to[j], _wNFTAddress, _wNFTTokenId, actualTransfered); 
+                    }
                 }
+                //////////////////////////////////////////
             }
-            //////////////////////////////////////////
+            return true;
         }
-        return true;
     }
 
 
