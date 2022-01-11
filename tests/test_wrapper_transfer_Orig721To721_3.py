@@ -35,7 +35,7 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
     
     fee = [(Web3.toBytes(0x00), transfer_fee_amount, niftsy20.address)]
     lock = []
-    royalty = [(wrapper.address, 10000)]
+    royalty = [(accounts[4], 2000), (accounts[5], 5000), (accounts[6], 3000)]
 
     wNFT = ( token_data,
         accounts[2],
@@ -51,15 +51,6 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
     #switch on white list
     wrapper.setWhiteList(whiteLists.address, {"from": accounts[0]})
 
-    with reverts("WL:Some assets are not enabled for fee"):
-        wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
-    
-    wl_data = (False, False, False, techERC20.address)
-    whiteLists.setWLItem(niftsy20.address, wl_data, {"from": accounts[0]})
-
-    with reverts("WL:Some assets are not enabled for fee"):
-        wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
-
     #transferFee flag is switched on
     wl_data = (True, False, False, techERC20.address)
     whiteLists.setWLItem(niftsy20.address, wl_data, {"from": accounts[0]})
@@ -74,27 +65,14 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
     niftsy20.transfer(accounts[3], transfer_fee_amount, {"from": accounts[0]})
     niftsy20.approve(wrapper.address, transfer_fee_amount, {"from": accounts[3]})
 
-
+    
     wnft721.transferFrom(accounts[3], accounts[2], wTokenId, {"from": accounts[3]})
     assert niftsy20.balanceOf(accounts[3]) == 0
-    assert niftsy20.balanceOf(wrapper.address) == transfer_fee_amount
-    assert wrapper.getERC20CollateralBalance(wnft721.address, wTokenId, niftsy20.address) == transfer_fee_amount
-
-    '''logging.info(niftsy20.balanceOf(accounts[3]))
-    logging.info(niftsy20.balanceOf(wrapper.address))
-    logging.info(wrapper.protocolWhiteList())
-    fees = wrapper.getWrappedToken(wnft721.address, wTokenId)[3]
-    royalty = wrapper.getWrappedToken(wnft721.address, wTokenId)[5]
-    logging.info(fees[0][0])
-    logging.info(fees[0][1])
-    logging.info(fees[0][2])
-    logging.info(royalty)
-    logging.info(whiteLists.getWLItem(fees[0][2])[3])
-    logging.info(techERC20.address)
-    logging.info(techERC20.getTransfersList(fees[0], royalty, accounts[3], accounts[2]))
-    logging.info(accounts[3].address)
-    logging.info(wrapper.address)'''
-
+    assert niftsy20.balanceOf(wrapper.address) == 0
+    assert niftsy20.balanceOf(accounts[4]) == transfer_fee_amount*royalty[0][1]/techERC20.ROYALTY_PERCENT_BASE()
+    assert niftsy20.balanceOf(accounts[5]) == transfer_fee_amount*royalty[1][1]/techERC20.ROYALTY_PERCENT_BASE()
+    assert niftsy20.balanceOf(accounts[6]) == transfer_fee_amount*royalty[2][1]/techERC20.ROYALTY_PERCENT_BASE()
+    assert wrapper.getERC20CollateralBalance(wnft721.address, wTokenId, niftsy20.address) == 0
 
 
 

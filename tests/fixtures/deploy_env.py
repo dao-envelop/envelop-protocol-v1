@@ -97,6 +97,11 @@ def niftsy20(accounts, Niftsy):
     yield erc20 
 
 @pytest.fixture(scope="module")
+def niftsy201(accounts, Niftsy):
+    erc20 = accounts[0].deploy(Niftsy, accounts[0])
+    yield erc20 
+
+@pytest.fixture(scope="module")
 def whiteLists(accounts, AdvancedWhiteList):
     wl = accounts[0].deploy(AdvancedWhiteList)
     yield wl 
