@@ -26,18 +26,33 @@ contract FeeRoyaltyModelV1_00 is IFeeRoyaltyModel {
       address[] memory
     )
     {
-        ETypes.AssetItem[] memory assetItems_ = new ETypes.AssetItem[](_royalties.length);
-        address[] memory from_ = new address[](_royalties.length); 
-        address[] memory   to_ = new address[](_royalties.length);
-        for (uint256 i = 0; i < _royalties.length; i ++) {
-            assetItems_[i] = ETypes.AssetItem({
-                asset: ETypes.Asset({assetType: ETypes.AssetType.ERC20, contractAddress: _fee.token}),
-                tokenId: 0,
-                amount: _fee.param * _royalties[i].percent / ROYALTY_PERCENT_BASE
+        if (_royalties.length > 0) {
+            ETypes.AssetItem[] memory assetItems_ = new ETypes.AssetItem[](_royalties.length);
+            address[] memory from_ = new address[](_royalties.length); 
+            address[] memory   to_ = new address[](_royalties.length);
+            for (uint256 i = 0; i < _royalties.length; i ++) {
+                assetItems_[i] = ETypes.AssetItem({
+                    asset: ETypes.Asset({assetType: ETypes.AssetType.ERC20, contractAddress: _fee.token}),
+                    tokenId: 0,
+                    amount: _fee.param * _royalties[i].percent / ROYALTY_PERCENT_BASE
+                });
+                from_[i] = _from;
+                to_[i] = _royalties[i].beneficiary;
+            }
+            return (assetItems_, from_, to_);
+        } else {
+            ETypes.AssetItem[] memory assetItems_ = new ETypes.AssetItem[](1);
+            address[] memory from_ = new address[](1); 
+            address[] memory   to_ = new address[](1);
+            assetItems_[0] = ETypes.AssetItem({
+                    asset: ETypes.Asset({assetType: ETypes.AssetType.ERC20, contractAddress: _fee.token}),
+                    tokenId: 0,
+                    amount: _fee.param
             });
-            from_[i] = _from;
-            to_[i] = _royalties[i].beneficiary;
+            from_[0] = _from;
+            to_[0] = wrapper;
+            return (assetItems_, from_, to_);
         }
-    return (assetItems_, from_, to_);
+
     }
 }
