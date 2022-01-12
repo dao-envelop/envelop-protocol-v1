@@ -957,36 +957,38 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         // Lets check that inAsset
         ETypes.Lock[] memory _locks =  wrappedTokens[_wNFTAddress][_wNFTTokenId].locks; 
         for (uint256 i = 0; i < _locks.length; i ++) {
+            // Time Lock check
             if (_locks[i].lockType == 0x00) {
                 require(
                     _locks[i].param <= block.timestamp,
                     "TimeLock error"
                 );
             }
+
+            // Fee Lock check
             if (_locks[i].lockType == 0x01) {
-                (uint256 _bal,) = _getERC20CollateralBalance(
-                    _wNFTAddress, 
-                    _wNFTTokenId,
-                    _getFeeToken(_wNFTAddress, _wNFTTokenId, 0x00) // 0x00 - TransferFee type
-                );
-                require(
-                    _locks[i].param <= _bal,
-                    "TransferFeeLock error"
-                );
+                // Lets check this lock rule against each fee record
+                for (uint256 j = 0; j < wrappedTokens[_wNFTAddress][_wNFTTokenId].fees.length; j ++){
+                    // Fee Lock depend  only from Transfer Fee - 0x00
+                    if ( wrappedTokens[_wNFTAddress][_wNFTTokenId].fees[j].feeType == 0x00) {
+                        (uint256 _bal,) = _getERC20CollateralBalance(
+                            _wNFTAddress, 
+                            _wNFTTokenId,
+                            wrappedTokens[_wNFTAddress][_wNFTTokenId].fees[j].token
+                        );
+                        require(
+                            _locks[i].param <= _bal,
+                            "TransferFeeLock error"
+                        );
+                    }   
+
+                }
+                
             }
         }
         return true;
     }
 
-    function _getFeeToken(address _wNFTAddress, uint256 _wNFTTokenId, bytes1 _fee) internal view returns (address) {
-        ETypes.Fee[] memory _fees =  wrappedTokens[_wNFTAddress][_wNFTTokenId].fees; 
-        for (uint256 i = 0; i < _fees.length; i ++) {
-            if (_fees[i].feeType == _fee) {
-                return _fees[i].token;
-            }
-        }
-        return address(0);    
-    } 
 
     function _checkWrap(ETypes.INData calldata _inData, address _wrappFor) internal view returns (bool enabled){
         // Lets check that inAsset 
