@@ -33,7 +33,7 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, n
 
     token_data = (token_property, ORIGINAL_NFT_IDs[0], 0)
     
-    fee = [ (Web3.toBytes(0x00), 2*transfer_fee_amount, niftsy201.address), (Web3.toBytes(0x00), transfer_fee_amount, niftsy20.address)]
+    fee = [  (Web3.toBytes(0x00), transfer_fee_amount, niftsy20.address), (Web3.toBytes(0x00), 2*transfer_fee_amount, niftsy201.address)]
     lock = [('0x0', chain.time() + 100), (Web3.toBytes(0x01), 40)]
     royalty = [(accounts[4], 2000), (accounts[5], 5000), (accounts[6], 1000), (wrapper.address, 2000)]
 
