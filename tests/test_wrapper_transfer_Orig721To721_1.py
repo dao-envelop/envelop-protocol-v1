@@ -70,8 +70,15 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
 
     wTokenId = wrapper.lastWNFTId(out_type)[1]
 
-    
+    #not enough balance of fee token by account
+    with reverts("ERC20: transfer amount exceeds balance"):
+        wnft721.transferFrom(accounts[3], accounts[2], wTokenId, {"from": accounts[3]})
+
     niftsy20.transfer(accounts[3], transfer_fee_amount, {"from": accounts[0]})
+    #not enough allowance to use token balance of account
+    with reverts("ERC20: transfer amount exceeds allowance"):
+        wnft721.transferFrom(accounts[3], accounts[2], wTokenId, {"from": accounts[3]})
+
     niftsy20.approve(wrapper.address, transfer_fee_amount, {"from": accounts[3]})
 
 

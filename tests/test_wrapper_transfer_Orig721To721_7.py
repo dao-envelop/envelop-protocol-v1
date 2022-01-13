@@ -33,9 +33,9 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
 
     token_data = (token_property, ORIGINAL_NFT_IDs[0], 0)
     
-    fee = [(Web3.toBytes(0x00), transfer_fee_amount, techERC20.address)]
+    fee = [(Web3.toBytes(0x00), transfer_fee_amount, niftsy20.address)]
     lock = []
-    royalty = [(wrapper.address, 6000), (accounts[4], 3000), (accounts[5], 1000)]
+    royalty = [(accounts[4], 3000)]
 
     wNFT = ( token_data,
         accounts[2],
@@ -53,7 +53,7 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
 
     #transferFee flag is switched on
     wl_data = (True, False, False, techERC20.address)
-    whiteLists.setWLItem(techERC20.address, wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem(niftsy20.address, wl_data, {"from": accounts[0]})
 
     wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 
@@ -61,18 +61,15 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
 
     wTokenId = wrapper.lastWNFTId(out_type)[1]
 
+    niftsy20.transfer(accounts[3], transfer_fee_amount, {"from": accounts[0]})
+    niftsy20.approve(wrapper.address, transfer_fee_amount, {"from": accounts[3]})
+
 
     wnft721.transferFrom(accounts[3], accounts[2], wTokenId, {"from": accounts[3]})
-    assert techERC20.balanceOf(accounts[3]) == 0
-    assert techERC20.balanceOf(wrapper.address) == transfer_fee_amount*royalty[0][1]/techERC20.ROYALTY_PERCENT_BASE()
-    assert techERC20.balanceOf(accounts[4]) == transfer_fee_amount*royalty[1][1]/techERC20.ROYALTY_PERCENT_BASE()
-    assert techERC20.balanceOf(accounts[5]) == transfer_fee_amount*royalty[2][1]/techERC20.ROYALTY_PERCENT_BASE()
-    assert wrapper.getERC20CollateralBalance(wnft721.address, wTokenId, techERC20.address) == transfer_fee_amount*royalty[0][1]/techERC20.ROYALTY_PERCENT_BASE()
+    assert niftsy20.balanceOf(accounts[3]) == transfer_fee_amount - transfer_fee_amount*royalty[0][1]/techERC20.ROYALTY_PERCENT_BASE()
+    assert niftsy20.balanceOf(accounts[4]) == transfer_fee_amount*royalty[0][1]/techERC20.ROYALTY_PERCENT_BASE()
+    assert wrapper.getERC20CollateralBalance(wnft721.address, wTokenId, niftsy20.address) == 0
 
-    wrapper.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[2]})
-
-    assert techERC20.balanceOf(accounts[2]) == transfer_fee_amount*royalty[0][1]/techERC20.ROYALTY_PERCENT_BASE()
-    assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[2]
 
 
     
