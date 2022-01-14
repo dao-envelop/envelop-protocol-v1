@@ -380,7 +380,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         address _erc20
     ) public view returns (uint256) 
     {
-        //ERC20Collateral[] memory e = erc20Collateral[_wrappedId];
         for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_tokenId].collateral.length; i ++) {
             if (wrappedTokens[_wNFTAddress][_tokenId].collateral[i].asset.contractAddress == _erc20 &&
                 wrappedTokens[_wNFTAddress][_tokenId].collateral[i].asset.assetType == ETypes.AssetType.ERC20 
@@ -942,10 +941,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         // to get info  from  external wNFT storages(old versions)
         return wrappedTokens[_wNFTAddress][_wNFTTokenId];
     } 
-
-    function _checkRules(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool) {
-        return true;
-    }
 
     function _checkRule(bytes2 _rule, bytes2 _wNFTrules) internal view returns (bool) {
         return _rule == (_rule & _wNFTrules);

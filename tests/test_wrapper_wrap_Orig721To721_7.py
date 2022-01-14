@@ -55,7 +55,8 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc11
         wrapper.wrap(wNFT, [dai_data], accounts[3], {"from": accounts[1], "value": eth_amount})
 
     wl_data = (False, False, False, accounts[9])
-    whiteLists.setWLItem(dai.address, wl_data, {"from": accounts[0]})
+    tx=whiteLists.setWLItem(dai.address, wl_data, {"from": accounts[0]})
+    logging.info('Events from DAI WL set:{}'.format(tx.events))
     with reverts("WL:Some assets are not enabled for collateral"):
         wrapper.wrap(wNFT, [dai_data], accounts[3], {"from": accounts[1], "value": eth_amount})
 

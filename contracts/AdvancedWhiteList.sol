@@ -30,9 +30,9 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
                 alreadyExist = true;
                 break;
             }
-            if (!alreadyExist) {
+        }
+        if (!alreadyExist) {
                whiteListedArray.push(_asset); 
-            }
         }
         emit WhiteListItemChanged(
             _asset, 
@@ -41,7 +41,6 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
             _assetItem.enabledRemoveFromCollateral,
             _assetItem.transferFeeModel
         );
-
     }
 
     function removeWLItem(address _asset) external onlyOwner {
