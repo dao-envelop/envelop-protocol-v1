@@ -54,15 +54,50 @@ interface IWrapper  {
         uint256 amount
     );
 
-    function getWrappedToken(address _wNFTAddress, uint256 _wNFTTokenId) 
+    function wrap(
+        ETypes.INData calldata _inData, 
+        ETypes.AssetItem[] calldata _collateral, 
+        address _wrappFor
+    ) 
         external 
-        view 
-        returns (ETypes.WNFT memory);
+        payable 
+    returns (ETypes.AssetItem memory);
 
-    function getOriginalURI(address _wNFTAddress, uint256 _wNFTTokenId) 
+    function wrapUnsafe(
+        ETypes.INData calldata _inData, 
+        ETypes.AssetItem[] calldata _collateral, 
+        address _wrappFor
+    ) 
         external 
-        view 
-        returns(string memory); 
+        payable
+    returns (ETypes.AssetItem memory);
+
+    function addCollateral(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId, 
+        ETypes.AssetItem[] calldata _collateral
+    ) external payable;
+
+    function addCollateralUnsafe(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId, 
+        ETypes.AssetItem[] calldata _collateral
+    ) 
+        external 
+        payable;
+
+    function unWrap(
+        ETypes.AssetType _wNFTType, 
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId
+    ) external; 
+
+    function unWrap(
+        ETypes.AssetType _wNFTType, 
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId, 
+        bool _isEmergency
+    ) external;
 
     function chargeFees(
         address _wNFTAddress, 
@@ -74,44 +109,30 @@ interface IWrapper  {
         external  
         returns (bool);   
 
-    //function tokenService() external view returns(address);         
-    // event NewFee(uint256 feeAmount, uint256 startDate);
-    // event NiftsyProtocolTransfer(
-    //     uint256 indexed wrappedTokenId, 
-    //     address indexed royaltyBeneficiary,
-    //     uint256 transferFee, 
-    //     uint256 royalty,
-    //     address feeToken 
-    // );
+    ////////////////////////////////////////////////////////////////////// 
     
-    /**
-     * @dev Function returns array with info about ERC20 
-     * colleteral of wrapped token 
-     *
-     * @param _wrappedId  new protocol NFT id from this contarct
-     */
-    // function getERC20Collateral(uint256 _wrappedId) 
-    //      external 
-    //      view 
-    //      returns (ERC20Collateral[] memory);
+    function MAX_COLLATERAL_SLOTS() external view returns (uint256);
+    function protocolTechToken() external view returns (address);
+    function protocolWhiteList() external view returns (address);
+    function trustedOperators(address _operator) external view returns (bool); 
+    //function lastWNFTId(ETypes.AssetType _assetType) external view returns (ETypes.NFTItem); 
 
-    /**
-     * @dev Function returns collateral balance of this NFT in _erc20 
-     * colleteral of wrapped token 
-     *
-     * @param _wrappedId  new protocol NFT id from this contarct
-     * @param _erc20 - collateral token address
-     */
-    // function getERC20CollateralBalance(uint256 _wrappedId, address _erc20) 
-    //     external 
-    //     view
-    //     returns (uint256); 
+    function getWrappedToken(address _wNFTAddress, uint256 _wNFTTokenId) 
+        external 
+        view 
+        returns (ETypes.WNFT memory);
 
-    /**
-     * @dev Function returns true is `_contract` ERC20 is 
-     * enabled for add in colleteral of wrapped token 
-     *
-     * @param _contract  collateral contarct
-     */
-    //function enabledForCollateral(address _contract) external view returns (bool);
+    function getOriginalURI(address _wNFTAddress, uint256 _wNFTTokenId) 
+        external 
+        view 
+        returns(string memory); 
+    
+    function getCollateralBalanceAndIndex(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId,
+        ETypes.AssetType _collateralType, 
+        address _erc,
+        uint256 _tokenId
+    ) external view returns (uint256, uint256);
+   
 }

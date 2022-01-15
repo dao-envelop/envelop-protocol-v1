@@ -90,6 +90,11 @@ def wrapperRemove(accounts, WrapperRemovable, techERC20):
     yield t
 
 @pytest.fixture(scope="module")
+def wrapperChecker(accounts, WrapperChecker, wrapper):
+    t = accounts[0].deploy(WrapperChecker, wrapper.address)
+    yield t    
+
+@pytest.fixture(scope="module")
 def wnft721(accounts, EnvelopwNFT721):
     wnft = accounts[0].deploy(EnvelopwNFT721,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/" )
     yield wnft

@@ -381,21 +381,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     }
     /////////////////////////////////////////////////////////////////////
 
-    //TODO Reafactro with internal getters
-    // function getERC20CollateralBalance(
-    //     address _wNFTAddress, 
-    //     uint256 _tokenId, 
-    //     address _erc20
-    // ) public view returns (uint256) 
-    // {
-    //     for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_tokenId].collateral.length; i ++) {
-    //         if (wrappedTokens[_wNFTAddress][_tokenId].collateral[i].asset.contractAddress == _erc20 &&
-    //             wrappedTokens[_wNFTAddress][_tokenId].collateral[i].asset.assetType == ETypes.AssetType.ERC20 
-    //             ) {
-    //             return wrappedTokens[_wNFTAddress][_tokenId].collateral[i].amount;
-    //         }
-    //     }
-    // }
 
     function getWrappedToken(address _wNFTAddress, uint256 _wNFTTokenId) public view returns (ETypes.WNFT memory) {
         return wrappedTokens[_wNFTAddress][_wNFTTokenId];
@@ -416,6 +401,26 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         } else {
             return '';
         } 
+    }
+
+    function getCollateralBalanceAndIndex(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId,
+        ETypes.AssetType _collateralType, 
+        address _erc,
+        uint256 _tokenId
+    ) public view returns (uint256, uint256) 
+    {
+        //ERC20Collateral[] memory e = erc20Collateral[_wrappedId];
+        for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
+            if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.contractAddress == _erc &&
+                wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].tokenId == _tokenId &&
+                wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.assetType == _collateralType 
+            ) 
+            {
+                return (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].amount, i);
+            }
+        }
     } 
     /////////////////////////////////////////////////////////////////////
     //                    Internals                                    //
@@ -930,48 +935,30 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     //     ); 
     // }
 
-    function getCollateralBalanceAndIndex(
-        address _wNFTAddress, 
-        uint256 _wNFTTokenId,
-        ETypes.AssetType _collateralType, 
-        address _erc,
-        uint256 _tokenId
-    ) public view returns (uint256, uint256) 
-    {
-        //ERC20Collateral[] memory e = erc20Collateral[_wrappedId];
-        for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
-            if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.contractAddress == _erc &&
-                wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].tokenId == _tokenId &&
-                wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.assetType == _collateralType 
-            ) 
-            {
-                return (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].amount, i);
-            }
-        }
-    }
+    
 
-    function _getWNFTCollateralCount(
-        address _wNFTAddress, 
-        uint256 _wNFTTokenId,
-        ETypes.AssetType _collateralType
-    ) internal view returns (uint256) 
-    {
-        if (_collateralType == ETypes.AssetType.EMPTY) {
-            return wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length;
-        } else {
-            uint256 n;
-            for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
-                if (
-                    wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.assetType == _collateralType 
-                ) 
-                {
-                    n ++;
-                }
-            }   
-            return n;    
-        }
+    // function _getWNFTCollateralCount(
+    //     address _wNFTAddress, 
+    //     uint256 _wNFTTokenId,
+    //     ETypes.AssetType _collateralType
+    // ) internal view returns (uint256) 
+    // {
+    //     if (_collateralType == ETypes.AssetType.EMPTY) {
+    //         return wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length;
+    //     } else {
+    //         uint256 n;
+    //         for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
+    //             if (
+    //                 wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.assetType == _collateralType 
+    //             ) 
+    //             {
+    //                 n ++;
+    //             }
+    //         }   
+    //         return n;    
+    //     }
 
-    }
+    // }
 
     // function getWrappedToken(address _wNFTAddress, uint256 _wNFTTokenId) internal view virtual returns (ETypes.WNFT memory) {
     //     // TODO  extend  this function in future implementation
