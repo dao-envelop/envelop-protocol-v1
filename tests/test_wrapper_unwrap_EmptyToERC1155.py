@@ -3,11 +3,13 @@ import logging
 from brownie import chain, Wei, reverts
 LOGGER = logging.getLogger(__name__)
 from makeTestData import makeNFTForTest721, makeNFTForTest1155
+from web3 import Web3
 
 ORIGINAL_NFT_IDs = [10000,11111,22222]
 zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
 eth_amount = "1 ether"
+transfer_fee_amount = 100
 
 def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, erc1155mock1, erc721mock1):
     #make wrap NFT with empty
@@ -48,7 +50,7 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
     erc721_data = (erc721_property, ORIGINAL_NFT_IDs[0], 0)
     erc1155_data = (erc1155_property, ORIGINAL_NFT_IDs[0], in_nft_amount)
 
-    fee = []
+    fee = [(Web3.toBytes(0x00), transfer_fee_amount, niftsy20.address)]
     lock = [('0x0', chain.time() + 100), ('0x0', chain.time() + 200)]
     royalty = []
 
@@ -72,7 +74,13 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
     assert wrapper.balance() == eth_amount
     assert wnft1155.balanceOf(accounts[3], wTokenId) == out_nft_amount
 
+    with reverts("ERC20: transfer amount exceeds balance"):
+        wnft1155.safeTransferFrom(accounts[3], accounts[2], wTokenId, out_nft_amount, "", {"from": accounts[3]})
 
+
+    niftsy20.transfer(accounts[3], transfer_fee_amount, {"from": accounts[0]})
+    with reverts("ERC20: transfer amount exceeds allowance"):
+        wnft1155.safeTransferFrom(accounts[3], accounts[2], wTokenId,  out_nft_amount, "", {"from": accounts[3]})
 
     eth_contract_balance = wrapper.balance()
     eth_acc_balance = accounts[2].balance()
@@ -140,11 +148,15 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
     eth_contract_balance = wrapper.balance()
     eth_acc_balance = accounts[2].balance()
 
+    niftsy20.approve(wrapper.address, transfer_fee_amount, {"from": accounts[3]})
     wnft1155.safeTransferFrom(accounts[3], accounts[4], wTokenId, 1, "", {"from": accounts[3]} )
 
     with reverts("ERC115 unwrap available only for all totalSupply"):
         wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]} )
 
+
+    niftsy20.approve(wrapper.address, transfer_fee_amount, {"from": accounts[4]})
+    niftsy20.transfer(accounts[4], transfer_fee_amount, {"from": accounts[0]})
     wnft1155.safeTransferFrom(accounts[4], accounts[3], wTokenId, 1, "", {"from": accounts[4]} )
 
 

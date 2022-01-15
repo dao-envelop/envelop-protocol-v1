@@ -17,9 +17,6 @@ transfer_fee_amount = 100
 
 #transfer with fee without royalty
 def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, niftsy201, erc1155mock1, erc721mock1, whiteLists, techERC20):
-    #make wrap NFT with empty
-    
-
     
     #make 721 token for wrapping
     makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
