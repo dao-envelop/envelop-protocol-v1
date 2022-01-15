@@ -53,8 +53,8 @@ def test_simple_wrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy
 		'0'
 		)
 
-	wrapper.wrap(wNFT, [dai_data, weth_data, eth_data], accounts[3], {"from": accounts[1], "value": eth_amount})
-	
+	tx = wrapper.wrap(wNFT, [dai_data, weth_data, eth_data], accounts[3], {"from": accounts[1], "value": eth_amount})
+	#tx = wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 	#checks
 	assert wrapper.balance() == eth_amount
 	assert dai.balanceOf(wrapper) == call_amount
