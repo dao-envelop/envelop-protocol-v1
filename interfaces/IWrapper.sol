@@ -72,7 +72,9 @@ interface IWrapper  {
         bytes1 _feeType
     ) 
         external  
-        returns (bool);        
+        returns (bool);   
+
+    //function tokenService() external view returns(address);         
     // event NewFee(uint256 feeAmount, uint256 startDate);
     // event NiftsyProtocolTransfer(
     //     uint256 indexed wrappedTokenId, 

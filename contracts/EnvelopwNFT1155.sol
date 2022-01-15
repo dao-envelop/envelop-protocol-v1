@@ -11,7 +11,8 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
     using Strings for uint256;
     using Strings for uint160;
     
-    address public wrapperMinter;
+    address public wrapper;       // main protocol contarct
+    //address public tokenService;  // minter-burner-transferproxy
     string  public baseurl;
     
     constructor(
@@ -21,7 +22,7 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
     ) 
         ERC1155(_baseurl)  
     {
-        wrapperMinter = msg.sender;
+        //wrapperMinter = msg.sender;
         baseurl = string(
             abi.encodePacked(
                 _baseurl,
@@ -36,7 +37,7 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
     }
 
     function mint(address _to, uint256 _tokenId, uint256 _amount) external {
-        require(wrapperMinter == msg.sender, "Trusted address only");
+        require(wrapper == msg.sender, "Trusted address only");
         _mint(_to, _tokenId, _amount, "");
     }
 
@@ -48,12 +49,14 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
      * - The caller must own `tokenId` or be an approved operator.
      */
     function burn(address _from, uint256 _tokenId, uint256 _amount) public virtual {
-        require(wrapperMinter == msg.sender, "Trusted address only");
+        require(wrapper == msg.sender, "Trusted address only");
         _burn(_from, _tokenId, _amount);
     }
 
     function setMinterStatus(address _minter) external onlyOwner {
-        wrapperMinter = _minter;
+        wrapper = _minter;
+        //tokenService = IWrapper(wrapper).tokenService();
+        // TODO  renownce ownership
     }
 
     function _beforeTokenTransfer(
@@ -66,7 +69,7 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
     ) internal  override {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
         for (uint256 i = 0; i < ids.length; ++i) {
-            ETypes.WNFT memory _wnft = IWrapper(wrapperMinter).getWrappedToken(
+            ETypes.WNFT memory _wnft = IWrapper(wrapper).getWrappedToken(
                 address(this),ids[i]
             );
             if (
@@ -89,10 +92,8 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
 
                 // Check and charge Transfer Fee and pay Royalties
                 if (_wnft.fees.length > 0) {
-                    IWrapper(wrapperMinter).chargeFees(address(this), ids[i], from, to, 0x00);    
+                    IWrapper(wrapper).chargeFees(address(this), ids[i], from, to, 0x00);    
                 }
-                
-
             }
         }
     }
@@ -101,7 +102,7 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
     function uri(uint256 _tokenID) public view override 
         returns (string memory _uri) 
     {
-        _uri = IWrapper(wrapperMinter).getOriginalURI(address(this), _tokenID);
+        _uri = IWrapper(wrapper).getOriginalURI(address(this), _tokenID);
         if (bytes(_uri).length == 0) {
             _uri = string(abi.encodePacked(
                 ERC1155.uri(0),

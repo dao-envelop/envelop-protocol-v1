@@ -60,6 +60,35 @@ def erc1155mock1(accounts, Token1155Mock):
 #     #t.setURI(0, 'https://maxsiz.github.io/')
 #     yield b
 # ############################################
+
+@pytest.fixture(scope="module")
+def techERC20(accounts, TechTokenV1):
+    erc20 = accounts[0].deploy(TechTokenV1)
+    yield erc20 
+
+# @pytest.fixture(scope="module")
+# def tokenService(accounts, TokenService):
+#     t = accounts[0].deploy(TokenService)
+#     yield t
+
+@pytest.fixture(scope="module")
+def wrapper(accounts, WrapperBaseV1, techERC20):
+    t = accounts[0].deploy(WrapperBaseV1, techERC20.address)
+    #t.setTokenService(tokenService.address, {'from':accounts[0]})
+    yield t
+
+@pytest.fixture(scope="module")
+def wrapperRent(accounts, WrapperForRent, techERC20):
+    t = accounts[0].deploy(WrapperForRent, techERC20.address)
+    #t.setTokenService(tokenService.address, {'from':accounts[0]})
+    yield t
+
+@pytest.fixture(scope="module")
+def wrapperRemove(accounts, WrapperRemovable, techERC20):
+    t = accounts[0].deploy(WrapperRemovable, techERC20.address )
+    #t.setTokenService(tokenService.address, {'from':accounts[0]})
+    yield t
+
 @pytest.fixture(scope="module")
 def wnft721(accounts, EnvelopwNFT721):
     wnft = accounts[0].deploy(EnvelopwNFT721,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/" )
@@ -67,29 +96,8 @@ def wnft721(accounts, EnvelopwNFT721):
 
 @pytest.fixture(scope="module")
 def wnft1155(accounts, EnvelopwNFT1155):
-    wnft = accounts[0].deploy(EnvelopwNFT1155,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/" )
+    wnft = accounts[0].deploy(EnvelopwNFT1155,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/")
     yield wnft
-
-@pytest.fixture(scope="module")
-def techERC20(accounts, TechTokenV1):
-    erc20 = accounts[0].deploy(TechTokenV1)
-    yield erc20 
-
-@pytest.fixture(scope="module")
-def wrapper(accounts, WrapperBaseV1, techERC20):
-    t = accounts[0].deploy(WrapperBaseV1, techERC20.address )
-    yield t
-
-@pytest.fixture(scope="module")
-def wrapperRent(accounts, WrapperForRent, techERC20):
-    t = accounts[0].deploy(WrapperForRent, techERC20.address )
-    yield t
-
-@pytest.fixture(scope="module")
-def wrapperRemove(accounts, WrapperRemovable, techERC20):
-    t = accounts[0].deploy(WrapperRemovable, techERC20.address )
-    yield t
-
 
 @pytest.fixture(scope="module")
 def niftsy20(accounts, Niftsy):
@@ -149,6 +157,7 @@ def mockHacker721_1(accounts, MaliciousMockERC721_1):
 def mockHacker1155_1(accounts, MaliciousMockERC1155_1):
     h = accounts[0].deploy(MaliciousMockERC1155_1,"https://github.com/")
     yield h
+
 
 '''@pytest.fixture(scope="module")
 def mockHacker721_2(accounts, MaliciousTokenMock721_2):

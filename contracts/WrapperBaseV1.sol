@@ -5,16 +5,18 @@ pragma solidity 0.8.10;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+//import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 //import "./TechToken.sol";
-import "../interfaces/IERC20Extended.sol";
+//import "../interfaces/IERC20Extended.sol";
 import "../interfaces/IFeeRoyaltyModel.sol";
 import "../interfaces/IWrapper.sol";
 import "../interfaces/IAdvancedWhiteList.sol";
 import "./LibEnvelopTypes.sol";
 import "../interfaces/IERC721Mintable.sol";
 import "../interfaces/IERC1155Mintable.sol";
+import "./TokenService.sol";
+//import "../interfaces/ITokenService.sol";
 
 // #### Envelop ProtocolV1 Rules
 // 15   14   13   12   11   10   9   8   7   6   5   4   3   2   1   0  <= Bit number(dec)
@@ -37,14 +39,14 @@ import "../interfaces/IERC1155Mintable.sol";
  * @title Non-Fungible Token Wrapper
  * @dev Make  wraping for existing ERC721 & ERC1155 and empty 
  */
-contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper, Ownable {
-    using SafeERC20 for IERC20Extended;
+contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper, TokenService, Ownable {
+    //using SafeERC20 for IERC20Extended;
 
 
     uint256 public MAX_COLLATERAL_SLOTS = 20;
     address public protocolTechToken;
     address public protocolWhiteList;
-    address public transferProxy;
+    //address public tokenService;
 
      
     mapping(address => bool) public trustedOperators;
@@ -55,7 +57,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     // Map from wrapped token address and id => wNFT record 
     mapping(address => mapping(uint256 => ETypes.WNFT)) public wrappedTokens; //? Private in Production
 
-    error UnSupportedAsset(ETypes.AssetItem asset);
+    //error UnSupportedAsset(ETypes.AssetItem asset);
 
 
     modifier onlyTrusted() {
@@ -364,9 +366,9 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         protocolWhiteList = _wlAddress;
     }
 
-    function setTransferProxy(address _proxyAddress) external onlyOwner {
-        transferProxy = _proxyAddress;
-    }
+    // function setTokenService(address _serviveAddress) external onlyOwner {
+    //     tokenService = _serviveAddress;
+    // }
 
     function setTrustedAddres(address _operator, bool _status) public onlyOwner {
         trustedOperators[_operator] = _status;
@@ -380,7 +382,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         address _erc20
     ) public view returns (uint256) 
     {
-        //ERC20Collateral[] memory e = erc20Collateral[_wrappedId];
         for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_tokenId].collateral.length; i ++) {
             if (wrappedTokens[_wNFTAddress][_tokenId].collateral[i].asset.contractAddress == _erc20 &&
                 wrappedTokens[_wNFTAddress][_tokenId].collateral[i].asset.assetType == ETypes.AssetType.ERC20 
@@ -414,158 +415,187 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     //                    Internals                                    //
     /////////////////////////////////////////////////////////////////////
 
-    function _mintNFT(
-        ETypes.AssetType _mint_type, 
-        address _contract, 
-        address _mintFor, 
-        uint256 _tokenId, 
-        uint256 _outBalance
-    ) 
-        internal 
-        virtual
-    {
-        if (_mint_type == ETypes.AssetType.ERC721) {
-            IERC721Mintable(_contract).mint(_mintFor, _tokenId);
-        } else if (_mint_type == ETypes.AssetType.ERC1155) {
-            IERC1155Mintable(_contract).mint(_mintFor, _tokenId, _outBalance);
-        }
-    }
+    // function _mintNFT(
+    //     ETypes.AssetType _mint_type, 
+    //     address _contract, 
+    //     address _mintFor, 
+    //     uint256 _tokenId, 
+    //     uint256 _outBalance
+    // ) 
+    //     internal 
+    //     virtual
+    // {
+    //     ITokenService(tokenService).mintNFT(
+    //         _mint_type,
+    //         _contract,
+    //         _mintFor,
+    //         _tokenId,
+    //         _outBalance
 
-    function _burnNFT(
-        ETypes.AssetType _burn_type, 
-        address _contract, 
-        address _burnFor, 
-        uint256 _tokenId, 
-        uint256 _balance
-    ) 
-        internal
-        virtual 
-    {
-        if (_burn_type == ETypes.AssetType.ERC721) {
-            IERC721Mintable(_contract).burn(_tokenId);
+    //     );
+    //     // if (_mint_type == ETypes.AssetType.ERC721) {
+    //     //     IERC721Mintable(_contract).mint(_mintFor, _tokenId);
+    //     // } else if (_mint_type == ETypes.AssetType.ERC1155) {
+    //     //     IERC1155Mintable(_contract).mint(_mintFor, _tokenId, _outBalance);
+    //     // }
+    // }
 
-        } else if (_burn_type == ETypes.AssetType.ERC1155) {
-            IERC1155Mintable(_contract).burn(_burnFor, _tokenId, _balance);
-        }
-        
-    }
+    // function _burnNFT(
+    //     ETypes.AssetType _burn_type, 
+    //     address _contract, 
+    //     address _burnFor, 
+    //     uint256 _tokenId, 
+    //     uint256 _balance
+    // ) 
+    //     internal
+    //     virtual 
+    // {
+    //     ITokenService(tokenService).burnNFT(
+    //         _burn_type,
+    //         _contract,
+    //         _burnFor,
+    //         _tokenId,
+    //         _balance
+    //     );
+    //     // if (_burn_type == ETypes.AssetType.ERC721) {
+    //     //     IERC721Mintable(_contract).burn(_tokenId);
 
-    function _transfer(
-        ETypes.AssetItem memory _assetItem,
-        address _from,
-        address _to
-    ) internal virtual returns (bool _transfered){
-        if (_assetItem.asset.assetType == ETypes.AssetType.NATIVE) {
-            (bool success, ) = _to.call{ value: _assetItem.amount}("");
-            require(success, "transfer failed");
-            _transfered = true; 
-        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC20) {
-            require(IERC20Extended(_assetItem.asset.contractAddress).balanceOf(_from) <= _assetItem.amount, "UPS!!!!");
-            IERC20Extended(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.amount);
-            _transfered = true;
-        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC721) {
-            IERC721Mintable(_assetItem.asset.contractAddress).transferFrom(_from, _to, _assetItem.tokenId);
-            _transfered = true;
-        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC1155) {
-            IERC1155Mintable(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.tokenId, _assetItem.amount, "");
-            _transfered = true;
-        } else {
-            revert UnSupportedAsset(_assetItem);
-        }
-        return _transfered;
-    }
+    //     // } else if (_burn_type == ETypes.AssetType.ERC1155) {
+    //     //     IERC1155Mintable(_contract).burn(_burnFor, _tokenId, _balance);
+    //     // }
+        
+    // }
 
-    function _transferSafe(
-        ETypes.AssetItem memory _assetItem,
-        address _from,
-        address _to
-    ) internal virtual returns (uint256 _transferedValue){
-        //TODO   think about try catch in transfers
-        uint256 balanceBefore;
-        if (_assetItem.asset.assetType == ETypes.AssetType.NATIVE) {
-            balanceBefore = _to.balance;
-            (bool success, ) = _to.call{ value: _assetItem.amount}("");
-            require(success, "transfer failed");
-            _transferedValue = _to.balance - balanceBefore;
+    // function _transfer(
+    //     ETypes.AssetItem memory _assetItem,
+    //     address _from,
+    //     address _to
+    // ) internal virtual returns (bool _transfered){
+    //     // if (_assetItem.asset.assetType == ETypes.AssetType.NATIVE) {
+    //     //     (bool success, ) = _to.call{ value: _assetItem.amount}("");
+    //     //     require(success, "transfer failed");
+    //     //     _transfered = true; 
+    //     // } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC20) {
+    //     //     require(IERC20Extended(_assetItem.asset.contractAddress).balanceOf(_from) <= _assetItem.amount, "UPS!!!!");
+    //     //     IERC20Extended(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.amount);
+    //     //     _transfered = true;
+    //     // } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC721) {
+    //     //     IERC721Mintable(_assetItem.asset.contractAddress).transferFrom(_from, _to, _assetItem.tokenId);
+    //     //     _transfered = true;
+    //     // } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC1155) {
+    //     //     IERC1155Mintable(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.tokenId, _assetItem.amount, "");
+    //     //     _transfered = true;
+    //     // } else {
+    //     //     revert UnSupportedAsset(_assetItem);
+    //     // }
+    //     _transfered = ITokenService(tokenService).transfer(
+    //         _assetItem,
+    //         _from,
+    //         _to
+    //     );
+    //     //return _transfered;
+    // }
+
+    // function _transferSafe(
+    //     ETypes.AssetItem memory _assetItem,
+    //     address _from,
+    //     address _to
+    // ) internal virtual returns (uint256 _transferedValue){
+    //     // uint256 balanceBefore;
+    //     // if (_assetItem.asset.assetType == ETypes.AssetType.NATIVE) {
+    //     //     balanceBefore = _to.balance;
+    //     //     (bool success, ) = _to.call{ value: _assetItem.amount}("");
+    //     //     require(success, "transfer failed");
+    //     //     _transferedValue = _to.balance - balanceBefore;
         
-        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC20) {
-            balanceBefore = IERC20Extended(_assetItem.asset.contractAddress).balanceOf(_to);
-            if (_from == address(this)){
-                IERC20Extended(_assetItem.asset.contractAddress).safeTransfer(_to, _assetItem.amount);
-            } else {
-                IERC20Extended(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.amount);
-            }    
-            _transferedValue = IERC20Extended(_assetItem.asset.contractAddress).balanceOf(_to) - balanceBefore;
+    //     // } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC20) {
+    //     //     balanceBefore = IERC20Extended(_assetItem.asset.contractAddress).balanceOf(_to);
+    //     //     if (_from == address(this)){
+    //     //         IERC20Extended(_assetItem.asset.contractAddress).safeTransfer(_to, _assetItem.amount);
+    //     //     } else {
+    //     //         IERC20Extended(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.amount);
+    //     //     }    
+    //     //     _transferedValue = IERC20Extended(_assetItem.asset.contractAddress).balanceOf(_to) - balanceBefore;
         
-        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC721 &&
-            IERC721Mintable(_assetItem.asset.contractAddress).ownerOf(_assetItem.tokenId) == _from) {
-            balanceBefore = IERC721Mintable(_assetItem.asset.contractAddress).balanceOf(_to); 
-            IERC721Mintable(_assetItem.asset.contractAddress).transferFrom(_from, _to, _assetItem.tokenId);
-            if (IERC721Mintable(_assetItem.asset.contractAddress).ownerOf(_assetItem.tokenId) == _to &&
-                IERC721Mintable(_assetItem.asset.contractAddress).balanceOf(_to) - balanceBefore == 1
-                ) {
-                _transferedValue = 1;
-            }
+    //     // } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC721 &&
+    //     //     IERC721Mintable(_assetItem.asset.contractAddress).ownerOf(_assetItem.tokenId) == _from) {
+    //     //     balanceBefore = IERC721Mintable(_assetItem.asset.contractAddress).balanceOf(_to); 
+    //     //     IERC721Mintable(_assetItem.asset.contractAddress).transferFrom(_from, _to, _assetItem.tokenId);
+    //     //     if (IERC721Mintable(_assetItem.asset.contractAddress).ownerOf(_assetItem.tokenId) == _to &&
+    //     //         IERC721Mintable(_assetItem.asset.contractAddress).balanceOf(_to) - balanceBefore == 1
+    //     //         ) {
+    //     //         _transferedValue = 1;
+    //     //     }
         
-        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC1155) {
-            balanceBefore = IERC1155Mintable(_assetItem.asset.contractAddress).balanceOf(_to, _assetItem.tokenId);
-            IERC1155Mintable(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.tokenId, _assetItem.amount, "");
-            _transferedValue = IERC1155Mintable(_assetItem.asset.contractAddress).balanceOf(_to, _assetItem.tokenId) - balanceBefore;
+    //     // } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC1155) {
+    //     //     balanceBefore = IERC1155Mintable(_assetItem.asset.contractAddress).balanceOf(_to, _assetItem.tokenId);
+    //     //     IERC1155Mintable(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.tokenId, _assetItem.amount, "");
+    //     //     _transferedValue = IERC1155Mintable(_assetItem.asset.contractAddress).balanceOf(_to, _assetItem.tokenId) - balanceBefore;
         
-        } else {
-            revert UnSupportedAsset(_assetItem);
-        }
-        return _transferedValue;
-    }
+    //     // } else {
+    //     //     revert UnSupportedAsset(_assetItem);
+    //     // }
+    //     _transferedValue = ITokenService(tokenService).transferSafe(
+    //         _assetItem,
+    //         _from,
+    //         _to
+    //     );
+    //     return _transferedValue;
+    // }
 
     // This function must never revert. Use it for unwrap in case some 
     // collateral transfers are revert
-    function _transferEmergency(
-        ETypes.AssetItem memory _assetItem,
-        address _from,
-        address _to
-    ) internal virtual returns (uint256 _transferedValue){
+    // function _transferEmergency(
+    //     ETypes.AssetItem memory _assetItem,
+    //     address _from,
+    //     address _to
+    // ) internal virtual returns (uint256 _transferedValue){
         //TODO   think about try catch in transfers
-        uint256 balanceBefore;
-        if (_assetItem.asset.assetType == ETypes.AssetType.NATIVE) {
-            balanceBefore = _to.balance;
-            (bool success, ) = _to.call{ value: _assetItem.amount}("");
-            //require(success, "transfer failed");
-            _transferedValue = _to.balance - balanceBefore;
+        // uint256 balanceBefore;
+        // if (_assetItem.asset.assetType == ETypes.AssetType.NATIVE) {
+        //     balanceBefore = _to.balance;
+        //     (bool success, ) = _to.call{ value: _assetItem.amount}("");
+        //     //require(success, "transfer failed");
+        //     _transferedValue = _to.balance - balanceBefore;
         
-        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC20) {
-            if (_from == address(this)){
-                //IERC20Extended(_assetItem.asset.contractAddress).safeTransfer(_to, _assetItem.amount);
-                (bool success, ) = _assetItem.asset.contractAddress.call(
-                    abi.encodeWithSignature("transfer(address,uint256)", _to, _assetItem.amount)
-                );
-            } else {
-                //IERC20Extended(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.amount);
-                (bool success, ) = _assetItem.asset.contractAddress.call(
-                    abi.encodeWithSignature("transferFrom(address,address,uint256)", _from,  _to, _assetItem.amount)
-                );
-            }    
-            _transferedValue = _assetItem.amount;
+        // } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC20) {
+        //     if (_from == address(this)){
+        //         //IERC20Extended(_assetItem.asset.contractAddress).safeTransfer(_to, _assetItem.amount);
+        //         (bool success, ) = _assetItem.asset.contractAddress.call(
+        //             abi.encodeWithSignature("transfer(address,uint256)", _to, _assetItem.amount)
+        //         );
+        //     } else {
+        //         //IERC20Extended(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.amount);
+        //         (bool success, ) = _assetItem.asset.contractAddress.call(
+        //             abi.encodeWithSignature("transferFrom(address,address,uint256)", _from,  _to, _assetItem.amount)
+        //         );
+        //     }    
+        //     _transferedValue = _assetItem.amount;
         
-        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC721) {
-            //IERC721Mintable(_assetItem.asset.contractAddress).transferFrom(_from, _to, _assetItem.tokenId);
-            (bool success, ) = _assetItem.asset.contractAddress.call(
-                abi.encodeWithSignature("transferFrom(address,address,uint256)", _from,  _to, _assetItem.tokenId)
-            );
-            _transferedValue = 1;
+        // } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC721) {
+        //     //IERC721Mintable(_assetItem.asset.contractAddress).transferFrom(_from, _to, _assetItem.tokenId);
+        //     (bool success, ) = _assetItem.asset.contractAddress.call(
+        //         abi.encodeWithSignature("transferFrom(address,address,uint256)", _from,  _to, _assetItem.tokenId)
+        //     );
+        //     _transferedValue = 1;
         
-        } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC1155) {
-            //IERC1155Mintable(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.tokenId, _assetItem.amount, "");
-            (bool success, ) = _assetItem.asset.contractAddress.call(
-                abi.encodeWithSignature("safeTransferFrom(address,address,uint256,uint256,bytes)", _from, _to, _assetItem.tokenId, _assetItem.amount, "")
-            );
-            _transferedValue = _assetItem.amount;
+        // } else if (_assetItem.asset.assetType == ETypes.AssetType.ERC1155) {
+        //     //IERC1155Mintable(_assetItem.asset.contractAddress).safeTransferFrom(_from, _to, _assetItem.tokenId, _assetItem.amount, "");
+        //     (bool success, ) = _assetItem.asset.contractAddress.call(
+        //         abi.encodeWithSignature("safeTransferFrom(address,address,uint256,uint256,bytes)", _from, _to, _assetItem.tokenId, _assetItem.amount, "")
+        //     );
+        //     _transferedValue = _assetItem.amount;
         
-        } else {
-            revert UnSupportedAsset(_assetItem);
-        }
-        return _transferedValue;
-    }
+        // } else {
+        //     revert UnSupportedAsset(_assetItem);
+        // }
+    //     _transferedValue = ITokenService(tokenService).transferEmergency(
+    //         _assetItem,
+    //         _from,
+    //         _to
+    //     );
+    //     //return _transferedValue;
+    // }
 
     function _saveWNFTinfo(
         address wNFTAddress, 
@@ -942,10 +972,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         // to get info  from  external wNFT storages(old versions)
         return wrappedTokens[_wNFTAddress][_wNFTTokenId];
     } 
-
-    function _checkRules(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool) {
-        return true;
-    }
 
     function _checkRule(bytes2 _rule, bytes2 _wNFTrules) internal view returns (bool) {
         return _rule == (_rule & _wNFTrules);
