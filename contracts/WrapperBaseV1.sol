@@ -13,8 +13,8 @@ import "../interfaces/IFeeRoyaltyModel.sol";
 import "../interfaces/IWrapper.sol";
 import "../interfaces/IAdvancedWhiteList.sol";
 //import "./LibEnvelopTypes.sol";
-import "../interfaces/IERC721Mintable.sol";
-import "../interfaces/IERC1155Mintable.sol";
+//import "../interfaces/IERC721Mintable.sol";
+//import "../interfaces/IERC1155Mintable.sol";
 import "./TokenService.sol";
 //import "../interfaces/ITokenService.sol";
 
@@ -55,7 +55,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     mapping(ETypes.AssetType => ETypes.NFTItem) public lastWNFTId;  
     
     // Map from wrapped token address and id => wNFT record 
-    mapping(address => mapping(uint256 => ETypes.WNFT)) public wrappedTokens; //? Private in Production
+    mapping(address => mapping(uint256 => ETypes.WNFT)) internal wrappedTokens; //? Private in Production
 
     //error UnSupportedAsset(ETypes.AssetItem asset);
 
@@ -398,12 +398,12 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     // }
 
     function getWrappedToken(address _wNFTAddress, uint256 _wNFTTokenId) public view returns (ETypes.WNFT memory) {
-        return _getWrappedToken(_wNFTAddress,_wNFTTokenId);
+        return wrappedTokens[_wNFTAddress][_wNFTTokenId];
 
     }
 
     function getOriginalURI(address _wNFTAddress, uint256 _wNFTTokenId) public view returns(string memory) {
-        ETypes.AssetItem memory _wnftInAsset = _getWrappedToken(
+        ETypes.AssetItem memory _wnftInAsset = getWrappedToken(
                 _wNFTAddress, _wNFTTokenId
         ).inAsset;
 
@@ -973,11 +973,11 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
 
     }
 
-    function _getWrappedToken(address _wNFTAddress, uint256 _wNFTTokenId) internal view virtual returns (ETypes.WNFT memory) {
-        // TODO  extend  this function in future implementation
-        // to get info  from  external wNFT storages(old versions)
-        return wrappedTokens[_wNFTAddress][_wNFTTokenId];
-    } 
+    // function getWrappedToken(address _wNFTAddress, uint256 _wNFTTokenId) internal view virtual returns (ETypes.WNFT memory) {
+    //     // TODO  extend  this function in future implementation
+    //     // to get info  from  external wNFT storages(old versions)
+    //     return wrappedTokens[_wNFTAddress][_wNFTTokenId];
+    // } 
 
     function _checkRule(bytes2 _rule, bytes2 _wNFTrules) internal view returns (bool) {
         return _rule == (_rule & _wNFTrules);
@@ -1027,7 +1027,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     function _checkWrap(ETypes.INData calldata _inData, address _wrappFor) internal view returns (bool enabled){
         // Lets check that inAsset 
         // 0x0002 - this rule disable wrap already wrappednFT (NO matryoshka)
-        enabled = !_checkRule(0x0002, _getWrappedToken(
+        enabled = !_checkRule(0x0002, getWrappedToken(
             _inData.inAsset.asset.contractAddress, 
             _inData.inAsset.tokenId).rules
             ) 
@@ -1065,7 +1065,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     {
         // Lets check wNFT rules 
         // 0x0008 - this rule disable add collateral
-        enabled = !_checkRule(0x0008, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
+        enabled = !_checkRule(0x0008, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
         
         // Check WhiteList Logic
         if  (protocolWhiteList != address(0)) {
@@ -1091,7 +1091,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         
         // Lets wNFT rules 
         // 0x0001 - this rule disable unwrap wrappednFT 
-        require(!_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules),
+        require(!_checkRule(0x0001, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules),
             "UnWrapp forbidden by author"
         );
 

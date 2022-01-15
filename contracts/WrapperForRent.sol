@@ -37,7 +37,7 @@ contract WrapperForRent is WrapperBaseV1 {
         if (_wNFTType == ETypes.AssetType.ERC721) {
             // Only token owner or unwraper can UnWrap
             burnFor = IERC721Mintable(_wNFTAddress).ownerOf(_wNFTTokenId);
-            require(_getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition == msg.sender,
+            require(getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition == msg.sender,
                 'Only unWrapDestinition can unwrap it'
             ); 
             return (burnFor, burnBalance);
@@ -51,9 +51,9 @@ contract WrapperForRent is WrapperBaseV1 {
                 ,'ERC115 unwrap available only for all totalSupply'
             );
             // Only token owner or unwraper can UnWrap
-            if (_getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition != msg.sender) {
+            if (getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition != msg.sender) {
                 require(
-                   !_checkRule(0x0001, _getWrappedToken(_wNFTAddress, _wNFTTokenId).rules), 
+                   !_checkRule(0x0001, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules), 
                    'Only unWrapDestinition can unwrap forbidden wnft'
                 );
                 require(msg.sender == burnFor,

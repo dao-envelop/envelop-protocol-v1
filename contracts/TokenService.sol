@@ -21,7 +21,7 @@ abstract contract TokenService {
         uint256 _tokenId, 
         uint256 _outBalance
     ) 
-        public 
+        internal 
         virtual
     {
         if (_mint_type == ETypes.AssetType.ERC721) {
@@ -38,7 +38,7 @@ abstract contract TokenService {
         uint256 _tokenId, 
         uint256 _balance
     ) 
-        public
+        internal
         virtual 
     {
         if (_burn_type == ETypes.AssetType.ERC721) {
@@ -54,7 +54,7 @@ abstract contract TokenService {
         ETypes.AssetItem memory _assetItem,
         address _from,
         address _to
-    ) public virtual returns (bool _transfered){
+    ) internal virtual returns (bool _transfered){
         if (_assetItem.asset.assetType == ETypes.AssetType.NATIVE) {
             (bool success, ) = _to.call{ value: _assetItem.amount}("");
             require(success, "transfer failed");
@@ -79,7 +79,7 @@ abstract contract TokenService {
         ETypes.AssetItem memory _assetItem,
         address _from,
         address _to
-    ) public virtual returns (uint256 _transferedValue){
+    ) internal virtual returns (uint256 _transferedValue){
         //TODO   think about try catch in transfers
         uint256 balanceBefore;
         if (_assetItem.asset.assetType == ETypes.AssetType.NATIVE) {
@@ -124,7 +124,7 @@ abstract contract TokenService {
         ETypes.AssetItem memory _assetItem,
         address _from,
         address _to
-    ) public virtual returns (uint256 _transferedValue){
+    ) internal virtual returns (uint256 _transferedValue){
         //TODO   think about try catch in transfers
         uint256 balanceBefore;
         if (_assetItem.asset.assetType == ETypes.AssetType.NATIVE) {
