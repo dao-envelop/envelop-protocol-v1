@@ -101,6 +101,10 @@ contract EnvelopwNFT721 is ERC721Enumerable, Ownable {
 
             }
     }
+
+    function wnftInfo(uint256 tokenId) external view returns (ETypes.WNFT memory) {
+        return IWrapper(wrapperMinter).getWrappedToken(address(this), tokenId);
+    }
     
     
     function baseURI() external view  returns (string memory) {

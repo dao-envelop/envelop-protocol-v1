@@ -6,14 +6,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../interfaces/IWrapper.sol";
-//v0.0.1
+
 contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
     using Strings for uint256;
     using Strings for uint160;
     
     address public wrapper;       // main protocol contarct
-    //address public tokenService;  // minter-burner-transferproxy
-    string  public baseurl;
     
     constructor(
         string memory name_,
@@ -22,8 +20,8 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
     ) 
         ERC1155(_baseurl)  
     {
-        //wrapperMinter = msg.sender;
-        baseurl = string(
+
+        _setURI(string(
             abi.encodePacked(
                 _baseurl,
                 block.chainid.toString(),
@@ -31,9 +29,7 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
                 uint160(address(this)).toHexString(),
                 "/"
             )
-        );
-        _setURI(baseurl);
-
+        ));
     }
 
     function mint(address _to, uint256 _tokenId, uint256 _amount) external {
@@ -98,7 +94,10 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
         }
     }
     
-    
+    function wnftInfo(uint256 tokenId) external view returns (ETypes.WNFT memory) {
+        return IWrapper(wrapper).getWrappedToken(address(this), tokenId);
+    }
+
     function uri(uint256 _tokenID) public view override 
         returns (string memory _uri) 
     {
