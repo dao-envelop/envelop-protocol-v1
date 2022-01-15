@@ -3,11 +3,13 @@ import logging
 from brownie import chain, Wei, reverts
 LOGGER = logging.getLogger(__name__)
 from makeTestData import makeNFTForTest721, makeNFTForTest1155
+from web3 import Web3
 
 ORIGINAL_NFT_IDs = [10000,11111,22222]
 zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
 eth_amount = "1 ether"
+transfer_fee_amount = 100
 
 def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft721, niftsy20, erc1155mock1, erc721mock1):
     #make wrap NFT with empty
@@ -47,7 +49,7 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft721, niftsy20, er
     erc721_data = (erc721_property, ORIGINAL_NFT_IDs[0], 0)
     erc1155_data = (erc1155_property, ORIGINAL_NFT_IDs[0], in_nft_amount)
 
-    fee = []
+    fee = [(Web3.toBytes(0x00), transfer_fee_amount, niftsy20.address)]
     lock = [('0x0', chain.time() + 100), ('0x0', chain.time() + 200)]
     royalty = []
 
@@ -71,7 +73,13 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft721, niftsy20, er
     assert wrapper.balance() == eth_amount
     assert wnft721.ownerOf(wTokenId) == accounts[3]
 
+    with reverts("ERC20: transfer amount exceeds balance"):
+        wnft721.transferFrom(accounts[3], accounts[2], wTokenId, {"from": accounts[3]})
 
+
+    niftsy20.transfer(accounts[3], transfer_fee_amount, {"from": accounts[0]})
+    with reverts("ERC20: transfer amount exceeds allowance"):
+        wnft721.transferFrom(accounts[3], accounts[2], wTokenId, {"from": accounts[3]})
 
     eth_contract_balance = wrapper.balance()
     eth_acc_balance = accounts[2].balance()

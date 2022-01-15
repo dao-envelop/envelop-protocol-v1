@@ -20,7 +20,7 @@ accounts.add(private_key)
 
 def main():
 	wrapper     = WrapperForRent.at('0x8904Ef7b93f6aAcbaF66E7Fe61616a92bC73Cfdd')
-	wnft1155         = EnvelopwNFT1155.at('0x5bF8D8E84Ae2Ee9514bA37B18cfe1b868992ee6f')
+	wnft1155         = EnvelopwNFT1155.at('0xE8d973b5D06b4027CabbF6FF2f90EC73717fF936')
 	original_nft_contract = Token1155Mock.at('0xbeF5Be938a4417CE626380D9d2dbfAc07256778c')
 	in_type = 4
 	out_type = 4
