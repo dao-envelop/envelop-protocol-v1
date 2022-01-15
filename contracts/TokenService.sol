@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 // ENVELOP(NIFTSY) protocol V1 for NFT. Wrapper - main protocol contract
-pragma solidity 0.8.10;
+pragma solidity 0.8.11;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../interfaces/IERC20Extended.sol";
 import "./LibEnvelopTypes.sol";
 import "../interfaces/IERC721Mintable.sol";
 import "../interfaces/IERC1155Mintable.sol";
-import "../interfaces/ITokenService.sol";
+//import "../interfaces/ITokenService.sol";
 
 abstract contract TokenService {
 	using SafeERC20 for IERC20Extended;

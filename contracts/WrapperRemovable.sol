@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // ENVELOP(NIFTSY) protocol V1 for NFT. Wrapper - main protocol contract
-pragma solidity 0.8.10;
+pragma solidity 0.8.11;
 
 import "./WrapperBaseV1.sol";
 
@@ -51,7 +51,7 @@ contract WrapperRemovable is WrapperBaseV1 {
             );
         }
         // we need know index in collateral array
-        (uint256 _amnt, uint256 _index) = _getCollateralBalanceAndIndex(
+        (uint256 _amnt, uint256 _index) = getCollateralBalanceAndIndex(
                 _wNFTAddress, 
                 _wNFTTokenId,
                 _collateralItem.asset.assetType, 

@@ -30,7 +30,7 @@ def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
 		
 	))
 
-def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20, tokenService):
+def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 #make wrap NFT with empty
 	in_type = 4
 	out_type = 4
@@ -45,7 +45,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20, tokenSer
 
 	#make test data
 	makeNFTForTest1155(accounts, erc1155mock, ORIGINAL_NFT_IDs, in_nft_amount)
-	erc1155mock.setApprovalForAll(wrapper.address, True, {"from": accounts[1]})
+	erc1155mock.setApprovalForAll(wrapperRent.address, True, {"from": accounts[1]})
 
 
 	token_property = (in_type, erc1155mock)
@@ -82,7 +82,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20, tokenSer
 		wrapperRent.addCollateral(wnft1155.address, wTokenId, [], {"from": accounts[1], "value": "1 ether"})
 
 	#refuse to wrap wNFT
-	wnft1155.setApprovalForAll(wrapper, True, {"from": accounts[3]})
+	wnft1155.setApprovalForAll(wrapperRent, True, {"from": accounts[3]})
 
 	token_property = (in_type, wnft1155)
 	token_data = (token_property, wTokenId, coll_amount)
