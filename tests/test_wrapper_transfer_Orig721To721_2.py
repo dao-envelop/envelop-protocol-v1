@@ -16,7 +16,7 @@ transfer_fee_amount = 100
 
 
 #transfer with fee without royalty
-def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc1155mock1, erc721mock1, whiteLists, techERC20):
+def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc1155mock1, erc721mock1, whiteLists, techERC20, wrapperChecker):
     
     #make 721 token for wrapping
     makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
@@ -62,7 +62,7 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
     wnft721.transferFrom(accounts[3], accounts[2], wTokenId, {"from": accounts[3]})
     assert techERC20.balanceOf(accounts[3]) == 0
     assert techERC20.balanceOf(wrapper.address) == transfer_fee_amount
-    assert wrapper.getERC20CollateralBalance(wnft721.address, wTokenId, techERC20.address) == transfer_fee_amount
+    assert wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, techERC20.address) == transfer_fee_amount
 
 
 

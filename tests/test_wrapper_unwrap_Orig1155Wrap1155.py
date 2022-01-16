@@ -10,7 +10,7 @@ zero_address = '0x0000000000000000000000000000000000000000'
 in_nft_amount = 3 
 out_nft_amount = 5
 
-def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20):
+def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, wrapperChecker):
 	#make test data
 	makeNFTForTest1155(accounts, erc1155mock, ORIGINAL_NFT_IDs, in_nft_amount)
 
@@ -20,9 +20,9 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20):
 	assert wnft1155.balanceOf(accounts[3].address, wTokenId) == out_nft_amount
 
 	contract_eth_balance = wrapper.balance()
-	before_dai_balance = wrapper.getERC20CollateralBalance(wnft1155.address, wTokenId, dai.address)
-	before_weth_balance = wrapper.getERC20CollateralBalance(wnft1155.address, wTokenId, weth.address)
-	before_eth_balance = wrapper.getERC20CollateralBalance(wnft1155.address, wTokenId, zero_address)
+	before_dai_balance = wrapperChecker.getERC20CollateralBalance(wnft1155.address, wTokenId, dai.address)
+	before_weth_balance = wrapperChecker.getERC20CollateralBalance(wnft1155.address, wTokenId, weth.address)
+	before_eth_balance = wrapperChecker.getERC20CollateralBalance(wnft1155.address, wTokenId, zero_address)
 	before_acc_balance = accounts[2].balance()
 
 	#check tokenUri

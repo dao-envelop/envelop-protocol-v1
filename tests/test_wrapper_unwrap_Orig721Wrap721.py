@@ -8,7 +8,7 @@ LOGGER = logging.getLogger(__name__)
 ORIGINAL_NFT_IDs = [10000,11111,22222]
 zero_address = '0x0000000000000000000000000000000000000000'
 
-def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20):
+def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, wrapperChecker):
 	#make test data
 	makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
 
@@ -28,9 +28,9 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20):
 	assert wnft721.ownerOf(wTokenId) == accounts[3]
 
 	contract_eth_balance = wrapper.balance()
-	before_dai_balance = wrapper.getERC20CollateralBalance(wnft721.address, wTokenId, dai.address)
-	before_weth_balance = wrapper.getERC20CollateralBalance(wnft721.address, wTokenId, weth.address)
-	before_eth_balance = wrapper.getERC20CollateralBalance(wnft721.address, wTokenId, zero_address)
+	before_dai_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, dai.address)
+	before_weth_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, weth.address)
+	before_eth_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, zero_address)
 	before_acc_balance = accounts[2].balance()
 
 
