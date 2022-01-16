@@ -80,8 +80,8 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, n
     assert niftsy201.balanceOf(accounts[5]) == 2*transfer_fee_amount*royalty[1][1]/techERC20.ROYALTY_PERCENT_BASE()
     assert niftsy20.balanceOf(accounts[6]) == transfer_fee_amount*royalty[2][1]/techERC20.ROYALTY_PERCENT_BASE()
     assert niftsy201.balanceOf(accounts[6]) == 2*transfer_fee_amount*royalty[2][1]/techERC20.ROYALTY_PERCENT_BASE()
-    assert wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, niftsy20.address) == transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
-    assert wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, niftsy201.address) == 2*transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
+    assert wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, niftsy20.address)[0] == transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
+    assert wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, niftsy201.address)[0] == 2*transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
     assert wnft721.ownerOf(wTokenId) == accounts[2]
 
     with reverts("TimeLock error"):

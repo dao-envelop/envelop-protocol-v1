@@ -64,18 +64,17 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, er
     assert collateral[6] == ((4, erc1155mock1.address), ORIGINAL_NFT_IDs[1], coll_amount-1)
 
     #check 
-    assert wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, dai.address) == amount
-    assert wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, weth.address) == 10*amount
-    assert wrapper._getNativeCollateralBalance(wnft721.address, wTokenId) == "1 ether"
-    assert wrapper._getERC20CollateralBalance(wnft721.address, wTokenId, dai.address) == (amount, 3)
-    assert wrapper._getERC20CollateralBalance(wnft721.address, wTokenId, weth.address) == (10*amount, 5)
+    assert wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, dai.address)[0] == amount
+    assert wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, weth.address)[0] == 10*amount
+    assert wrapperChecker.getNativeCollateralBalance(wnft721.address, wTokenId) == "1 ether"
+    assert wrapperChecker.getERC1155CollateralBalance(wnft721.address, wTokenId, erc1155mock1.address, ORIGINAL_NFT_IDs[1])[0] == coll_amount-1 
 
 
 
     contract_eth_balance = wrapper.balance()
-    before_dai_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, dai.address)
-    before_weth_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, weth.address)
-    before_eth_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, zero_address)
+    before_dai_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, dai.address)[0]
+    before_weth_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, weth.address)[0]
+    before_eth_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, zero_address)[0]
     before_acc_balance = accounts[2].balance()
 
     wrapper.unWrap(3, wnft721.address, wTokenId, {"from": accounts[3]})

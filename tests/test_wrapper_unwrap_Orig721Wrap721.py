@@ -28,9 +28,9 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, wra
 	assert wnft721.ownerOf(wTokenId) == accounts[3]
 
 	contract_eth_balance = wrapper.balance()
-	before_dai_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, dai.address)
-	before_weth_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, weth.address)
-	before_eth_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, zero_address)
+	before_dai_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, dai.address)[0]
+	before_weth_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, weth.address)[0]
+	before_eth_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, zero_address)[0]
 	before_acc_balance = accounts[2].balance()
 
 

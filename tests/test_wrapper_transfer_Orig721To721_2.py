@@ -62,7 +62,7 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
     wnft721.transferFrom(accounts[3], accounts[2], wTokenId, {"from": accounts[3]})
     assert techERC20.balanceOf(accounts[3]) == 0
     assert techERC20.balanceOf(wrapper.address) == transfer_fee_amount
-    assert wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, techERC20.address) == transfer_fee_amount
+    assert wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, techERC20.address)[0] == transfer_fee_amount
 
 
 
