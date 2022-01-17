@@ -47,7 +47,7 @@ contract WrapperChecker {
         uint256 _wNFTTokenId, 
         address _erc1155,
         uint256 _tokenId
-    ) internal view returns (uint256, uint256) 
+    ) public view returns (uint256, uint256) 
     {
         return wrapper.getCollateralBalanceAndIndex(
             _wNFTAddress, 
