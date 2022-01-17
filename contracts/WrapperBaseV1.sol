@@ -43,7 +43,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     //using SafeERC20 for IERC20Extended;
 
 
-    uint256 public MAX_COLLATERAL_SLOTS = 20;
+    uint256 public MAX_COLLATERAL_SLOTS = 260;
     address public protocolTechToken;
     address public protocolWhiteList;
     //address public tokenService;
