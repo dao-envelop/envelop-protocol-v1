@@ -57,4 +57,33 @@ contract WrapperChecker {
             _tokenId
         ); 
     }
+
+    function checkWrap(
+        ETypes.INData calldata _inData, 
+        ETypes.AssetItem[] calldata _collateral, 
+        address _wrappFor
+    ) 
+        public view returns (bool)
+    {
+        return true;
+    }
+
+    function checkAddCollateral(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId, 
+        ETypes.AssetItem[] calldata _collateral
+    ) public view returns (bool) 
+    {
+        return true;
+    }
+
+    function checkUnWrap(
+        ETypes.AssetType _wNFTType, 
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId, 
+        bool _isEmergency
+    ) public view returns (bool) 
+    {
+        return true;
+    }
 }
