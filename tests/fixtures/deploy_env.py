@@ -105,6 +105,11 @@ def wnft1155(accounts, EnvelopwNFT1155):
     yield wnft
 
 @pytest.fixture(scope="module")
+def wnft1155_1(accounts, EnvelopwNFT1155):
+    wnft = accounts[0].deploy(EnvelopwNFT1155,"Envelop wNFT_1", "eNFT1", "https://api.envelop.is/metadata/")
+    yield wnft
+
+@pytest.fixture(scope="module")
 def niftsy20(accounts, Niftsy):
     erc20 = accounts[0].deploy(Niftsy, accounts[0])
     yield erc20 
