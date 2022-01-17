@@ -16,7 +16,7 @@ transfer_fee_amount = 100
 
 
 #transfer with fee without royalty
-def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc1155mock1, erc721mock1, whiteLists, techERC20):
+def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc1155mock1, erc721mock1, whiteLists, techERC20, wrapperChecker):
 
     #make 721 token for wrapping
     makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
@@ -82,22 +82,8 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
     wnft721.transferFrom(accounts[3], accounts[2], wTokenId, {"from": accounts[3]})
     assert niftsy20.balanceOf(accounts[3]) == 0
     assert niftsy20.balanceOf(wrapper.address) == transfer_fee_amount
-    assert wrapper.getERC20CollateralBalance(wnft721.address, wTokenId, niftsy20.address) == transfer_fee_amount
+    assert wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, niftsy20.address)[0] == transfer_fee_amount
 
-    '''logging.info(niftsy20.balanceOf(accounts[3]))
-    logging.info(niftsy20.balanceOf(wrapper.address))
-    logging.info(wrapper.protocolWhiteList())
-    fees = wrapper.getWrappedToken(wnft721.address, wTokenId)[3]
-    royalty = wrapper.getWrappedToken(wnft721.address, wTokenId)[5]
-    logging.info(fees[0][0])
-    logging.info(fees[0][1])
-    logging.info(fees[0][2])
-    logging.info(royalty)
-    logging.info(whiteLists.getWLItem(fees[0][2])[3])
-    logging.info(techERC20.address)
-    logging.info(techERC20.getTransfersList(fees[0], royalty, accounts[3], accounts[2]))
-    logging.info(accounts[3].address)
-    logging.info(wrapper.address)'''
 
 
 

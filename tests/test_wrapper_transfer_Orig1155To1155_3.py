@@ -17,7 +17,7 @@ transfer_fee_amount = 100
 
 
 #transfer with fee without royalty
-def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, whiteLists, techERC20):
+def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, whiteLists, techERC20, wrapperChecker):
     
     #make 1155 token for wrapping
     makeNFTForTest1155(accounts, erc1155mock, ORIGINAL_NFT_IDs, in_nft_amount)
@@ -70,7 +70,7 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
     assert niftsy20.balanceOf(accounts[4]) == transfer_fee_amount*royalty[0][1]/techERC20.ROYALTY_PERCENT_BASE()
     assert niftsy20.balanceOf(accounts[5]) == transfer_fee_amount*royalty[1][1]/techERC20.ROYALTY_PERCENT_BASE()
     assert niftsy20.balanceOf(accounts[6]) == transfer_fee_amount*royalty[2][1]/techERC20.ROYALTY_PERCENT_BASE()
-    assert wrapper.getERC20CollateralBalance(wnft1155.address, wTokenId, niftsy20.address) == 0
+    assert wrapperChecker.getERC20CollateralBalance(wnft1155.address, wTokenId, niftsy20.address)[0] == 0
 
 
 

@@ -17,7 +17,7 @@ transfer_fee_amount = 100
 
 
 #transfer with fee without royalty
-def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, niftsy201, whiteLists, techERC20):
+def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, niftsy201, whiteLists, techERC20, wrapperChecker):
     
     #make 1155 token for wrapping
     makeNFTForTest1155(accounts, erc1155mock, ORIGINAL_NFT_IDs, in_nft_amount)
@@ -79,8 +79,8 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
     assert niftsy201.balanceOf(accounts[5]) == 2*transfer_fee_amount*royalty[1][1]/techERC20.ROYALTY_PERCENT_BASE()
     assert niftsy20.balanceOf(accounts[6]) == transfer_fee_amount*royalty[2][1]/techERC20.ROYALTY_PERCENT_BASE()
     assert niftsy201.balanceOf(accounts[6]) == 2*transfer_fee_amount*royalty[2][1]/techERC20.ROYALTY_PERCENT_BASE()
-    assert wrapper.getERC20CollateralBalance(wnft1155.address, wTokenId, niftsy20.address) == transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
-    assert wrapper.getERC20CollateralBalance(wnft1155.address, wTokenId, niftsy201.address) == 2*transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
+    assert wrapperChecker.getERC20CollateralBalance(wnft1155.address, wTokenId, niftsy20.address)[0] == transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
+    assert wrapperChecker.getERC20CollateralBalance(wnft1155.address, wTokenId, niftsy201.address)[0] == 2*transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
     assert wnft1155.balanceOf(accounts[2], wTokenId) == 1
     assert wnft1155.balanceOf(accounts[3], wTokenId) == out_nft_amount - 1
 
@@ -104,8 +104,8 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
     assert niftsy201.balanceOf(accounts[5]) == 4*transfer_fee_amount*royalty[1][1]/techERC20.ROYALTY_PERCENT_BASE()
     assert niftsy20.balanceOf(accounts[6]) == 2*transfer_fee_amount*royalty[2][1]/techERC20.ROYALTY_PERCENT_BASE()
     assert niftsy201.balanceOf(accounts[6]) == 4*transfer_fee_amount*royalty[2][1]/techERC20.ROYALTY_PERCENT_BASE()
-    assert wrapper.getERC20CollateralBalance(wnft1155.address, wTokenId, niftsy20.address) == 2*transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
-    assert wrapper.getERC20CollateralBalance(wnft1155.address, wTokenId, niftsy201.address) == 4*transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
+    assert wrapperChecker.getERC20CollateralBalance(wnft1155.address, wTokenId, niftsy20.address)[0] == 2*transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
+    assert wrapperChecker.getERC20CollateralBalance(wnft1155.address, wTokenId, niftsy201.address)[0] == 4*transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
     assert wnft1155.balanceOf(accounts[2], wTokenId) == out_nft_amount
     assert wnft1155.balanceOf(accounts[3], wTokenId) == 0
 
