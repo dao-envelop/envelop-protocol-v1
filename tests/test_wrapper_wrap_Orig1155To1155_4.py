@@ -45,6 +45,7 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
         '0'
         )
 
-    assert wrapperChecker.checkWrap(wNFT, [], accounts[3])[0] == True
+    assert wrapperChecker.checkWrap(wNFT, [], accounts[3])[0] == False
+    assert wrapperChecker.checkWrap(wNFT, [], accounts[3])[1] == "unWrapDestinition cant be zero"
 
 
