@@ -65,11 +65,24 @@ contract WrapperChecker {
     ) 
         public view returns (bool, string memory)
     {
+        bool result;
+        string memory messages;
         if (_inData.unWrapDestinition == address(0)) {
-            return (false, "unWrapDestinition cant be zero");
+            result = false;
+            messages="unWrapDestinition cant be zero";
         }
-        
-        return (true, "Success");
+        if (_wrappFor == address(0)) {
+            result = false; 
+            messages= string(
+                abi.encodePacked(
+                    messages,
+                    ", ",
+                    "WrapperFor cant be zero"
+                )
+            );
+        }
+
+        return (result, messages);
     }
 
     function checkAddCollateral(
