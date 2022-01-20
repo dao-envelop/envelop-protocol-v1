@@ -19,15 +19,15 @@ accounts.add(private_key)
 
 
 def main():
-	wrapper     = WrapperForRent.at('0x8904Ef7b93f6aAcbaF66E7Fe61616a92bC73Cfdd')
-	wnft1155         = EnvelopwNFT1155.at('0xE8d973b5D06b4027CabbF6FF2f90EC73717fF936')
+	wrapper     = WrapperForRent.at('0x59C769f7A26892146816C817b44A4A557225Dc06')
+	wnft1155         = EnvelopwNFT1155.at('0xf294ab4B27f27cC619E2EfF2db5077A7D995A1FC')
 	original_nft_contract = Token1155Mock.at('0xbeF5Be938a4417CE626380D9d2dbfAc07256778c')
 	in_type = 4
 	out_type = 4
 	in_nft_amount = 5
 	out_nft_amount = 5 
 	
-	original_nft_id = 4 #increase number +1 to mint new original NFT 
+	original_nft_id = 5 #increase number +1 to mint new original NFT 
 	price = "2 gwei"
 
 	original_nft_contract.mint(accounts[0], original_nft_id, in_nft_amount, {"from": accounts[0], "gas_price": price})
@@ -61,7 +61,7 @@ def main():
 	assert original_nft_contract.balanceOf(wrapper.address, original_nft_id) == in_nft_amount
 
 	#try to transfer wrapped NFT
-	try:
+	'''try:
 		wnft1155.safeTransferFrom(accounts[1], accounts[0], wTokenId, 1, '', {"from": accounts[1], "gas_price": price})
 	except ValueError as ve:
 		print(ve)
@@ -119,7 +119,7 @@ def main():
 	wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[0], "gas_price": price})
 
 	assert original_nft_contract.balanceOf(accounts[0], original_nft_id) == in_nft_amount
-	assert wnft1155.balanceOf(accounts[1], wTokenId) == 0
+	assert wnft1155.balanceOf(accounts[1], wTokenId) == 0'''
 
 
 

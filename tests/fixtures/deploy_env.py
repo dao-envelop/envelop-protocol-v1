@@ -71,11 +71,6 @@ def techERC20(accounts, TechTokenV1):
 #     t = accounts[0].deploy(TokenService)
 #     yield t
 
-@pytest.fixture(scope="module")
-def wrapper(accounts, WrapperBaseV1, techERC20):
-    t = accounts[0].deploy(WrapperBaseV1, techERC20.address)
-    #t.setTokenService(tokenService.address, {'from':accounts[0]})
-    yield t
 
 @pytest.fixture(scope="module")
 def wrapperRent(accounts, WrapperForRent, techERC20):
@@ -92,7 +87,13 @@ def wrapperRemove(accounts, WrapperRemovable, techERC20):
 @pytest.fixture(scope="module")
 def wrapperChecker(accounts, WrapperChecker, wrapper):
     t = accounts[0].deploy(WrapperChecker, wrapper.address)
-    yield t    
+    yield t   
+
+@pytest.fixture(scope="module")
+def wrapper(accounts, WrapperBaseV1, techERC20):
+    t = accounts[0].deploy(WrapperBaseV1, techERC20.address)
+    #t.setTokenService(tokenService.address, {'from':accounts[0]})
+    yield t 
 
 @pytest.fixture(scope="module")
 def wnft721(accounts, EnvelopwNFT721):
@@ -102,6 +103,11 @@ def wnft721(accounts, EnvelopwNFT721):
 @pytest.fixture(scope="module")
 def wnft1155(accounts, EnvelopwNFT1155):
     wnft = accounts[0].deploy(EnvelopwNFT1155,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/")
+    yield wnft
+
+@pytest.fixture(scope="module")
+def wnft1155_1(accounts, EnvelopwNFT1155):
+    wnft = accounts[0].deploy(EnvelopwNFT1155,"Envelop wNFT_1", "eNFT1", "https://api.envelop.is/metadata/")
     yield wnft
 
 @pytest.fixture(scope="module")
