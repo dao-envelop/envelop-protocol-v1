@@ -68,26 +68,28 @@ CHAIN = {
 
 }.get(web3.eth.chainId, {'explorer_base':'io'})
 print(CHAIN)
-
-
+tx_params = {'from':accounts[0]}
+if web3.eth.chainId in  [1,4]:
+    tx_params={'from':accounts[0], 'priority_fee': chain.priority_fee}
 
 def main():
     print('Deployer account= {}'.format(accounts[0]))
-    techERC20 = TechToken.deploy({'from':accounts[0]})
-    #techERC20 = TechToken.at('')
-    wrapper   = WrapperForRent.deploy(techERC20.address,{'from':accounts[0]}) 
-    #wrapper = WrapperWithERC20Collateral.at('')
-    wnft1155 = EnvelopwNFT1155.deploy(
-        'ENVELOP 1155 wNFT Collection', 
-        'wNFT', 
-        'https://api.envelop.is/metadata/',
-        {'from':accounts[0]}
-    )
+    #techERC20 = TechTokenV1.deploy(tx_params)
+    techERC20 = TechTokenV1.at('0x7e4Be057C70657C71dEc4716A2fD23BEad0Ad4Eb')
+    #wrapper   = WrapperForRent.deploy(techERC20.address,tx_params) 
+    wrapper = WrapperForRent.at('0x59C769f7A26892146816C817b44A4A557225Dc06')
+    # wnft1155 = EnvelopwNFT1155.deploy(
+    #     'ENVELOP 1155 wNFT Collection', 
+    #     'wNFT', 
+    #     'https://api.envelop.is/metadata/',
+    #     tx_params
+    # )
+    wnft1155 = EnvelopwNFT1155.at('0xf294ab4B27f27cC619E2EfF2db5077A7D995A1FC')
     #trmodel   = TransferRoyaltyModel01.deploy(wrapper.address,{'from':accounts[0]})
     #trmodel   = TransferRoyaltyModel01.at('0x6664c8118284b3F5ECB47c2105cAa544Ab0Cf75B') 
     #Init
-    techERC20.addMinter(wrapper.address, {'from': accounts[0]})
-    wnft1155.setMinterStatus(wrapper.address, {"from": accounts[0]})
+    #techERC20.addMinter(wrapper.address, {'from': accounts[0]})
+    wnft1155.setMinterStatus(wrapper.address, tx_params)
     # if len(CHAIN.get('enabled_erc20', [])) > 0:
     #     print('Enabling collateral...')
     #     for erc in CHAIN.get('enabled_erc20', []):
@@ -99,7 +101,7 @@ def main():
 
     # Print addresses for quick access from console
     print("----------Deployment artifacts-------------------")
-    print("techERC20 = TechToken.at('{}')".format(techERC20.address))
+    print("techERC20 = TechTokenV1.at('{}')".format(techERC20.address))
     print("wrapper = WrapperForRent.at('{}')".format(wrapper.address))
     print("wnft1155 = EnvelopwNFT1155.at('{}')".format(wnft1155.address))
     
@@ -108,7 +110,7 @@ def main():
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wnft1155))
 
     if  web3.eth.chainId in [1,4, 43114]:
-        TechToken.publish_source(techERC20);
+        TechTokenV1.publish_source(techERC20);
         WrapperForRent.publish_source(wrapper);
         EnvelopwNFT1155.publish_source(wnft1155);
 

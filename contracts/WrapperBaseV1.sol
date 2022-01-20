@@ -5,18 +5,11 @@ pragma solidity 0.8.11;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
-//import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-//import "./TechToken.sol";
-//import "../interfaces/IERC20Extended.sol";
 import "../interfaces/IFeeRoyaltyModel.sol";
 import "../interfaces/IWrapper.sol";
 import "../interfaces/IAdvancedWhiteList.sol";
-//import "./LibEnvelopTypes.sol";
-//import "../interfaces/IERC721Mintable.sol";
-//import "../interfaces/IERC1155Mintable.sol";
 import "./TokenService.sol";
-//import "../interfaces/ITokenService.sol";
 
 // #### Envelop ProtocolV1 Rules
 // 15   14   13   12   11   10   9   8   7   6   5   4   3   2   1   0  <= Bit number(dec)
@@ -433,6 +426,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     ) internal virtual 
     {
         wrappedTokens[wNFTAddress][tokenId].inAsset = _inData.inAsset;
+        // TODO Check unwrap distinition
         wrappedTokens[wNFTAddress][tokenId].unWrapDestinition = _inData.unWrapDestinition;
         wrappedTokens[wNFTAddress][tokenId].rules = _inData.rules;
         
