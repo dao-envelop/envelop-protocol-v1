@@ -31,7 +31,7 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
 
     token_data = (token_property, ORIGINAL_NFT_IDs[0], in_nft_amount)
     
-    fee = []
+    fee = [(Web3.toBytes(0x00), transfer_fee_amount, niftsy20.address)]
     lock = []
     royalty = []
 
@@ -93,7 +93,20 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
     assert wnft1155_1.balanceOf(accounts[3], wTokenId) == out_nft_amount
 
 
-    wrapper.unWrap(out_type, wnft1155.address, 1, {"from": accounts[3]})
+    #switch on white list
+    wrapper.setWhiteList(whiteLists.address, {"from": accounts[0]})
+
+    #transferFee flag is switched on
+    wl_data = (True, False, False, techERC20.address)
+    whiteLists.setWLItem(niftsy20.address, wl_data, {"from": accounts[0]})
+
+    niftsy20.transfer(accounts[3], transfer_fee_amount, {"from": accounts[0]})
+    niftsy20.approve(wrapper.address, transfer_fee_amount, {"from": accounts[3]})
+    wnft1155.safeTransferFrom(accounts[3], accounts[2], 1, out_nft_amount, "",  {"from": accounts[3]})
+
+    assert wnft1155.balanceOf(accounts[2], 1) == out_nft_amount
+
+    wrapper.unWrap(out_type, wnft1155.address, 1, {"from": accounts[2]})
     wrapper.unWrap(out_type, wnft1155.address, 2, {"from": accounts[3]})
     wrapper.unWrap(out_type, wnft1155_1.address, 1, {"from": accounts[3]})
 

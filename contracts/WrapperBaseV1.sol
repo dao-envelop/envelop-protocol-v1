@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "../interfaces/IFeeRoyaltyModel.sol";
 import "../interfaces/IWrapper.sol";
 import "../interfaces/IAdvancedWhiteList.sol";
+import "../interfaces/IWrapperChecker.sol";
 //import "./LibEnvelopTypes.sol";
 //import "../interfaces/IERC721Mintable.sol";
 //import "../interfaces/IERC1155Mintable.sol";
@@ -46,6 +47,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     uint256 public MAX_COLLATERAL_SLOTS = 260;
     address public protocolTechToken;
     address public protocolWhiteList;
+    address public wrapperChecker;
     //address public tokenService;
 
      
@@ -378,6 +380,10 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
 
     function setTrustedAddres(address _operator, bool _status) public onlyOwner {
         trustedOperators[_operator] = _status;
+    }
+
+    function setWrapperChecker(address _wrapperChecker) public onlyOwner {
+        wrapperChecker = _wrapperChecker;
     }
     /////////////////////////////////////////////////////////////////////
 
@@ -753,6 +759,14 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
 
     function _checkWrap(ETypes.INData calldata _inData, address _wrappFor) internal view returns (bool enabled){
         // Lets check that inAsset 
+        //string memory messages;
+        //(checked, messages) = IWrapperChecker(wrapperChecker).checkWrap(_inData, _wrappFor);
+
+        require(IWrapperChecker(wrapperChecker).checkWrap(_inData, _wrappFor),
+             "CheckWrapError"
+        );
+
+
         // 0x0002 - this rule disable wrap already wrappednFT (NO matryoshka)
         enabled = !_checkRule(0x0002, getWrappedToken(
             _inData.inAsset.asset.contractAddress, 
