@@ -22,7 +22,6 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
     #make 1155 token for wrapping
     makeNFTForTest1155(accounts, erc1155mock, ORIGINAL_NFT_IDs, in_nft_amount)
     erc1155mock.setApprovalForAll(wrapper.address, True, {"from": accounts[1]})
-    wrapper.setWrapperChecker(wrapperChecker.address)
 
     if (wrapper.lastWNFTId(out_type)[1] == 0):
         wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
@@ -46,6 +45,7 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
         '0'
         )
 
-    wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
+    assert wrapperChecker.checkWrap(wNFT, [], accounts[3])[0] == False
+    assert wrapperChecker.checkWrap(wNFT, [], accounts[3])[1] == "unWrapDestinition cant be zero"
 
 
