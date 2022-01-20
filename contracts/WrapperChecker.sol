@@ -60,18 +60,16 @@ contract WrapperChecker {
 
     function checkWrap(
         ETypes.INData calldata _inData, 
-        //ETypes.AssetItem[] calldata _collateral, 
+        ETypes.AssetItem[] calldata _collateral, 
         address _wrappFor
     ) 
-        public view returns (bool)
+        public view returns (bool, string memory)
     {
         if (_inData.unWrapDestinition == address(0)) {
-            //return (false, "unWrapDestinition cant be zero");
-            return false;
+            return (false, "unWrapDestinition cant be zero");
         }
-        else {
-            return true;
-        }
+        
+        return (true, "Success");
     }
 
     function checkAddCollateral(
