@@ -36,7 +36,7 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
     royalty = []
 
     wNFT = ( token_data,
-        zero_address,
+        accounts[2],
         fee,
         lock,
         royalty,
@@ -46,6 +46,6 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
         )
 
     assert wrapperChecker.checkWrap(wNFT, [], zero_address)[0] == False
-    assert wrapperChecker.checkWrap(wNFT, [], zero_address)[1] == "unWrapDestinition cant be zero, WrapperFor cant be zero"
+    assert (wrapperChecker.checkWrap(wNFT, [], zero_address)[1]).find("WrapperFor cant be zero,", 0)!= -1
 
 

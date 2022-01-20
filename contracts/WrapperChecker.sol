@@ -3,6 +3,7 @@
 pragma solidity 0.8.11;
 
 import "../interfaces/IWrapper.sol";
+import "./LibEnvelopTypes.sol";
 contract WrapperChecker {
 
     IWrapper public wrapper;
@@ -65,22 +66,91 @@ contract WrapperChecker {
     ) 
         public view returns (bool, string memory)
     {
-        bool result;
-        string memory messages;
+        bool result = true;
+        string memory messages = "";
         if (_inData.unWrapDestinition == address(0)) {
             result = false;
-            messages="unWrapDestinition cant be zero";
+            messages="unWrapDestinition cant be zero, ";
         }
+
         if (_wrappFor == address(0)) {
             result = false; 
             messages= string(
                 abi.encodePacked(
                     messages,
-                    ", ",
-                    "WrapperFor cant be zero"
+                    "WrapperFor cant be zero, "
                 )
             );
         }
+
+        if (_inData.fees.length == 0&&_inData.royalties.length != 0){
+            result = false; 
+            messages= string(
+                abi.encodePacked(
+                    messages,
+                    "Royalty source is transferFee, "
+                )
+            ); 
+        }
+
+        if (_inData.outType == ETypes.AssetType.ERC1155&&_inData.outBalance == 0){
+            result = false; 
+            messages= string(
+                abi.encodePacked(
+                    messages,
+                    "WNFT type is ERC1155 - wnft should have balance, "
+                )
+            ); 
+        }
+        
+        if (_inData.inAsset.asset.assetType == ETypes.AssetType.ERC1155&&_inData.inAsset.amount == 0){
+            result = false; 
+            messages= string(
+                abi.encodePacked(
+                    messages,
+                    "Original NFT type is ERC1155 - original nft should have balance, "
+                )
+            ); 
+        }
+
+        if (_inData.inAsset.asset.contractAddress == address(0)){
+            result = false; 
+            messages= string(
+                abi.encodePacked(
+                    messages,
+                    "NFT contract address cant be zero, "
+                )
+            ); 
+        }
+
+        if (_inData.locks.length != 0){
+            uint256 j = 0;
+            for (uint256 i = 0; i < _inData.locks.length; i ++) {
+                if (_inData.locks[i].lockType == 0x00){
+                    j++;
+                }
+            }
+            if (j > 1) {
+                result = false; 
+                messages= string(
+                    abi.encodePacked(
+                        messages,
+                        "Several time loks, "
+                    )
+                );
+            } 
+        }
+
+        if (_inData.rules != 0x0002&& _inData.rules != 0x0008&& _inData.rules != 0x0001&& _inData.rules != 0x0004){
+            result = false; 
+                messages= string(
+                    abi.encodePacked(
+                        messages,
+                        "Wrong rule code, "
+                    )
+                );
+        }
+        
 
         return (result, messages);
     }
