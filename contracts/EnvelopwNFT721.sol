@@ -128,5 +128,15 @@ contract EnvelopwNFT721 is ERC721Enumerable, Ownable {
         return _uri;
     }
 
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return
+            interfaceId == type(IERC721).interfaceId ||
+            interfaceId == type(IERC721Enumerable).interfaceId ||
+            super.supportsInterface(interfaceId);
+    }
+
     
 }

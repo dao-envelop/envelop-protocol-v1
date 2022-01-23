@@ -4,6 +4,7 @@ pragma solidity 0.8.11;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
+import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../interfaces/IWrapper.sol";
 
@@ -110,5 +111,15 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
             );
         }
             
+    }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return
+            interfaceId == type(IERC1155).interfaceId ||
+            interfaceId == type(IERC1155MetadataURI).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 }

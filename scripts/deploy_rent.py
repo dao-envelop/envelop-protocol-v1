@@ -60,7 +60,7 @@ CHAIN = {
     1:{'explorer_base':'etherscan.io', 'enabled_erc20': ETH_MAIN_ERC20_COLLATERAL_TOKENS},
     4:{'explorer_base':'rinkeby.etherscan.io','enabled_erc20': ETH_RINKEBY_ERC20_COLLATERAL_TOKENS},
     56:{'explorer_base':'bscscan.com', 'enabled_erc20': BSC_MAIN_ERC20_COLLATERAL_TOKENS},
-    97:{'explorer_base':' testnet.bscscan.com', 'enabled_erc20': BSC_TESTNET_ERC20_COLLATERAL_TOKENS},
+    97:{'explorer_base':'testnet.bscscan.com', 'enabled_erc20': BSC_TESTNET_ERC20_COLLATERAL_TOKENS},
     137:{'explorer_base':'polygonscan.com', 'enabled_erc20': POLYGON_MAIN_ERC20_COLLATERAL_TOKENS},
     80001:{'explorer_base':'mumbai.polygonscan.com', },  
     43114:{'explorer_base':'cchain.explorer.avax.network', 'enabled_erc20': AVALANCHE_MAIN_ERC20_COLLATERAL_TOKENS},
@@ -74,17 +74,17 @@ if web3.eth.chainId in  [1,4]:
 
 def main():
     print('Deployer account= {}'.format(accounts[0]))
-    #techERC20 = TechTokenV1.deploy(tx_params)
-    techERC20 = TechTokenV1.at('0x7e4Be057C70657C71dEc4716A2fD23BEad0Ad4Eb')
-    #wrapper   = WrapperForRent.deploy(techERC20.address,tx_params) 
-    wrapper = WrapperForRent.at('0x59C769f7A26892146816C817b44A4A557225Dc06')
-    # wnft1155 = EnvelopwNFT1155.deploy(
-    #     'ENVELOP 1155 wNFT Collection', 
-    #     'wNFT', 
-    #     'https://api.envelop.is/metadata/',
-    #     tx_params
-    # )
-    wnft1155 = EnvelopwNFT1155.at('0xf294ab4B27f27cC619E2EfF2db5077A7D995A1FC')
+    techERC20 = TechTokenV1.deploy(tx_params)
+    #techERC20 = TechTokenV1.at('0x7e4Be057C70657C71dEc4716A2fD23BEad0Ad4Eb')
+    wrapper   = WrapperForRent.deploy(techERC20.address,tx_params) 
+    #wrapper = WrapperForRent.at('0x59C769f7A26892146816C817b44A4A557225Dc06')
+    wnft1155 = EnvelopwNFT1155.deploy(
+        'ENVELOP 1155 wNFT Collection', 
+        'wNFT', 
+        'https://api.envelop.is/metadata/',
+        tx_params
+    )
+    #wnft1155 = EnvelopwNFT1155.at('0xf294ab4B27f27cC619E2EfF2db5077A7D995A1FC')
     #trmodel   = TransferRoyaltyModel01.deploy(wrapper.address,{'from':accounts[0]})
     #trmodel   = TransferRoyaltyModel01.at('0x6664c8118284b3F5ECB47c2105cAa544Ab0Cf75B') 
     #Init
