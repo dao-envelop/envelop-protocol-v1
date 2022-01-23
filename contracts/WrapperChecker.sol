@@ -172,7 +172,7 @@ contract WrapperChecker {
 
         if (_inData.fees.length != 0){
             for (uint256 i = 0; i < _inData.fees.length; i ++) {
-                if (_inData.fees[i].feeType == 0x00&&_inData.fees[i].param!=0&&_inData.fees[i].token!=address(0)){
+                if (_inData.fees[i].param!=0&&_inData.fees[i].token!=address(0)){
                     //there is transfer fee and settings are correct
                     if (_inData.royalties.length != 0){
                         for (uint256 j = 0; j < _inData.royalties.length; j ++) {
@@ -217,7 +217,6 @@ contract WrapperChecker {
             }
         else {
             if (_inData.locks.length != 0){
-                uint256 l = 0;
                 for (uint256 l = 0; l < _inData.locks.length; l ++) {
                     if (_inData.locks[l].lockType == 0x01&&_inData.locks[l].param!=0){
                         break;
@@ -232,13 +231,11 @@ contract WrapperChecker {
                     }
                 }
             }
-
         
         if (_inData.fees.length != 0){
             for (uint256 i = 0; i < _inData.fees.length; i ++) {
                 if (_inData.fees[i].feeType == 0x00&&_inData.fees[i].param!=0&&_inData.fees[i].token!=address(0)&&_inData.fees[i].token!=wrapper.protocolTechToken()){
                     if (_inData.locks.length!=0){
-                        uint256 j = 0;
                         for (uint256 j = 0; j < _inData.locks.length; j ++) {
                             if (_inData.locks[j].lockType == 0x01){
                                 if (_inData.locks[j].param>IERC20(_inData.fees[i].token).totalSupply() * MAX_FEE_THRESHOLD_PERCENT / 100){
@@ -252,16 +249,13 @@ contract WrapperChecker {
                                         );
                                     }
                                 }
-
                             }
                         }
                     }
-
                 }
-
             }
 
-        //analize collateral array
+        //analyze collateral array
 
         if (_collateral.length!=0){
             for (uint256 i = 0; i < _collateral.length; i ++) {
