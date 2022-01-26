@@ -217,10 +217,7 @@ contract WrapperChecker {
             }
         else {
             if (_inData.locks.length != 0){
-<<<<<<< HEAD
-=======
-                //uint256 l = 0;
->>>>>>> 0dcd3a325435fc3d9f10b902ccef3cf5b7b2dc75
+
                 for (uint256 l = 0; l < _inData.locks.length; l ++) {
                     if (_inData.locks[l].lockType == 0x01&&_inData.locks[l].param!=0){
                         break;
