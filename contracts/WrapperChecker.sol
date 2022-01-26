@@ -9,7 +9,7 @@ contract WrapperChecker {
     using SafeERC20 for IERC20;
 
     IWrapper public wrapper;
-    uint256 constant public MAX_ROYALTY_PERCENT = 50;
+    uint256 constant public MAX_ROYALTY_PERCENT = 5000;
     uint256 constant public MAX_TIME_TO_UNWRAP = 365 days;
     uint256 constant public MAX_FEE_THRESHOLD_PERCENT = 1; //percent from project token totalSupply 
 
@@ -160,7 +160,7 @@ contract WrapperChecker {
                 }
             }
 
-        if (_inData.rules != 0x0002&& _inData.rules != 0x0008&& _inData.rules != 0x0001&& _inData.rules != 0x0004){
+        if (_inData.rules != 0x0002&& _inData.rules > 0x000F){
             result = false; 
                 messages= string(
                     abi.encodePacked(
@@ -176,9 +176,8 @@ contract WrapperChecker {
                     //there is transfer fee and settings are correct
                     if (_inData.royalties.length != 0){
                         for (uint256 j = 0; j < _inData.royalties.length; j ++) {
-                            if (_inData.royalties[j].beneficiary == address(0)||_inData.royalties[i].percent==0){
+                            if (_inData.royalties[j].beneficiary == address(0)||_inData.royalties[j].percent==0){
                                 //incorrect something in royalty settings
-                                break;
                                 result = false; 
                                 messages= string(
                                     abi.encodePacked(
@@ -186,10 +185,10 @@ contract WrapperChecker {
                                         "Wrong royalty settings, "
                                     )
                                 );
+                                break;
                             }
                             else {
-                                if (_inData.royalties[i].percent > MAX_ROYALTY_PERCENT){
-                                    break;
+                                if (_inData.royalties[j].percent > MAX_ROYALTY_PERCENT&&_inData.royalties[j].beneficiary!=address(wrapper)){
                                     result = false; 
                                     messages= string(
                                         abi.encodePacked(
@@ -197,6 +196,7 @@ contract WrapperChecker {
                                             "Royalty percent too big, "
                                         )
                                     );
+                                    break;
                                 }
 
                             }
@@ -204,14 +204,14 @@ contract WrapperChecker {
                     }
                 }
                 else {
-                    break;
                     result = false; 
                     messages= string(
                         abi.encodePacked(
                             messages,
-                            "Wrong transferFee settings, "
+                            "Wrong Fee settings, "
                             )
                         );
+                    break;
                     }
                 }
             }
@@ -220,7 +220,6 @@ contract WrapperChecker {
 
                 for (uint256 l = 0; l < _inData.locks.length; l ++) {
                     if (_inData.locks[l].lockType == 0x01&&_inData.locks[l].param!=0){
-                        break;
                         result = false; 
                         messages= string(
                             abi.encodePacked(
@@ -228,6 +227,7 @@ contract WrapperChecker {
                                 "Cant set Threshold without transferFee, "
                                 )
                             );
+                        break;
                         }
                     }
                 }
@@ -240,7 +240,6 @@ contract WrapperChecker {
                         for (uint256 j = 0; j < _inData.locks.length; j ++) {
                             if (_inData.locks[j].lockType == 0x01){
                                 if (_inData.locks[j].param>IERC20(_inData.fees[i].token).totalSupply() * MAX_FEE_THRESHOLD_PERCENT / 100){
-                                    break;
                                     result = false; 
                                     messages= string(
                                         abi.encodePacked(
@@ -248,6 +247,7 @@ contract WrapperChecker {
                                             "Too much threshold, "
                                             )
                                         );
+                                    break;
                                     }
                                 }
                             }
@@ -261,7 +261,6 @@ contract WrapperChecker {
         if (_collateral.length!=0){
             for (uint256 i = 0; i < _collateral.length; i ++) {
                 if (_collateral[i].asset.assetType == ETypes.AssetType.ERC20&&(_collateral[i].asset.contractAddress==address(0)||_collateral[i].amount==0)){
-                    break;
                     result = false; 
                     messages= string(
                         abi.encodePacked(
@@ -269,9 +268,9 @@ contract WrapperChecker {
                             "ERC20 collateral has incorrect settings, "
                             )
                         );
+                    break;
                     }
                 else if(_collateral[i].asset.assetType == ETypes.AssetType.ERC721&&_collateral[i].asset.contractAddress==address(0)){
-                    break;
                     result = false; 
                     messages= string(
                         abi.encodePacked(
@@ -279,10 +278,10 @@ contract WrapperChecker {
                             "ERC721 collateral has incorrect settings, "
                             )
                         );
+                    break;
                     }
                 else if (_collateral[i].asset.assetType == ETypes.AssetType.ERC1155&&
                         (_collateral[i].asset.contractAddress==address(0)||_collateral[i].amount==0||_collateral[i].tokenId==0)){
-                    break;
                     result = false; 
                     messages= string(
                         abi.encodePacked(
@@ -290,9 +289,15 @@ contract WrapperChecker {
                             "ERC1155 collateral has incorrect settings, "
                             )
                         );
+                    break;
                     }
                 }
             }
+        
+        bytes memory messages_bytes =  bytes ( messages ); 
+        if (messages_bytes.length == 0) {
+            messages="Success";
+        }
 
         return (result, messages);
     }
@@ -310,7 +315,6 @@ contract WrapperChecker {
         if (_collateral.length!=0){
             for (uint256 i = 0; i < _collateral.length; i ++) {
                 if (_collateral[i].asset.assetType == ETypes.AssetType.ERC20&&(_collateral[i].asset.contractAddress==address(0)||_collateral[i].amount==0)){
-                    break;
                     result = false; 
                     messages= string(
                         abi.encodePacked(
@@ -318,9 +322,9 @@ contract WrapperChecker {
                             "ERC20 collateral has incorrect settings, "
                             )
                         );
+                    break;
                     }
                 else if(_collateral[i].asset.assetType == ETypes.AssetType.ERC721&&_collateral[i].asset.contractAddress==address(0)){
-                    break;
                     result = false; 
                     messages= string(
                         abi.encodePacked(
@@ -328,10 +332,10 @@ contract WrapperChecker {
                             "ERC721 collateral has incorrect settings, "
                             )
                         );
+                    break;
                     }
                 else if (_collateral[i].asset.assetType == ETypes.AssetType.ERC1155&&
                         (_collateral[i].asset.contractAddress==address(0)||_collateral[i].amount==0||_collateral[i].tokenId==0)){
-                    break;
                     result = false; 
                     messages= string(
                         abi.encodePacked(
@@ -339,6 +343,7 @@ contract WrapperChecker {
                             "ERC1155 collateral has incorrect settings, "
                             )
                         );
+                    break;
                     }
                 }
             }
