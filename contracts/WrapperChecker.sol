@@ -140,7 +140,7 @@ contract WrapperChecker {
                 messages= string(
                     abi.encodePacked(
                         messages,
-                        "Several time loks, "
+                        "Several time locks, "
                         )
                     );
                 } 
@@ -148,7 +148,7 @@ contract WrapperChecker {
 
         if (_inData.locks.length != 0){
             for (uint256 i = 0; i < _inData.locks.length; i ++) {
-                if (_inData.locks[i].lockType == 0x00&&_inData.locks[i].param>MAX_TIME_TO_UNWRAP){
+                if (_inData.locks[i].lockType == 0x00&&_inData.locks[i].param>block.timestamp + MAX_TIME_TO_UNWRAP){
                     result = false; 
                     messages= string(
                         abi.encodePacked(
@@ -174,34 +174,47 @@ contract WrapperChecker {
             for (uint256 i = 0; i < _inData.fees.length; i ++) {
                 if (_inData.fees[i].param!=0&&_inData.fees[i].token!=address(0)){
                     //there is transfer fee and settings are correct
-                    if (_inData.royalties.length != 0){
-                        for (uint256 j = 0; j < _inData.royalties.length; j ++) {
-                            if (_inData.royalties[j].beneficiary == address(0)||_inData.royalties[j].percent==0){
-                                //incorrect something in royalty settings
+                    for (uint256 j = 0; j < _inData.royalties.length; j ++) {
+                        if (_inData.royalties[j].beneficiary == address(0)||_inData.royalties[j].percent==0){
+                            //incorrect something in royalty settings
+                            result = false; 
+                            messages= string(
+                                abi.encodePacked(
+                                    messages,
+                                    "Wrong royalty settings, "
+                                )
+                            );
+                            break;
+                        }
+                        else {
+                            if (_inData.royalties[j].percent > MAX_ROYALTY_PERCENT&&_inData.royalties[j].beneficiary!=address(wrapper)){
                                 result = false; 
                                 messages= string(
                                     abi.encodePacked(
                                         messages,
-                                        "Wrong royalty settings, "
+                                        "Royalty percent too big, "
                                     )
                                 );
                                 break;
                             }
-                            else {
-                                if (_inData.royalties[j].percent > MAX_ROYALTY_PERCENT&&_inData.royalties[j].beneficiary!=address(wrapper)){
-                                    result = false; 
-                                    messages= string(
-                                        abi.encodePacked(
-                                            messages,
-                                            "Royalty percent too big, "
-                                        )
-                                    );
-                                    break;
-                                }
 
-                            }
                         }
                     }
+                    if (_inData.fees[i].feeType == 0x00&&_inData.fees[i].token!=wrapper.protocolTechToken()){
+                        for (uint256 j = 0; j < _inData.locks.length; j ++) {
+                            if (_inData.locks[j].lockType == 0x01&&_inData.locks[j].param>IERC20(_inData.fees[i].token).totalSupply() * MAX_FEE_THRESHOLD_PERCENT / 100){
+                                result = false; 
+                                messages= string(
+                                    abi.encodePacked(
+                                        messages,
+                                        "Too much threshold, "
+                                        )
+                                    );
+                                break;
+                                }
+                            }
+                        }
+
                 }
                 else {
                     result = false; 
@@ -216,8 +229,29 @@ contract WrapperChecker {
                 }
             }
         else {
-            if (_inData.locks.length != 0){
+            for (uint256 l = 0; l < _inData.locks.length; l ++) {
+                if (_inData.locks[l].lockType == 0x01&&_inData.locks[l].param!=0){
+                    result = false; 
+                    messages= string(
+                        abi.encodePacked(
+                            messages,
+                            "Cant set Threshold without transferFee, "
+                            )
+                        );
+                    break;
+                    }
+                }
+                
+            }
 
+         if (_inData.fees.length != 0){
+            uint256 j=0;
+            for (uint256 i = 0; i < _inData.fees.length; i ++) {
+                if (_inData.fees[i].feeType==0x00){
+                    j++;
+                    }
+                }
+            if (j==0){
                 for (uint256 l = 0; l < _inData.locks.length; l ++) {
                     if (_inData.locks[l].lockType == 0x01&&_inData.locks[l].param!=0){
                         result = false; 
@@ -230,31 +264,18 @@ contract WrapperChecker {
                         break;
                         }
                     }
-                }
-            }
-        
-        if (_inData.fees.length != 0){
-            for (uint256 i = 0; i < _inData.fees.length; i ++) {
-                if (_inData.fees[i].feeType == 0x00&&_inData.fees[i].param!=0&&_inData.fees[i].token!=address(0)&&_inData.fees[i].token!=wrapper.protocolTechToken()){
-                    if (_inData.locks.length!=0){
-                        for (uint256 j = 0; j < _inData.locks.length; j ++) {
-                            if (_inData.locks[j].lockType == 0x01){
-                                if (_inData.locks[j].param>IERC20(_inData.fees[i].token).totalSupply() * MAX_FEE_THRESHOLD_PERCENT / 100){
-                                    result = false; 
-                                    messages= string(
-                                        abi.encodePacked(
-                                            messages,
-                                            "Too much threshold, "
-                                            )
-                                        );
-                                    break;
-                                    }
-                                }
-                            }
-                        }
+                if (_inData.royalties.length != 0){
+                    result = false; 
+                    messages= string(
+                        abi.encodePacked(
+                            messages,
+                            "Royalty source is transferFee, "
+                            )
+                        ); 
                     }
+
                 }
-            }
+            }   
 
         //analyze collateral array
 
