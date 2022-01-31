@@ -83,3 +83,6 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, er
 	assert erc721mock.balanceOf(wrapper.address) == 3
 	assert erc721mock1.balanceOf(wrapper.address) == 1
 
+	assert wrapper.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 3, erc721mock1.address, ORIGINAL_NFT_IDs[0])[0] == 0
+	assert wrapper.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 3, erc721mock1.address, ORIGINAL_NFT_IDs[0])[1] == 3
+

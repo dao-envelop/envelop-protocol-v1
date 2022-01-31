@@ -2,7 +2,7 @@ import pytest
 import logging
 from brownie import chain, Wei, reverts
 LOGGER = logging.getLogger(__name__)
-from makeTestData import makeNFTForTest1155, makeNFTForTest1155
+from makeTestData import makeNFTForTest1155
 from web3 import Web3
 
 ORIGINAL_NFT_IDs = [10000,11111,22222]

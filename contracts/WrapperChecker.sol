@@ -368,7 +368,11 @@ contract WrapperChecker {
                     }
                 }
             }
-        
+        bytes memory messages_bytes =  bytes ( messages ); 
+        if (messages_bytes.length == 0) {
+            messages="Success";
+            }
+
         return (result, messages);
     }
 
