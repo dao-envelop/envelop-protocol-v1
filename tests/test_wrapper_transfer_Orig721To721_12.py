@@ -58,11 +58,12 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
     wl_data = (True, False, False, techERC20.address)
     whiteLists.setWLItem(niftsy20.address, wl_data, {"from": accounts[0]})
 
+    #wnft can be in collateral
+    wl_data = (False, True, False, accounts[9])
+    whiteLists.setWLItem(wnft721.address, wl_data, {"from": accounts[0]})
+
     logging.info("wrap1*************************")
     wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
-
-    logging.info("balance_acc3 = {}".format(niftsy20.balanceOf(accounts[3])))
-    logging.info("balance_acc4 = {}".format(niftsy20.balanceOf(accounts[4])))
 
     assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == wrapper.address
 
@@ -70,59 +71,15 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
 
     wnft721.approve(wrapper.address, wTokenId, {"from": accounts[3]})
 
+    logging.info("add wnft with transfer fee to collateral yourself*************************")
+    wrapper.addCollateral(wnft721.address, wTokenId, [((out_type, wnft721.address), wTokenId, 0)], {"from": accounts[3]})
 
-    token_property = (in_type, wnft721.address)
-
-    token_data = (token_property, wTokenId, 0)
-
-
-    fee = [(Web3.toBytes(0x00), transfer_fee_amount, niftsy20.address)]
-    lock = []
-    royalty = [(wrapper.address, 9000), (accounts[4], 1000)]
-
-    wNFT = ( token_data,
-        accounts[3],
-        fee,
-        lock,
-        royalty,
-        out_type,
-        0,
-        '0'
-        )
-    logging.info("wrap2*************************")
-    wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[3]})
 
     logging.info("balance_wrapper = {}".format(niftsy20.balanceOf(wrapper)))
     logging.info("balance_acc3 = {}".format(niftsy20.balanceOf(accounts[3])))
     logging.info("balance_acc4 = {}".format(niftsy20.balanceOf(accounts[4])))
     logging.info(wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, niftsy20.address))
+    assert wnft721.ownerOf(wTokenId) == wrapper.address
 
-    wTokenId = wrapper.lastWNFTId(out_type)[1]
-
-    logging.info("unwrap1*************************")
-    wrapper.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[3]})
-
-    logging.info("balance_wrapper = {}".format(niftsy20.balanceOf(wrapper)))
-
-    logging.info("balance_acc2 = {}".format(niftsy20.balanceOf(accounts[2])))
-    logging.info("balance_acc3 = {}".format(niftsy20.balanceOf(accounts[3])))
-    logging.info("balance_acc4 = {}".format(niftsy20.balanceOf(accounts[4])))
-
-    logging.info("collateral = {}".format(wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId-1, niftsy20.address)))
-
-
-    logging.info("add niftsy balance to wrapper 200")
-    niftsy20.transfer(wrapper.address, 2*transfer_fee_amount, {"from": accounts[0]})   
-
-    logging.info("unwrap2*************************")
-    wrapper.unWrap(out_type, wnft721.address, wTokenId-1, {"from": accounts[3]}) 
-
-    logging.info("balance_wrapper = {}".format(niftsy20.balanceOf(wrapper)))
-
-    logging.info("balance_acc2 = {}".format(niftsy20.balanceOf(accounts[2])))
-    logging.info("balance_acc3 = {}".format(niftsy20.balanceOf(accounts[3])))
-    logging.info("balance_acc4 = {}".format(niftsy20.balanceOf(accounts[4])))
-
-    assert niftsy20.balanceOf(accounts[4]) + niftsy20.balanceOf(accounts[2]) == transfer_fee_amount
-    assert niftsy20.balanceOf(wrapper.address) == 2*transfer_fee_amount
-    assert niftsy20.balanceOf(accounts[3]) == 0
+    with reverts("Only owner can unwrap it"):
+        wrapper.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[3]})
