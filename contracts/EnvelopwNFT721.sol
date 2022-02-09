@@ -76,15 +76,18 @@ contract EnvelopwNFT721 is ERC721Enumerable, Ownable {
                 address(this),tokenId
             );
             if (
-                  (from == address(0) || to == address(0)) // mint & burn 
-               || (from == address(this) || to == address(this)) //  wrap & unwrap
+                  (from == address(0) || to == address(0)) // mint & burn (wrap & unwrap)
+               || (isContract(from))                       // transfer wNFT from any contract  
             )  
             {
                 // In case Minting *new* wNFT (during new wrap)
                 // In case Burn wNFT (during Unwrap) 
-                // In case transfer *original* NFT from *this* contract  during UNWrap
-                // In case transfer *original* wNFT to *this* contract during double Wrap  
-                //                THERE IS NO RULE CHECKs
+                // In case transfer  wNFT from any contract:
+                //    - unwrap of fractal wNFT (matryoshka) 
+                //    - some marketplaces and showcases
+                //    - any stakings/farmings/vaults etc
+                //  
+                //                THERE IS NO RULE CHECKs and NO TRANSFER Fees
 
             } else {
                 // Check Core Protocol Rules
@@ -97,8 +100,6 @@ contract EnvelopwNFT721 is ERC721Enumerable, Ownable {
                 if (_wnft.fees.length > 0) {
                     IWrapper(wrapperMinter).chargeFees(address(this), tokenId, from, to, 0x00);    
                 }
-                
-
             }
     }
 
@@ -126,6 +127,35 @@ contract EnvelopwNFT721 is ERC721Enumerable, Ownable {
             _uri = ERC721.tokenURI(_tokenId);
         }
         return _uri;
+    }
+
+    /**
+     * @dev Returns true if `account` is a contract.
+     *
+     * [IMPORTANT]
+     * ====
+     * It is unsafe to assume that an address for which this function returns
+     * false is an externally-owned account (EOA) and not a contract.
+     *
+     * Among others, `isContract` will return false for the following
+     * types of addresses:
+     *
+     *  - an externally-owned account
+     *  - a contract in construction
+     *  - an address where a contract will be created
+     *  - an address where a contract lived, but was destroyed
+     * ====
+     */
+    function isContract(address account) internal view returns (bool) {
+        // This method relies on extcodesize, which returns 0 for contracts in
+        // construction, since the code is only stored at the end of the
+        // constructor execution.
+
+        uint256 size;
+        assembly {
+            size := extcodesize(account)
+        }
+        return size > 0;
     }
 
 }
