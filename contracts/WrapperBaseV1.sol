@@ -590,7 +590,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
             if (wrappedTokens[_wNFTAddress][_wNFTTokenId].locks[i].lockType == 0x02) {
                 require(
                     wrappedTokens[_wNFTAddress][_wNFTTokenId].locks[i].param >=  wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length + 1,
-                    "To much collatteral slots for this wNFT"
+                    "Too much collateral slots for this wNFT"
                 );
                 break;
             }
