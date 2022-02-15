@@ -17,7 +17,7 @@ transfer_fee_amount = 100
 
 
 #transfer with fee without royalty
-def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, erc1155mock1, whiteLists, techERC20, wrapperChecker ):
+def test_addCollateral(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, erc1155mock1, whiteLists, techERC20, wrapperChecker ):
     
     #make 1155 token for wrapping
     makeNFTForTest1155(accounts, erc1155mock, ORIGINAL_NFT_IDs, in_nft_amount)
@@ -52,6 +52,9 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
     wrapper.addCollateral(wnft1155.address, wTokenId, [((2,niftsy20.address), 0, call_amount)], {"from": accounts[0]})
 
     dai.approve(wrapper.address, call_amount, {"from": accounts[0]})
+    with reverts("Too much collateral slots for this wNFT"):
+        wrapper.addCollateral(wnft1155.address, wTokenId, [((2,dai.address), 0, call_amount)], {"from": accounts[0], "value": "1 ether"})
+
     wrapper.addCollateral(wnft1155.address, wTokenId, [((2,dai.address), 0, call_amount)], {"from": accounts[0]})
 
     weth.approve(wrapper.address, call_amount, {"from": accounts[0]})
@@ -72,3 +75,30 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
     with reverts("Too much collateral slots for this wNFT"):
         wrapper.addCollateral(wnft1155.address, wTokenId, [], {"from": accounts[0], "value": "2 ether"})    
 
+def test_addCollateral1(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, erc1155mock1, whiteLists, techERC20, wrapperChecker ):
+    erc1155mock.setApprovalForAll(wrapper.address, True, {"from": accounts[0]})
+
+    token_property = (in_type, erc1155mock)
+
+    token_data = (token_property, ORIGINAL_NFT_IDs[1], in_nft_amount)
+
+    fee = []
+    lock = [(0x02, 2)]
+    royalty = []
+
+    wNFT = ( token_data,
+        accounts[2],
+        fee,
+        lock,
+        royalty,
+        out_type,
+        out_nft_amount,
+        '0'
+        )
+
+    collateral = [((2, niftsy20.address), 0, call_amount), ((2, dai.address), 0, 2*call_amount)]
+    dai.approve(wrapper.address, 2*call_amount, {"from": accounts[0]})
+    niftsy20.approve(wrapper.address, call_amount, {"from": accounts[0]})
+
+    with reverts("Too much collateral slots for this wNFT"):
+        wrapper.wrap(wNFT, collateral, accounts[3], {"from": accounts[0], "value": "1 ether"})
