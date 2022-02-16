@@ -50,6 +50,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     // Map from wrapped token address and id => wNFT record 
     mapping(address => mapping(uint256 => ETypes.WNFT)) internal wrappedTokens; //? Private in Production
 
+    mapping(address => ETypes.AssetType) public wnftTypes;
+
     //error UnSupportedAsset(ETypes.AssetItem asset);
 
 
@@ -244,17 +246,9 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     }
 
     function unWrap(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId, bool _isEmergency) public virtual {
-        // 0. Check core protocol logic:
+        // 1. Check core protocol logic:
         // - who and what possible to unwrap
         (address burnFor, uint256 burnBalance) = _checkCoreUnwrap(_wNFTType, _wNFTAddress, _wNFTTokenId);
-        
-        
-        // // 1. Check  rules, such as unWrapless
-        // require(
-        //     _checkUnwrap(_wNFTAddress, _wNFTTokenId),
-        //     "UnWrap check fail"
-
-        // );
 
         // 2. Check  locks = move to _checkUnwrap
         require(
@@ -352,15 +346,12 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     ) external onlyOwner {
         require(_wnftContract != address(0), "No zero address");
         lastWNFTId[_assetOutType] = ETypes.NFTItem(_wnftContract, _tokenId);
+        wnftTypes[_wnftContract] =  _assetOutType;
     }
 
     function setWhiteList(address _wlAddress) external onlyOwner {
         protocolWhiteList = _wlAddress;
     }
-
-    // function setTokenService(address _serviveAddress) external onlyOwner {
-    //     tokenService = _serviveAddress;
-    // }
 
     function setTrustedAddres(address _operator, bool _status) public onlyOwner {
         trustedOperators[_operator] = _status;
@@ -792,7 +783,13 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         returns (bool enabled)
     {
         
-        //require()
+        if (wnftTypes[_wNFTAddress] == ETypes.AssetType.ERC721) {
+            require(IERC721Mintable(_wNFTAddress).exists(_wNFTTokenId), "wNFT not exists");
+        } else if(wnftTypes[_wNFTAddress] == ETypes.AssetType.ERC1155) {
+            require(IERC1155Mintable(_wNFTAddress).exists(_wNFTTokenId), "wNFT not exists");
+        } else {
+             revert UnSupportedAsset(ETypes.AssetItem(ETypes.Asset(wnftTypes[_wNFTAddress],_wNFTAddress),_wNFTTokenId, 0));
+        }
         // Lets check wNFT rules 
         // 0x0008 - this rule disable add collateral
         enabled = !_checkRule(0x0008, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 

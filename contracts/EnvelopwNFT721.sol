@@ -129,6 +129,10 @@ contract EnvelopwNFT721 is ERC721Enumerable, Ownable {
         return _uri;
     }
 
+    function exists(uint256 _tokenId) public view returns(bool) {
+        return _exists(_tokenId);
+    }
+
     /**
      * @dev Returns true if `account` is a contract.
      *
