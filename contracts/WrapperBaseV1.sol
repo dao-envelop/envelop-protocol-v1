@@ -211,7 +211,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         address _wNFTAddress, 
         uint256 _wNFTTokenId, 
         ETypes.AssetItem[] calldata _collateral
-    ) external payable virtual {
+    ) external payable virtual nonReentrant {
 
         require(
             _checkAddCollateral(
