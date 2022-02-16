@@ -90,14 +90,15 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         }
         
         // 2. Mint wNFT
+        lastWNFTId[_inData.outType].tokenId += 1;  //Save just will minted id 
         _mintNFT(
             _inData.outType,     // what will be minted instead of wrapping asset
             lastWNFTId[_inData.outType].contractAddress, // wNFT contract address
             _wrappFor,                                   // wNFT receiver (1st owner) 
-            lastWNFTId[_inData.outType].tokenId + 1,        
+            lastWNFTId[_inData.outType].tokenId,        
             _inData.outBalance                           // wNFT tokenId
         );
-        lastWNFTId[_inData.outType].tokenId += 1;  //Save just minted id 
+        
 
         
         // 4. Safe wNFT info
@@ -513,10 +514,9 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
             //  ERC20 & NATIVE Collateral         ///
             /////////////////////////////////////////
             if (collateralItem.asset.assetType == ETypes.AssetType.ERC20  ||
-                collateralItem.asset.assetType == ETypes.AssetType.NATIVE ||
-                collateralItem.asset.assetType == ETypes.AssetType.ERC1155)
+                collateralItem.asset.assetType == ETypes.AssetType.NATIVE) 
             {
-
+                require(collateralItem.tokenId == 0, "TokenId must be zero");
                 if (_amnt > 0) {
                     wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount += collateralItem.amount;
                 } else {
@@ -528,19 +528,20 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
             /////////////////////////////////////////
             //  ERC1155 Collateral                ///
             /////////////////////////////////////////
-            // if (collateralItem.asset.assetType == ETypes.AssetType.ERC1155) {
-            //     if (_amnt > 0) {
-            //         wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount += collateralItem.amount;
-            //     } else {
-            //          _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
-            //     }
-            //     return;
-            // }    
+            if (collateralItem.asset.assetType == ETypes.AssetType.ERC1155) {
+                if (_amnt > 0) {
+                    wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount += collateralItem.amount;
+                } else {
+                     _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
+                }
+                return;
+            }    
 
             /////////////////////////////////////////
             //  ERC721 Collateral                 ///
             /////////////////////////////////////////
             if (collateralItem.asset.assetType == ETypes.AssetType.ERC721 ) {
+                require(collateralItem.amount == 0, "Amount must be zero");
                 _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
                 return;
             }
@@ -790,6 +791,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         view 
         returns (bool enabled)
     {
+        
+        //require()
         // Lets check wNFT rules 
         // 0x0008 - this rule disable add collateral
         enabled = !_checkRule(0x0008, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
