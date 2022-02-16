@@ -24,7 +24,7 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, er
         erc721mock1.transferFrom(accounts[0], accounts[1], ORIGINAL_NFT_IDs[i], {"from": accounts[0]} )
         erc721mock1.approve(wrapper.address, ORIGINAL_NFT_IDs[i], {"from": accounts[1]} )
         if (i == wrapper.MAX_COLLATERAL_SLOTS()+1):
-            with reverts("To much  tokens in collatteral"):
+            with reverts("Too much tokens in collateral"):
                 wrapper.addCollateral(wnft721.address, wTokenId, [((3, erc721mock1.address), ORIGINAL_NFT_IDs[i], 0)], {'from': accounts[1]})
         else:
             wrapper.addCollateral(wnft721.address, wTokenId, [((3, erc721mock1.address), ORIGINAL_NFT_IDs[i], 0)], {'from': accounts[1]})
