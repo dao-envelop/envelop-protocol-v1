@@ -203,7 +203,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         address _wNFTAddress, 
         uint256 _wNFTTokenId, 
         ETypes.AssetItem[] calldata _collateral
-    ) public payable virtual nonReentrant {
+    ) public payable virtual  {
 
         require(
             _checkAddCollateral(
@@ -496,10 +496,10 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         ETypes.AssetItem memory collateralItem
     ) internal virtual 
     {
-        if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length == 0) {
-            // Just add first record in empty collateral storage
-            wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.push(collateralItem);
-        } else {
+        // if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length == 0) {
+        //     // Just add first record in empty collateral storage
+        //     wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.push(collateralItem);
+        // } else {
             // Collateral storage is not empty
             (uint256 _amnt, uint256 _index) = getCollateralBalanceAndIndex(
                 _wNFTAddress, 
@@ -512,19 +512,14 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
             /////////////////////////////////////////
             //  ERC20 & NATIVE Collateral         ///
             /////////////////////////////////////////
-            if (collateralItem.asset.assetType == ETypes.AssetType.ERC20 ||
-                 collateralItem.asset.assetType == ETypes.AssetType.NATIVE){
+            if (collateralItem.asset.assetType == ETypes.AssetType.ERC20  ||
+                collateralItem.asset.assetType == ETypes.AssetType.NATIVE ||
+                collateralItem.asset.assetType == ETypes.AssetType.ERC1155)
+            {
 
                 if (_amnt > 0) {
                     wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount += collateralItem.amount;
                 } else {
-                //So if we are here hence there is NO that _erc20 in collateral yet 
-                //We can add more tokens if limit NOT exccedd
-                    // require(
-                    //     wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length < MAX_COLLATERAL_SLOTS, 
-                    //     "To much tokens in collatteral"
-                    // );
-                    // wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.push(collateralItem);
                      _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
                 }
                 return;    
@@ -533,36 +528,23 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
             /////////////////////////////////////////
             //  ERC1155 Collateral                ///
             /////////////////////////////////////////
-            if (collateralItem.asset.assetType == ETypes.AssetType.ERC1155) {
-                if (_amnt> 0) {
-                    wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount += collateralItem.amount;
-                } else {
-                    //So if we are here hence there is NO that _erc20 in collateral yet 
-                    //We can add more tokens if limit NOT exccedd
-                    // require(
-                    //     wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length < MAX_COLLATERAL_SLOTS, 
-                    //     "To much tokens in collatteral"
-                    // );
-                    // wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.push(collateralItem);
-                     _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
-                }
-                return;
-            }    
+            // if (collateralItem.asset.assetType == ETypes.AssetType.ERC1155) {
+            //     if (_amnt > 0) {
+            //         wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount += collateralItem.amount;
+            //     } else {
+            //          _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
+            //     }
+            //     return;
+            // }    
 
             /////////////////////////////////////////
             //  ERC721 Collateral                 ///
             /////////////////////////////////////////
             if (collateralItem.asset.assetType == ETypes.AssetType.ERC721 ) {
-                // require(
-                //     wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length < MAX_COLLATERAL_SLOTS, 
-                //     "To much  tokens in collatteral"
-                // );
-                // wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.push(collateralItem);
-
                 _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
                 return;
             }
-        }
+        //}
     }
 
     function _newCollateralItem(
@@ -581,10 +563,11 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
             // Personal Collateral count Lock check
             if (wrappedTokens[_wNFTAddress][_wNFTTokenId].locks[i].lockType == 0x02) {
                 require(
-                    wrappedTokens[_wNFTAddress][_wNFTTokenId].locks[i].param >=  wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length + 1,
+                    wrappedTokens[_wNFTAddress][_wNFTTokenId].locks[i].param 
+                      >=  (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length + 1),
                     "Too much collateral slots for this wNFT"
                 );
-                break;
+                //break;
             }
         }
         wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.push(collateralItem);
