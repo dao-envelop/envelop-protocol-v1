@@ -107,20 +107,12 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
             _inData
         );
 
-        if (_checkAddCollateral(
-                lastWNFTId[_inData.outType].contractAddress, 
-                lastWNFTId[_inData.outType].tokenId,
-                _collateral
-            )) 
-        {
-
-            _addCollateral(
-                lastWNFTId[_inData.outType].contractAddress, 
-                lastWNFTId[_inData.outType].tokenId, 
-                _collateral
-            );
-
-        } 
+        
+        addCollateral(
+            lastWNFTId[_inData.outType].contractAddress, 
+            lastWNFTId[_inData.outType].tokenId,
+            _collateral
+        ); 
          
         // Charge Fee Hook 
         // There is No Any Fees in Protocol
@@ -211,7 +203,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         address _wNFTAddress, 
         uint256 _wNFTTokenId, 
         ETypes.AssetItem[] calldata _collateral
-    ) external payable virtual nonReentrant {
+    ) public payable virtual nonReentrant {
 
         require(
             _checkAddCollateral(
