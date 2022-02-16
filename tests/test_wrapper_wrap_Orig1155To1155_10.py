@@ -32,7 +32,7 @@ def test_addCollateral(accounts, erc1155mock, wrapper, dai, weth, wnft1155, nift
     token_data = (token_property, ORIGINAL_NFT_IDs[0], in_nft_amount)
     
     fee = []
-    lock = [(0x02, 0)]
+    lock = []
     royalty = []
 
     wNFT = ( token_data,
@@ -47,10 +47,10 @@ def test_addCollateral(accounts, erc1155mock, wrapper, dai, weth, wnft1155, nift
     niftsy20.transfer(accounts[1], call_amount, {"from": accounts[0]})
     niftsy20.approve(wrapper.address, call_amount, {"from": accounts[1]})
 
-    with reverts("Too much collateral slots for this wNFT"):
+    with reverts("Too much tokens in collateral"):
         wrapper.wrap(wNFT, [((2, niftsy20.address), 0, call_amount)], accounts[3], {"from": accounts[1]})
     
-    with reverts("Too much collateral slots for this wNFT"):
+    with reverts("Too much tokens in collateral"):
         wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1], "value": "0.5 ether"})
 
     wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
@@ -58,10 +58,10 @@ def test_addCollateral(accounts, erc1155mock, wrapper, dai, weth, wnft1155, nift
 
     niftsy20.approve(wrapper.address, call_amount, {"from": accounts[0]})
     
-    with reverts("Too much collateral slots for this wNFT"):
+    with reverts("Too much tokens in collateral"):
         wrapper.addCollateral(wnft1155.address, wTokenId, [((2,niftsy20.address), 0, call_amount)], {"from": accounts[0]})
 
-    with reverts("Too much collateral slots for this wNFT"):
+    with reverts("Too much tokens in collateral"):
         wrapper.addCollateral(wnft1155.address, wTokenId, [], {"from": accounts[0]})
     
     logging.info(niftsy20.balanceOf(wrapper))
