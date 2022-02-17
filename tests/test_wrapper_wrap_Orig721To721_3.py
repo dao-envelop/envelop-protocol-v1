@@ -46,8 +46,6 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc11
     dai_property = (2, dai.address)
     dai_data = (dai_property, 0, Wei(call_amount))
 
-    wrapper.setTrustedAddres(accounts[1], True, {"from": accounts[0]})
-
     #switch on white list
     wrapper.setWhiteList(whiteLists.address, {"from": accounts[0]})
 
