@@ -62,7 +62,7 @@ def test_addCollateral(accounts, erc1155mock, wrapper, dai, weth, wnft1155, nift
         wrapper.addCollateral(wnft1155.address, wTokenId, [((2,niftsy20.address), 0, call_amount)], {"from": accounts[0]})
 
     with reverts("Too much collateral slots for this wNFT"):
-        wrapper.addCollateral(wnft1155.address, wTokenId, [], {"from": accounts[0], {"value": "0.001 ether"}})
+        wrapper.addCollateral(wnft1155.address, wTokenId, [], {"from": accounts[0], "value": "0.001 ether"})
     
     logging.info(niftsy20.balanceOf(wrapper))
     logging.info(wrapper.getWrappedToken(wnft1155.address, wTokenId))
