@@ -92,7 +92,7 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, er
     assert erc1155mock1.balanceOf(accounts[2], ORIGINAL_NFT_IDs[1]) == coll_amount - 1
     assert wnft721.totalSupply() == 0
 
-    with reverts("1"):
+    with reverts("wNFT not exists"):
         wrapper.addCollateral(wnft721.address, wTokenId, [], {'from': accounts[1], "value": "0.01 ether"})
 
     assert wrapper.balance() == 0

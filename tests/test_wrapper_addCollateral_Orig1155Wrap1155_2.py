@@ -24,7 +24,7 @@ def test_addCollateral(accounts, erc721mock, erc1155mock, wrapper, dai, weth, wn
     assert wnft1155.balanceOf(accounts[3], wTokenId1155) == out_nft_amount
 
     wnft721.approve(wrapper.address, wTokenId721, {"from": accounts[3]})
-    erc721_data = ((3, wnft721.address), wTokenId721, out_nft_amount)
+    erc721_data = ((3, wnft721.address), wTokenId721, 0)
 
     wrapper.addCollateral(wnft1155.address, wTokenId1155, [erc721_data], {"from": accounts[3]})
     assert wnft721.ownerOf(wTokenId721) == wrapper.address
