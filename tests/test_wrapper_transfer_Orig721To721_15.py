@@ -57,7 +57,7 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
     wTokenId = wrapper.lastWNFTId(out_type)[1]
 
     wrapper.addCollateral(wnft721.address, wTokenId, [((2, niftsy20.address), 0, transfer_fee_amount)], {"from": accounts[3]})
-    with reverts("1"):
+    with reverts("TokenId must be zero"):
         wrapper.addCollateral(wnft721.address, wTokenId, [((2, niftsy20.address), 1, transfer_fee_amount)], {"from": accounts[3]})
 
     #wnft721.transferFrom(accounts[3], accounts[4], wTokenId, {"from": accounts[3]})
