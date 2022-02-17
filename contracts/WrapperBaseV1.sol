@@ -214,7 +214,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         uint256 _wNFTTokenId, 
         ETypes.AssetItem[] calldata _collateral
     ) public payable virtual  {
-
+        if (_collateral.length > 0 || msg.value > 0) {
         require(
             _checkAddCollateral(
                 _wNFTAddress, 
@@ -228,6 +228,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
             _wNFTTokenId, 
             _collateral
         );
+        }
     }
 
     function addCollateralUnsafe(
