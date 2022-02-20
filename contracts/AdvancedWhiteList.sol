@@ -16,12 +16,12 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
     address[] public whiteListedArray;
     address[] public blackListedArray;
 
-
-
     /////////////////////////////////////////////////////////////////////
     //                    Admin functions                              //
     /////////////////////////////////////////////////////////////////////
-    function setWLItem(address _asset, ETypes.WhiteListItem calldata _assetItem) external onlyOwner {
+    function setWLItem(address _asset, ETypes.WhiteListItem calldata _assetItem) 
+        external onlyOwner 
+    {
         require(_assetItem.transferFeeModel != address(0), 'Cant be zero, use default instead');
         whiteList[_asset] = _assetItem;
         bool alreadyExist;

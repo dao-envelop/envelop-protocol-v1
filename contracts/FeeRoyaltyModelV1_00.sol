@@ -32,7 +32,11 @@ contract FeeRoyaltyModelV1_00 is IFeeRoyaltyModel {
             address[] memory   to_ = new address[](_royalties.length);
             for (uint256 i = 0; i < _royalties.length; i ++) {
                 assetItems_[i] = ETypes.AssetItem({
-                    asset: ETypes.Asset({assetType: ETypes.AssetType.ERC20, contractAddress: _fee.token}),
+                    asset: ETypes.Asset(
+                        {assetType:        ETypes.AssetType.ERC20, 
+                         contractAddress: _fee.token
+                        }
+                    ),
                     tokenId: 0,
                     amount: _fee.param * _royalties[i].percent / ROYALTY_PERCENT_BASE
                 });
@@ -45,7 +49,10 @@ contract FeeRoyaltyModelV1_00 is IFeeRoyaltyModel {
             address[] memory from_ = new address[](1); 
             address[] memory   to_ = new address[](1);
             assetItems_[0] = ETypes.AssetItem({
-                    asset: ETypes.Asset({assetType: ETypes.AssetType.ERC20, contractAddress: _fee.token}),
+                    asset: ETypes.Asset({
+                        assetType:       ETypes.AssetType.ERC20, 
+                        contractAddress: _fee.token
+                    }),
                     tokenId: 0,
                     amount: _fee.param
             });

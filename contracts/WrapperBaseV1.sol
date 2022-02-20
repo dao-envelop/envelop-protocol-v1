@@ -41,26 +41,23 @@ contract WrapperBaseV1 is
     Ownable 
 {
 
-    uint256 public MAX_COLLATERAL_SLOTS = 260;
+    uint256 public MAX_COLLATERAL_SLOTS = 25;
     address public protocolTechToken;
     address public protocolWhiteList;
-
-     
-   
 
     // Map from wrapping asset type to wnft contract address and last minted id
     mapping(ETypes.AssetType => ETypes.NFTItem) public lastWNFTId;  
     
-    // Map from wrapped token address and id => wNFT record 
-    mapping(address => mapping(uint256 => ETypes.WNFT)) internal wrappedTokens; //? Private in Production
-
     // Map from wNFT address to it's type (721, 1155)
     mapping(address => ETypes.AssetType) public wnftTypes;
 
-    
+    // Map from wrapped token address and id => wNFT record 
+    mapping(address => mapping(uint256 => ETypes.WNFT)) internal wrappedTokens; 
+
     constructor(address _erc20) {
         require(_erc20 != address(0), "ProtocolTechToken cant be zero value");
         protocolTechToken = _erc20;
+        // This because default trnaferFe moddel included in techToken code
         IFeeRoyaltyModel(protocolTechToken).registerModel(); 
     }
 
@@ -298,7 +295,6 @@ contract WrapperBaseV1 is
     function setWhiteList(address _wlAddress) external onlyOwner {
         protocolWhiteList = _wlAddress;
     }
-
     /////////////////////////////////////////////////////////////////////
 
 
@@ -308,22 +304,25 @@ contract WrapperBaseV1 is
         returns (ETypes.WNFT memory) 
     {
         return wrappedTokens[_wNFTAddress][_wNFTTokenId];
-
     }
 
-    function getOriginalURI(address _wNFTAddress, uint256 _wNFTTokenId) public view returns(string memory) {
+    function getOriginalURI(address _wNFTAddress, uint256 _wNFTTokenId) 
+        public 
+        view 
+        returns(string memory uri_) 
+    {
         ETypes.AssetItem memory _wnftInAsset = getWrappedToken(
                 _wNFTAddress, _wNFTTokenId
         ).inAsset;
 
         if (_wnftInAsset.asset.assetType == ETypes.AssetType.ERC721) {
-            return IERC721Metadata(_wnftInAsset.asset.contractAddress).tokenURI(_wnftInAsset.tokenId);
+            uri_ = IERC721Metadata(_wnftInAsset.asset.contractAddress).tokenURI(_wnftInAsset.tokenId);
         
         } else if (_wnftInAsset.asset.assetType == ETypes.AssetType.ERC1155) {
-            return IERC1155MetadataURI(_wnftInAsset.asset.contractAddress).uri(_wnftInAsset.tokenId);
+            uri_ = IERC1155MetadataURI(_wnftInAsset.asset.contractAddress).uri(_wnftInAsset.tokenId);
         
         } else {
-            return '';
+            uri_ = '';
         } 
     }
 
@@ -456,7 +455,8 @@ contract WrapperBaseV1 is
 
         if (_amnt > 0) {
             // We dont need addition if  for erc721 because for erc721 _amnt always be zero
-            wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount += collateralItem.amount;
+            wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount 
+              += collateralItem.amount;
         } else {
             _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
         }
@@ -498,12 +498,13 @@ contract WrapperBaseV1 is
             "Too much tokens in collateral"
         );
 
-        for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].locks.length; i ++) {
+        for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].locks.length; i ++) 
+        {
             // Personal Collateral count Lock check
             if (wrappedTokens[_wNFTAddress][_wNFTTokenId].locks[i].lockType == 0x02) {
                 require(
                     wrappedTokens[_wNFTAddress][_wNFTTokenId].locks[i].param 
-                      >=  (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length + 1),
+                      >= (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length + 1),
                     "Too much collateral slots for this wNFT"
                 );
             }
@@ -586,7 +587,7 @@ contract WrapperBaseV1 is
         address _wNFTAddress, 
         uint256 _wNFTTokenId, 
         bool _emergency
-    ) internal virtual returns (bool)
+    ) internal virtual returns (bool allReturned)
     {
         uint256 transfered;
         for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
@@ -634,16 +635,18 @@ contract WrapperBaseV1 is
                 ) 
             {
                 emit PartialUnWrapp(_wNFTAddress, _wNFTTokenId, i);
-                return false;
+                allReturned = false;
             }
         }
-
-        return true;
+        allReturned = true;
     }
-
     ////////////////////////////////////////////////////////////////////////////////////////////
 
-    function _mustTransfered(ETypes.AssetItem calldata _assetForTransfer) internal pure returns(uint256 mustTransfered) {
+    function _mustTransfered(ETypes.AssetItem calldata _assetForTransfer) 
+        internal 
+        pure 
+        returns (uint256 mustTransfered) 
+    {
         // Available for wrap assets must be good transferable (stakable).
         // So for erc721  mustTransfered always be 1
         if (_assetForTransfer.asset.assetType == ETypes.AssetType.ERC721) {
@@ -653,7 +656,6 @@ contract WrapperBaseV1 is
         }
     }
      
-
     function _checkRule(bytes2 _rule, bytes2 _wNFTrules) internal view returns (bool) {
         return _rule == (_rule & _wNFTrules);
     }
@@ -661,7 +663,8 @@ contract WrapperBaseV1 is
     // 0x00 - TimeLock
     // 0x01 - TransferFeeLock
     // 0x02 - Personal Collateral count Lock check
-    function _checkLocks(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool) {
+    function _checkLocks(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool) 
+    {
         // Lets check that inAsset
         for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].locks.length; i ++) {
             // Time Lock check
@@ -697,7 +700,11 @@ contract WrapperBaseV1 is
     }
 
 
-    function _checkWrap(ETypes.INData calldata _inData, address _wrappFor) internal view returns (bool enabled){
+    function _checkWrap(ETypes.INData calldata _inData, address _wrappFor) 
+        internal 
+        view 
+        returns (bool enabled)
+    {
         // Lets check that inAsset 
         // 0x0002 - this rule disable wrap already wrappednFT (NO matryoshka)
         enabled = !_checkRule(0x0002, getWrappedToken(
@@ -719,12 +726,11 @@ contract WrapperBaseV1 is
             for (uint256 i = 0; i < _inData.fees.length; i ++){
                 require(
                     IAdvancedWhiteList(protocolWhiteList).enabledForFee(
-                        _inData.fees[i].token),
-                        "WL:Some assets are not enabled for fee"
-                    );
+                    _inData.fees[i].token),
+                    "WL:Some assets are not enabled for fee"
+                );
             }
         }    
-        return enabled;
     }
     
     function _checkAddCollateral(
@@ -736,7 +742,7 @@ contract WrapperBaseV1 is
         view 
         returns (bool enabled)
     {
-        
+        // Check  that wNFT exist
         if (wnftTypes[_wNFTAddress] == ETypes.AssetType.ERC721) {
             require(IERC721Mintable(_wNFTAddress).exists(_wNFTTokenId), "wNFT not exists");
         } else if(wnftTypes[_wNFTAddress] == ETypes.AssetType.ERC1155) {
@@ -749,10 +755,13 @@ contract WrapperBaseV1 is
         // Lets check wNFT rules 
         // 0x0008 - this rule disable add collateral
         enabled = !_checkRule(0x0008, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
-        return enabled;
     }
 
-    function _checkCoreUnwrap(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) 
+    function _checkCoreUnwrap(
+        ETypes.AssetType _wNFTType, 
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId
+    ) 
         internal 
         view 
         virtual 
@@ -771,7 +780,6 @@ contract WrapperBaseV1 is
             require(burnFor == msg.sender, 
                 'Only owner can unwrap it'
             ); 
-            return (burnFor, burnBalance);
 
         } else if (_wNFTType == ETypes.AssetType.ERC1155) {
             burnBalance = IERC1155Mintable(_wNFTAddress).totalSupply(_wNFTTokenId);
@@ -781,11 +789,9 @@ contract WrapperBaseV1 is
                 IERC1155Mintable(_wNFTAddress).balanceOf(burnFor, _wNFTTokenId)
                 ,'ERC115 unwrap available only for all totalSupply'
             );
-            return (burnFor, burnBalance);
             
         } else {
             revert UnSupportedAsset(ETypes.AssetItem(ETypes.Asset(_wNFTType,_wNFTAddress),_wNFTTokenId, 0));
         }
     }
-
 }

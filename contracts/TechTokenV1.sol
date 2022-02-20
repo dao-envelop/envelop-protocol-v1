@@ -15,8 +15,6 @@ contract TechTokenV1 is ERC20, MinterRole, FeeRoyaltyModelV1_00 {
     { 
     }
 
-    
-
     function mint(address _to, uint256 _value) external onlyMinter {
         _mint(_to, _value);
     }

@@ -15,5 +15,7 @@ interface IFeeRoyaltyModel {
       ETypes.AssetItem[] memory, 
       address[] memory, 
       address[] memory
-   );
+    );
+
+    function wrapper() external returns (address);
 }
