@@ -98,8 +98,8 @@ def main():
     #techERC20.addMinter(wrapper.address, {'from': accounts[0]})
     wnft1155.setMinterStatus(wrapper.address, tx_params)
     wnft721.setMinter(wrapper.address, tx_params)
-    wrapper.setWNFTId(2, wnft721.address, 1, tx_params)
-    wrapper.setWNFTId(3, wnft1155.address,1, tx_params)
+    wrapper.setWNFTId(3, wnft721.address, 1, tx_params)
+    wrapper.setWNFTId(4, wnft1155.address,1, tx_params)
     wrapper.setWhiteList(whitelist.address, tx_params)
     
     
@@ -112,18 +112,21 @@ def main():
     print("techERC20 = TechTokenV1.at('{}')".format(techERC20.address))
     print("wrapper = WrapperBaseV1.at('{}')".format(wrapper.address))
     print("wnft1155 = EnvelopwNFT1155.at('{}')".format(wnft1155.address))
-    print("wnft721 = EnvelopwNFT721.at('{}')".format(wnft1155.address))
+    print("wnft721 = EnvelopwNFT721.at('{}')".format(wnft721.address))
+    print("whitelist = AdvancedWhiteList.at('{}')".format(whitelist.address))
     
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],techERC20))
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wrapper))
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wnft1155))
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wnft721))
+    print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],whitelist))
 
     if  web3.eth.chainId in [1,4, 43114]:
         TechTokenV1.publish_source(techERC20);
         WrapperBaseV1.publish_source(wrapper);
         EnvelopwNFT1155.publish_source(wnft1155);
         EnvelopwNFT721.publish_source(wnft721);
+        AdvancedWhiteList.publish_source(whitelist);
 
     if len(CHAIN.get('enabled_erc20', [])) > 0:
         print('Enabling collateral...')
