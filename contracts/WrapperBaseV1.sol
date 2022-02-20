@@ -32,9 +32,14 @@ import "./TokenService.sol";
  * @title Non-Fungible Token Wrapper
  * @dev Make  wraping for existing ERC721 & ERC1155 and empty 
  */
-contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper, TokenService, Ownable {
-    //using SafeERC20 for IERC20Extended;
-
+contract WrapperBaseV1 is 
+    ReentrancyGuard, 
+    ERC721Holder, 
+    ERC1155Holder, 
+    IWrapper, 
+    TokenService, 
+    Ownable 
+{
 
     uint256 public MAX_COLLATERAL_SLOTS = 260;
     address public protocolTechToken;
@@ -49,6 +54,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     // Map from wrapped token address and id => wNFT record 
     mapping(address => mapping(uint256 => ETypes.WNFT)) internal wrappedTokens; //? Private in Production
 
+    // Map from wNFT address to it's type (721, 1155)
     mapping(address => ETypes.AssetType) public wnftTypes;
 
     
@@ -149,19 +155,19 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         ETypes.AssetItem[] calldata _collateral
     ) public payable virtual  {
         if (_collateral.length > 0 || msg.value > 0) {
-        require(
-            _checkAddCollateral(
+            require(
+                _checkAddCollateral(
+                    _wNFTAddress, 
+                    _wNFTTokenId,
+                    _collateral
+                ),
+                "Forbidden add collateral"
+            );
+            _addCollateral(
                 _wNFTAddress, 
-                _wNFTTokenId,
+                _wNFTTokenId, 
                 _collateral
-            ),
-            "Forbidden add collateral"
-        );
-        _addCollateral(
-            _wNFTAddress, 
-            _wNFTTokenId, 
-            _collateral
-        );
+            );
         }
     }
 
@@ -176,7 +182,7 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         address _wNFTAddress, 
         uint256 _wNFTTokenId
     ) external virtual {
-        unWrap(_wNFTType,_wNFTAddress, _wNFTTokenId, false);
+        unWrap(_wNFTType, _wNFTAddress, _wNFTTokenId, false);
     }
 
     function unWrap(
@@ -350,11 +356,11 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
     ) internal virtual 
     {
         wrappedTokens[wNFTAddress][tokenId].inAsset = _inData.inAsset;
-        // TODO Check unwrap distinition
         wrappedTokens[wNFTAddress][tokenId].unWrapDestinition = _inData.unWrapDestinition;
         wrappedTokens[wNFTAddress][tokenId].rules = _inData.rules;
         
-        // Copying of type struct ETypes.Fee memory[] memory to storage not yet supported.
+        // Copying of type struct ETypes.Fee memory[] 
+        // memory to storage not yet supported.
         for (uint256 i = 0; i < _inData.fees.length; i ++) {
             wrappedTokens[wNFTAddress][tokenId].fees.push(_inData.fees[i]);            
         }
@@ -439,8 +445,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
         ETypes.AssetItem memory collateralItem
     ) internal virtual 
     {
-
-        // Collateral storage is not empty
         (uint256 _amnt, uint256 _index) = getCollateralBalanceAndIndex(
             _wNFTAddress, 
             _wNFTTokenId,
@@ -502,7 +506,6 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
                       >=  (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length + 1),
                     "Too much collateral slots for this wNFT"
                 );
-                //break;
             }
         }
         wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.push(collateralItem);
@@ -527,7 +530,8 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
                 /////////////////////////////////////////
                 if (wrappedTokens[_wNFTAddress][_wNFTTokenId].fees[i].feeType == 0x00){
                    // - get modelAddress.  Default feeModel adddress always live in
-                   // protocolTechToken. When white list used it is possible override that model
+                   // protocolTechToken. When white list used it is possible override that model.
+                   // default model always  must be set  as protocolTechToken
                    address feeModel = protocolTechToken;
                     if  (protocolWhiteList != address(0)) {
                         feeModel = IAdvancedWhiteList(protocolWhiteList).getWLItem(
@@ -535,7 +539,10 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
                     }
 
                     // - get transfer list from external model by feetype(with royalties)
-                    (ETypes.AssetItem[] memory assetItems, address[] memory from, address[] memory to) =
+                    (ETypes.AssetItem[] memory assetItems, 
+                     address[] memory from, 
+                     address[] memory to
+                    ) =
                         IFeeRoyaltyModel(feeModel).getTransfersList(
                             wrappedTokens[_wNFTAddress][_wNFTTokenId].fees[i],
                             wrappedTokens[_wNFTAddress][_wNFTTokenId].royalties,
@@ -575,7 +582,12 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
      * 
      * must returns true for success unwrapping enable 
      */
-    function _beforeUnWrapHook(address _wNFTAddress, uint256 _wNFTTokenId, bool _emergency) internal virtual returns (bool){
+    function _beforeUnWrapHook(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId, 
+        bool _emergency
+    ) internal virtual returns (bool)
+    {
         uint256 transfered;
         for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
             if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.assetType 
@@ -611,9 +623,10 @@ contract WrapperBaseV1 is ReentrancyGuard, ERC721Holder, ERC1155Holder, IWrapper
             }
             // dont pop due in some case it c can be very costly
             // https://docs.soliditylang.org/en/v0.8.9/types.html#array-members  
-            // TODO add check  that wew  are not  in the  end of array 
 
             // For safe exit in case of low gaslimit
+            // this strange part of code can prevent only case 
+            // when when some collateral tokens spent unexpected gas limit
             if (
                 gasleft() <= 1_000 &&
                 i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length - 1
