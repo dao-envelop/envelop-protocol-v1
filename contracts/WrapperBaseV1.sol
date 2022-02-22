@@ -228,27 +228,7 @@ contract WrapperBaseV1 is
             _wNFTTokenId, 
             burnBalance
         );
-        
-        // 5. Return Original
-        if (wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.asset.assetType != ETypes.AssetType.NATIVE && 
-            wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.asset.assetType != ETypes.AssetType.EMPTY
-        ) 
-        {
 
-            if (!_isEmergency){
-                _transferSafe(
-                    wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
-                    address(this),
-                    wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
-                );
-            } else {
-                _transferEmergency (
-                    wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
-                    address(this),
-                    wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
-                );
-            }
-        }        
         emit UnWrappedV1(
             _wNFTAddress,
             wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.asset.contractAddress,
@@ -351,7 +331,6 @@ contract WrapperBaseV1 is
         address wNFTAddress, 
         uint256 tokenId, 
         ETypes.INData calldata _inData
-        //ETypes.AssetItem[] calldata _collateral
     ) internal virtual 
     {
         wrappedTokens[wNFTAddress][tokenId].inAsset = _inData.inAsset;
@@ -587,9 +566,14 @@ contract WrapperBaseV1 is
         address _wNFTAddress, 
         uint256 _wNFTTokenId, 
         bool _emergency
-    ) internal virtual returns (bool allReturned)
+    ) internal virtual returns (bool)
     {
         uint256 transfered;
+        address receiver = msg.sender;
+        if (wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition != address(0)) {
+            receiver = wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition;
+        }
+
         for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
             if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.assetType 
                 != ETypes.AssetType.EMPTY
@@ -600,13 +584,13 @@ contract WrapperBaseV1 is
                     transfered = _transferEmergency(
                         wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i],
                         address(this),
-                        wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
+                        receiver
                     );
                 } else {
                     transfered = _transferSafe(
                         wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i],
                         address(this),
-                        wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition
+                        receiver
                     );
                 }
 
@@ -630,15 +614,36 @@ contract WrapperBaseV1 is
             // when when some collateral tokens spent unexpected gas limit
             if (
                 gasleft() <= 1_000 &&
-                i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length - 1
-             
+                    i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length - 1
                 ) 
             {
                 emit PartialUnWrapp(_wNFTAddress, _wNFTTokenId, i);
-                allReturned = false;
+                //allReturned = false;
+                return false;
             }
         }
-        allReturned = true;
+
+        // 5. Return Original
+        if (wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.asset.assetType != ETypes.AssetType.NATIVE && 
+            wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.asset.assetType != ETypes.AssetType.EMPTY
+        ) 
+        {
+
+            if (!_emergency){
+                _transferSafe(
+                    wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
+                    address(this),
+                    receiver
+                );
+            } else {
+                _transferEmergency (
+                    wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset,
+                    address(this),
+                    receiver
+                );
+            }
+        }
+        return true;
     }
     ////////////////////////////////////////////////////////////////////////////////////////////
 
