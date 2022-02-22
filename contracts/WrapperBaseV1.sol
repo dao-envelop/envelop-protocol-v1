@@ -334,7 +334,8 @@ contract WrapperBaseV1 is
     ) internal virtual 
     {
         wrappedTokens[wNFTAddress][tokenId].inAsset = _inData.inAsset;
-        wrappedTokens[wNFTAddress][tokenId].unWrapDestinition = _inData.unWrapDestinition;
+        // We will use _inData.unWrapDestinition  ONLY for RENT implementation
+        // wrappedTokens[wNFTAddress][tokenId].unWrapDestinition = _inData.unWrapDestinition;
         wrappedTokens[wNFTAddress][tokenId].unWrapDestinition = address(0);
         wrappedTokens[wNFTAddress][tokenId].rules = _inData.rules;
         
