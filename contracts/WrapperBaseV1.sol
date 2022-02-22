@@ -335,6 +335,7 @@ contract WrapperBaseV1 is
     {
         wrappedTokens[wNFTAddress][tokenId].inAsset = _inData.inAsset;
         wrappedTokens[wNFTAddress][tokenId].unWrapDestinition = _inData.unWrapDestinition;
+        wrappedTokens[wNFTAddress][tokenId].unWrapDestinition = address(0);
         wrappedTokens[wNFTAddress][tokenId].rules = _inData.rules;
         
         // Copying of type struct ETypes.Fee memory[] 
