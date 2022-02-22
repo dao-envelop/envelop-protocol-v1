@@ -128,15 +128,15 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, white
     wrapper.unWrap(wnft721.address, wTokenId, {"from": accounts[3]})
     chain.sleep(110)
     chain.mine()
-    wrapper.unWrap(wnft721.address, wTokenId-1, {"from": accounts[2]})
+    wrapper.unWrap(wnft721.address, wTokenId-1, {"from": accounts[3]})
     chain.sleep(110)
     chain.mine()
-    wrapper.unWrap(wnft721.address, wTokenId-2, {"from": accounts[2]})
+    wrapper.unWrap(wnft721.address, wTokenId-2, {"from": accounts[3]})
     chain.sleep(110)
     chain.mine()
-    wrapper.unWrap(wnft721.address, wTokenId-3, {"from": accounts[2]})
+    wrapper.unWrap(wnft721.address, wTokenId-3, {"from": accounts[3]})
 
-    assert niftsy20.balanceOf(accounts[2]) == 1000
+    assert niftsy20.balanceOf(accounts[3]) == 1000
     assert erc721mock.tokenURI(ORIGINAL_NFT_IDs[0]) == wnft721.tokenURI(wTokenId)
 
 
