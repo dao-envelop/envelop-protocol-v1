@@ -28,6 +28,17 @@ contract WrapperForRent is WrapperBaseV1 {
 
     }
 
+    function _saveWNFTinfo(
+        address wNFTAddress, 
+        uint256 tokenId, 
+        ETypes.INData calldata _inData
+    ) internal override 
+    {
+        super._saveWNFTinfo(wNFTAddress, tokenId, _inData);
+        // We will use _inData.unWrapDestinition  ONLY for RENT implementation
+        wrappedTokens[wNFTAddress][tokenId].unWrapDestinition = _inData.unWrapDestinition;
+    }
+
     function _checkCoreUnwrap(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) 
         internal 
         view 
