@@ -36,6 +36,6 @@ contract Token721Mock is ERC721URIStorage, Ownable {
     }
 
     function _baseURI() internal view  override returns (string memory) {
-        return 'https://nft.iber.group/degenfarm/V1/creatures/';
+        return 'https://bugsbunny.com/';
     }
 }
