@@ -139,6 +139,8 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, white
     assert niftsy20.balanceOf(accounts[3]) == 1000
     assert erc721mock.tokenURI(ORIGINAL_NFT_IDs[0]) == wnft721.tokenURI(wTokenId)
 
+    logging.info(wnft721.tokenURI(wTokenId))
+
 
 
 

@@ -123,6 +123,6 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
     logging.info("balance_acc3 = {}".format(niftsy20.balanceOf(accounts[3])))
     logging.info("balance_acc4 = {}".format(niftsy20.balanceOf(accounts[4])))
 
-    assert niftsy20.balanceOf(accounts[4]) + niftsy20.balanceOf(accounts[2]) == transfer_fee_amount
+    assert niftsy20.balanceOf(accounts[4]) + niftsy20.balanceOf(accounts[3]) == transfer_fee_amount
     assert niftsy20.balanceOf(wrapper.address) == 2*transfer_fee_amount
-    assert niftsy20.balanceOf(accounts[3]) == 0
+    assert niftsy20.balanceOf(accounts[2]) == 0

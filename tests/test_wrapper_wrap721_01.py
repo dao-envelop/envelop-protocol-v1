@@ -83,7 +83,7 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
     #logging.info(wNFT)
     assert wNFT[0] == erc721_data
     assert wNFT[1] == [eth_data, dai_data, weth_data]
-    assert wNFT[2] == accounts[2]
+    assert wNFT[2] == zero_address
     assert wNFT[3] == fee
     assert wNFT[4] == lock
     assert wNFT[5] == royalty

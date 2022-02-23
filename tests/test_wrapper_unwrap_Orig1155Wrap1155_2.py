@@ -62,15 +62,14 @@ def test_addColl(accounts, erc1155mock, wrapper, wnft1155, niftsy20,  mockHacker
 	assert erc1155mock1.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[0]) == coll_amount
 	assert wrapper.balance() == "1 ether"
 
-	eth_balance_acc = accounts[2].balance()
+	eth_balance_acc = accounts[3].balance()
 	eth_balance_contract = wrapper.balance()
 
 	wrapper.unWrap(4, wnft1155.address, wTokenId, True, {"from": accounts[3]})
 
-	assert erc1155mock.balanceOf(accounts[2], ORIGINAL_NFT_IDs[0]) == in_nft_amount
+	assert erc1155mock.balanceOf(accounts[3], ORIGINAL_NFT_IDs[0]) == in_nft_amount
 	assert wrapper.balance() == 0
-	assert accounts[2].balance() == eth_balance_acc+eth_balance_contract
-	assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[2]
-	assert erc1155mock1.balanceOf(accounts[2], ORIGINAL_NFT_IDs[0]) == coll_amount
-	assert accounts[2].balance() == eth_balance_acc+eth_balance_contract
+	assert accounts[3].balance() == eth_balance_acc+eth_balance_contract
+	assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[3]
+	assert erc1155mock1.balanceOf(accounts[3], ORIGINAL_NFT_IDs[0]) == coll_amount
 

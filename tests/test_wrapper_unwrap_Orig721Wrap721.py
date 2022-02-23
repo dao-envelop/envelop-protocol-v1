@@ -31,7 +31,7 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, wra
 	before_dai_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, dai.address)[0]
 	before_weth_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, weth.address)[0]
 	before_eth_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, zero_address)[0]
-	before_acc_balance = accounts[2].balance()
+	before_acc_balance = accounts[3].balance()
 
 
 	#unwrap by not owner and UnwrapDestinition
@@ -47,11 +47,11 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, wra
 	
 	#checks
 	assert wrapper.balance() == 0
-	assert accounts[2].balance() == before_acc_balance + contract_eth_balance
+	assert accounts[3].balance() == before_acc_balance + contract_eth_balance
 	assert dai.balanceOf(wrapper) == 0
 	assert weth.balanceOf(wrapper) == 0
-	assert dai.balanceOf(accounts[2]) == before_dai_balance
-	assert weth.balanceOf(accounts[2]) == before_weth_balance
+	assert dai.balanceOf(accounts[3]) == before_dai_balance
+	assert weth.balanceOf(accounts[3]) == before_weth_balance
 
-	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[2]
+	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[3]
 	assert wnft721.totalSupply() == 0

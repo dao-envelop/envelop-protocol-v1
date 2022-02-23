@@ -4,7 +4,7 @@ from brownie import Wei, reverts, chain
 from makeTestData import makeNFTForTest721, makeFromERC721ToERC721WithoutCollateral
 
 LOGGER = logging.getLogger(__name__)
-ORIGINAL_NFT_IDs = [1,2,3,4, 5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22, 23]
+ORIGINAL_NFT_IDs = [1,2,3,4, 5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22, 23, 24, 25, 26, 27]
 zero_address = '0x0000000000000000000000000000000000000000'
 
 

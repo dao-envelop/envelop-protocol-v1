@@ -163,7 +163,7 @@ def makeFromERC721ToERC1155(accounts, erc721mock, wrapper, dai, weth, wnft1155, 
         #logging.info(wNFT)
         assert wNFT[0] == erc721_data
         assert wNFT[1] == [eth_data, dai_data, weth_data]
-        assert wNFT[2] == accounts[2]
+        assert wNFT[2] == zero_address
         assert wNFT[3] == fee
         assert wNFT[4] == lock
         assert wNFT[5] == royalty
@@ -227,7 +227,7 @@ def makeFromERC1155ToERC721(accounts, erc1155mock, wrapper, dai, weth, wnft721, 
         #logging.info(wNFT)
         assert wNFT[0] == erc1155_data
         assert wNFT[1] == [eth_data, dai_data, weth_data]
-        assert wNFT[2] == accounts[2]
+        assert wNFT[2] == zero_address
         assert wNFT[3] == fee
         assert wNFT[4] == lock
         assert wNFT[5] == royalty
@@ -345,7 +345,7 @@ def makeFromERC721ToERC1155WithoutCollateral(accounts, erc721mock, wrapper, wnft
         #logging.info(wNFT)
         assert wNFT[0] == erc721_data
         assert wNFT[1] == []
-        assert wNFT[2] == accounts[2]
+        assert wNFT[2] == zero_address
         assert wNFT[3] == fee
         assert wNFT[4] == lock
         assert wNFT[5] == royalty
@@ -395,7 +395,7 @@ def makeFromERC1155ToERC721WithoutCollateral(accounts, erc1155mock, wrapper, wnf
         #logging.info(wNFT)
         assert wNFT[0] == erc1155_data
         assert wNFT[1] == []
-        assert wNFT[2] == accounts[2]
+        assert wNFT[2] == zero_address
         assert wNFT[3] == fee
         assert wNFT[4] == lock
         assert wNFT[5] == royalty

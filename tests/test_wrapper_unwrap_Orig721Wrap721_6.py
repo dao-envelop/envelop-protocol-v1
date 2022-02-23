@@ -105,10 +105,10 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, n
     wrapper.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[7]})
 
 
-    assert niftsy20.balanceOf(accounts[2]) == 2*transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
-    assert niftsy201.balanceOf(accounts[2]) == 4*transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
+    assert niftsy20.balanceOf(accounts[7]) == 2*transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
+    assert niftsy201.balanceOf(accounts[7]) == 4*transfer_fee_amount*royalty[3][1]/techERC20.ROYALTY_PERCENT_BASE()
     assert niftsy20.balanceOf(wrapper.address) == 0
     assert niftsy201.balanceOf(wrapper.address) == 0
-    assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[2]
+    assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[7]
 
     

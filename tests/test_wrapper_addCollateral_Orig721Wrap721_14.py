@@ -31,10 +31,10 @@ def test_addCollateral(accounts, erc721mock, erc1155mock, wrapper, dai, weth, wn
 
     wrapper.unWrap(3, wnft721.address, wTokenId721, {"from": accounts[3]})
 
-    assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[2] 
-    assert wnft1155.balanceOf(accounts[2], wTokenId1155) == out_nft_amount
+    assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[3] 
+    assert wnft1155.balanceOf(accounts[3], wTokenId1155) == out_nft_amount
 
-    wrapper.unWrap(4, wnft1155.address, wTokenId1155, {"from": accounts[2]})
-    assert erc1155mock.balanceOf(accounts[2] , ORIGINAL_NFT_IDs[0]) == in_nft_amount
+    wrapper.unWrap(4, wnft1155.address, wTokenId1155, {"from": accounts[3]})
+    assert erc1155mock.balanceOf(accounts[3] , ORIGINAL_NFT_IDs[0]) == in_nft_amount
 
 

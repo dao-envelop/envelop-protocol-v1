@@ -111,6 +111,6 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
     wrapper.unWrap(out_type, wnft1155_1.address, 1, {"from": accounts[3]})
 
     assert erc1155mock.balanceOf(accounts[2], ORIGINAL_NFT_IDs[0]) == in_nft_amount
-    assert erc1155mock.balanceOf(accounts[2], ORIGINAL_NFT_IDs[1]) == in_nft_amount-1
-    assert erc1155mock.balanceOf(accounts[2], ORIGINAL_NFT_IDs[2]) == in_nft_amount-2
+    assert erc1155mock.balanceOf(accounts[3], ORIGINAL_NFT_IDs[1]) == in_nft_amount-1
+    assert erc1155mock.balanceOf(accounts[3], ORIGINAL_NFT_IDs[2]) == in_nft_amount-2
 
