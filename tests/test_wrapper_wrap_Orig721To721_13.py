@@ -55,12 +55,13 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, white
     logging.info("wrap1*************************")
     wrapper.wrap(wNFT, [((2, niftsy20.address), 0, 100)], accounts[3], {"from": accounts[1]})
 
-    wTokenId  = wrapper.lastWNFTId(out_type)[1]
+    wTokenId1  = wrapper.lastWNFTId(out_type)[1]
+    logging.info(wTokenId1)
     wnft721.setApprovalForAll(wrapper.address, True, {"from": accounts[3]})
     
 
     token_property = (in_type, wnft721.address)
-    token_data = (token_property, wTokenId, 0)
+    token_data = (token_property, wTokenId1, 0)
     
     fee = []
     lock = [(0x00, chain.time() + 200)]
@@ -79,9 +80,10 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, white
     logging.info("wrap2*************************")
     wrapper.wrap(wNFT, [((2, niftsy20.address), 0, 200)], accounts[3], {"from": accounts[3]})
 
-    wTokenId  = wrapper.lastWNFTId(out_type)[1]
+    wTokenId2  = wrapper.lastWNFTId(out_type)[1]
+    logging.info(wTokenId2)
     token_property = (in_type, wnft721.address)
-    token_data = (token_property, wTokenId, 0)
+    token_data = (token_property, wTokenId2, 0)
     
     fee = []
     lock = [(0x00, chain.time() + 100)]
@@ -100,9 +102,10 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, white
     logging.info("wrap3*************************")
     wrapper.wrap(wNFT, [((2, niftsy20.address), 0, 300)], accounts[3], {"from": accounts[3]})
 
-    wTokenId  = wrapper.lastWNFTId(out_type)[1]
+    wTokenId3  = wrapper.lastWNFTId(out_type)[1]
+    logging.info(wTokenId3)
     token_property = (in_type, wnft721.address)
-    token_data = (token_property, wTokenId, 0)
+    token_data = (token_property, wTokenId3, 0)
     
     fee = []
     lock = []
@@ -120,26 +123,29 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, white
 
     logging.info("wrap4*************************")
     wrapper.wrap(wNFT, [((2, niftsy20.address), 0, 400)], accounts[3], {"from": accounts[3]})
-    wTokenId  = wrapper.lastWNFTId(out_type)[1]
+    wTokenId4 = wrapper.lastWNFTId(out_type)[1]
+    logging.info(wTokenId4)
 
-    logging.info("wnft_tokenUri = {}".format(wnft721.tokenURI(wTokenId)))
+    logging.info("wnft_tokenUri = {}".format(wnft721.tokenURI(wTokenId4)))
 
 
-    wrapper.unWrap(wnft721.address, wTokenId, {"from": accounts[3]})
+    wrapper.unWrap(wnft721.address, wTokenId4, {"from": accounts[3]})
     chain.sleep(110)
     chain.mine()
-    wrapper.unWrap(wnft721.address, wTokenId-1, {"from": accounts[3]})
+    wrapper.unWrap(wnft721.address, wTokenId3, {"from": accounts[3]})
     chain.sleep(110)
     chain.mine()
-    wrapper.unWrap(wnft721.address, wTokenId-2, {"from": accounts[3]})
+    wrapper.unWrap(wnft721.address, wTokenId2, {"from": accounts[3]})
     chain.sleep(110)
     chain.mine()
-    wrapper.unWrap(wnft721.address, wTokenId-3, {"from": accounts[3]})
+    wrapper.unWrap(wnft721.address, wTokenId1, {"from": accounts[3]})
 
     assert niftsy20.balanceOf(accounts[3]) == 1000
-    assert erc721mock.tokenURI(ORIGINAL_NFT_IDs[0]) == wnft721.tokenURI(wTokenId)
+    assert erc721mock.tokenURI(ORIGINAL_NFT_IDs[0]) == wnft721.tokenURI(wTokenId4)
 
-    logging.info(wnft721.tokenURI(wTokenId))
+    logging.info(wnft721.tokenURI(wTokenId4))
+    with reverts(""):
+        logging.info(wnft721.ownerOf(wTokenId4))
 
 
 
