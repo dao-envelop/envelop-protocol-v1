@@ -51,9 +51,11 @@ def test_wrap(accounts, erc721mock, wrapper, wnft721, whiteLists, erc1155mock, e
 	whiteLists.setRules(erc721mock.address, '0x0000', '0x0001', {"from": accounts[0]})
 
 	assert whiteLists.validateRules(erc721mock.address, Web3.toBytes(0x000F)) != "0x000F"
-
+	assert whiteLists.validateRules(erc721mock.address, Web3.toBytes(0x000F)) != "0x0000"
 	with reverts("WL:Some rules are disabled for this asset"):
-		wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
+		wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})	
+
+	logging.info(whiteLists.validateRules(erc721mock.address, Web3.toBytes(0x000F)))
 
 	#allow use rules
 	whiteLists.setRules(erc721mock.address, '0x0000', '0x0000', {"from": accounts[0]})

@@ -3,15 +3,25 @@
 pragma solidity 0.8.11;
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165Checker.sol";
+
+
 import "../interfaces/IWrapper.sol";
 import "./LibEnvelopTypes.sol";
+
 contract WrapperChecker {
     using SafeERC20 for IERC20;
+    using ERC165Checker for address;
 
     IWrapper public wrapper;
     uint256 constant public MAX_ROYALTY_PERCENT = 5000;
     uint256 constant public MAX_TIME_TO_UNWRAP = 365 days;
-    uint256 constant public MAX_FEE_THRESHOLD_PERCENT = 1; //percent from project token totalSupply 
+    uint256 constant public MAX_FEE_THRESHOLD_PERCENT = 1; //percent from project token totalSupply
+    bytes4 public constant IID_IERC1155 = type(IERC1155).interfaceId;
+    bytes4 public constant IID_IERC721 = type(IERC721).interfaceId; 
+    //IERC165 internal checkingContract;
 
     constructor(address _wrapper) {
         require(_wrapper != address(0), "No zero");
@@ -312,8 +322,33 @@ contract WrapperChecker {
                         );
                     break;
                     }
+                if ((_collateral[i].asset.assetType == ETypes.AssetType.ERC721&&
+                        _collateral[i].asset.contractAddress.supportsInterface(IID_IERC721)!=true)||
+                    (_collateral[i].asset.assetType == ETypes.AssetType.ERC1155&&
+                        _collateral[i].asset.contractAddress.supportsInterface(IID_IERC1155)!=true)){
+                    result = false; 
+                    messages= string(
+                        abi.encodePacked(
+                            messages,
+                            "Collateral token is not ERC721 and not ERC1155, "
+                            )
+                        );
+                    break;
+                    }
                 }
             }
+        if ((_inData.inAsset.asset.assetType == ETypes.AssetType.ERC721&&
+                _inData.inAsset.asset.contractAddress.supportsInterface(IID_IERC721)!=true)||
+            (_inData.inAsset.asset.assetType == ETypes.AssetType.ERC1155&&
+                _inData.inAsset.asset.contractAddress.supportsInterface(IID_IERC1155)!=true)){
+            result = false; 
+            messages= string(
+                abi.encodePacked(
+                    messages,
+                    "Original token is not ERC721 and not ERC1155, "
+                    )
+                );
+        }
         
         bytes memory messages_bytes =  bytes ( messages ); 
         if (messages_bytes.length == 0) {
@@ -362,6 +397,19 @@ contract WrapperChecker {
                         abi.encodePacked(
                             messages,
                             "ERC1155 collateral has incorrect settings, "
+                            )
+                        );
+                    break;
+                    }
+                if ((_collateral[i].asset.assetType == ETypes.AssetType.ERC721&&
+                        _collateral[i].asset.contractAddress.supportsInterface(IID_IERC721)!=true)||
+                    (_collateral[i].asset.assetType == ETypes.AssetType.ERC1155&&
+                        _collateral[i].asset.contractAddress.supportsInterface(IID_IERC1155)!=true)){
+                    result = false; 
+                    messages= string(
+                        abi.encodePacked(
+                            messages,
+                            "Collateral token is not ERC721 and not ERC1155, "
                             )
                         );
                     break;

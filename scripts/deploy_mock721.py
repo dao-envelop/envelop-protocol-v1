@@ -2,7 +2,7 @@ from brownie import *
 import json
 
 
-private_key='96ee5dfa63f4091fcfbf01725a883cb6d66a5990d67374ae3217be3bb0e70516'
+private_key='???'
 accounts.add(private_key)
 print('Deployer:{}'.format(accounts[0]))
 print('web3.eth.chain_id={}'.format(web3.eth.chainId))
