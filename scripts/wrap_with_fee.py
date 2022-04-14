@@ -90,7 +90,6 @@ def main():
 
     #niftsy20.approve(wrapper.address, transfer_fee_amount, {"from": accounts[3], "gas_price": price})
 
+
     wrapper.unWrap(wnft721.address, wTokenId, {"from": accounts[0],'gas_price':  price})
 
-
-   
