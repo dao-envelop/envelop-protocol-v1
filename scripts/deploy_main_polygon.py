@@ -10,7 +10,7 @@ if  (web3.eth.chainId != 56
 else:
     # Mainnet
     private_key=input('PLease input private key for deployer address..:')
-accounts.clear() 
+accounts.clear()    
 accounts.add(private_key)
 
 print('Deployer:{}'.format(accounts[0]))
@@ -76,28 +76,29 @@ if web3.eth.chainId in  [1,4]:
 
 def main():
     print('Deployer account= {}'.format(accounts[0]))
-    techERC20 = TechTokenV1.deploy(tx_params)
-    #techERC20 = TechTokenV1.at('0x7e4Be057C70657C71dEc4716A2fD23BEad0Ad4Eb')
-    wrapper   = WrapperBaseV1.deploy(techERC20.address,tx_params) 
-    #wrapper = WrapperForRent.at('0x59C769f7A26892146816C817b44A4A557225Dc06')
-    wnft1155 = EnvelopwNFT1155.deploy(
-        'ENVELOP 1155 wNFT Collection', 
-        'wNFT', 
-        'https://api.envelop.is/metadata/',
-        tx_params
-    )
+    #techERC20 = TechTokenV1.deploy(tx_params)
+    techERC20 = TechTokenV1.at('0x5076D59fE7D718a120C3f359648Caed26B81C1e1')
+    #wrapper   = WrapperBaseV1.deploy(techERC20.address,tx_params) 
+    wrapper = WrapperBaseV1.at('0x8368f72a85f5b3bC9f41FF9f3a681b09DA0fE21f')
+    # wnft1155 = EnvelopwNFT1155.deploy(
+    #     'ENVELOP 1155 wNFT Collection', 
+    #     'wNFT', 
+    #     'https://api.envelop.is/metadata/',
+    #     tx_params
+    # )
+    wnft1155 = EnvelopwNFT1155.at('0x4A80d07a1e8C15069c397cF34c407A627dcb8487')
     
-    wnft721 = EnvelopwNFT721.deploy(
-        'ENVELOP 721 wNFT Collection', 
-        'wNFT', 
-        'https://api.envelop.is/metadata/',
-        tx_params
-    )
+    # wnft721 = EnvelopwNFT721.deploy(
+    #     'ENVELOP 721 wNFT Collection', 
+    #     'wNFT', 
+    #     'https://api.envelop.is/metadata/',
+    #     tx_params
+    # )
+    wnft721 = EnvelopwNFT721.at('0xd3FDE1C83B144d07878CDa57b66B35176A785e61')
 
-    whitelist = AdvancedWhiteList.deploy(tx_params)
-    #wnft1155 = EnvelopwNFT1155.at('0xf294ab4B27f27cC619E2EfF2db5077A7D995A1FC')
+    #whitelist = AdvancedWhiteList.deploy(tx_params)
+    whitelist = AdvancedWhiteList.at('0x38E08929a82b2F59037301fa92979eAC90090655')
     #Init
-    #techERC20.addMinter(wrapper.address, {'from': accounts[0]})
     wnft1155.setMinterStatus(wrapper.address, tx_params)
     wnft721.setMinter(wrapper.address, tx_params)
     wrapper.setWNFTId(3, wnft721.address, 1, tx_params)

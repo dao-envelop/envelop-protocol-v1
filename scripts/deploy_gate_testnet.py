@@ -3,6 +3,8 @@ import json
 
 if  (web3.eth.chainId != 56 
     and web3.eth.chainId != 1 
+    and web3.eth.chainId != 66 
+    and web3.eth.chainId != 86 
     and web3.eth.chainId != 137
     and web3.eth.chainId != 43114):
     # Testnets
@@ -10,7 +12,7 @@ if  (web3.eth.chainId != 56
 else:
     # Mainnet
     private_key=input('PLease input private key for deployer address..:')
-accounts.clear() 
+accounts.clear()    
 accounts.add(private_key)
 
 print('Deployer:{}'.format(accounts[0]))
@@ -62,6 +64,10 @@ CHAIN = {
     1:{'explorer_base':'etherscan.io', 'enabled_erc20': ETH_MAIN_ERC20_COLLATERAL_TOKENS},
     4:{'explorer_base':'rinkeby.etherscan.io','enabled_erc20': ETH_RINKEBY_ERC20_COLLATERAL_TOKENS},
     56:{'explorer_base':'bscscan.com', 'enabled_erc20': BSC_MAIN_ERC20_COLLATERAL_TOKENS},
+    65:{'explorer_base': 'www.oklink.com/oec-test',},
+    66:{'explorer_base': 'www.oklink.com/oec',},
+    85:{'explorer_base': 'https://gatescan.org/testnet',},
+    86:{'explorer_base': 'https://www.gatescan.org',},
     97:{'explorer_base':'testnet.bscscan.com', 'enabled_erc20': BSC_TESTNET_ERC20_COLLATERAL_TOKENS},
     137:{'explorer_base':'polygonscan.com', 'enabled_erc20': POLYGON_MAIN_ERC20_COLLATERAL_TOKENS},
     80001:{'explorer_base':'mumbai.polygonscan.com', },  
@@ -70,22 +76,27 @@ CHAIN = {
 
 }.get(web3.eth.chainId, {'explorer_base':'io'})
 print(CHAIN)
-tx_params = {'from':accounts[0]}
+tx_params = {'from':accounts[0], 'gas_price': '1 gwei', 'allow_revert':True}
 if web3.eth.chainId in  [1,4]:
     tx_params={'from':accounts[0], 'priority_fee': chain.priority_fee}
-
+elif web3.eth.chainId in  [65, 66]:    
+    tx_params={'from':accounts[0], 'allow_revert': True}    
+elif web3.eth.chainId in  [85, 86]:
+    tx_params={'from':accounts[0], 'allow_revert': True,'gas_price': '5 gwei', 'gas_limit': 1e8}    
+#5000000000 000000000000000000
 def main():
     print('Deployer account= {}'.format(accounts[0]))
-    techERC20 = TechTokenV1.deploy(tx_params)
-    #techERC20 = TechTokenV1.at('0x7e4Be057C70657C71dEc4716A2fD23BEad0Ad4Eb')
+    #techERC20 = TechTokenV1.deploy(tx_params)
+    techERC20 = TechTokenV1.at('0x20e30c7c1295FCD1A78528078b83aaf16C5CE032')
     wrapper   = WrapperBaseV1.deploy(techERC20.address,tx_params) 
-    #wrapper = WrapperForRent.at('0x59C769f7A26892146816C817b44A4A557225Dc06')
+    #wrapper = WrapperBaseV1.at('')
     wnft1155 = EnvelopwNFT1155.deploy(
         'ENVELOP 1155 wNFT Collection', 
         'wNFT', 
         'https://api.envelop.is/metadata/',
         tx_params
     )
+    #wnft1155 = EnvelopwNFT1155.at('')
     
     wnft721 = EnvelopwNFT721.deploy(
         'ENVELOP 721 wNFT Collection', 
@@ -93,11 +104,11 @@ def main():
         'https://api.envelop.is/metadata/',
         tx_params
     )
+    #wnft721 = EnvelopwNFT721.at('')
 
     whitelist = AdvancedWhiteList.deploy(tx_params)
-    #wnft1155 = EnvelopwNFT1155.at('0xf294ab4B27f27cC619E2EfF2db5077A7D995A1FC')
+    #whitelist = AdvancedWhiteList.at('')
     #Init
-    #techERC20.addMinter(wrapper.address, {'from': accounts[0]})
     wnft1155.setMinterStatus(wrapper.address, tx_params)
     wnft721.setMinter(wrapper.address, tx_params)
     wrapper.setWNFTId(3, wnft721.address, 1, tx_params)
