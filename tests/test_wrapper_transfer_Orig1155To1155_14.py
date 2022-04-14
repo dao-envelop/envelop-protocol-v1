@@ -128,7 +128,7 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
     niftsy20.transfer(wrapper.address, 2*transfer_fee_amount, {"from": accounts[0]})   
 
     logging.info("unwrap2*************************")
-    wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]}) 
+    wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]}) 
 
     logging.info("balance_wrapper = {}".format(niftsy20.balanceOf(wrapper)))
 
@@ -136,6 +136,6 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
     logging.info("balance_acc3 = {}".format(niftsy20.balanceOf(accounts[3])))
     logging.info("balance_acc4 = {}".format(niftsy20.balanceOf(accounts[4])))
 
-    assert niftsy20.balanceOf(accounts[4]) + niftsy20.balanceOf(accounts[2]) == transfer_fee_amount
+    assert niftsy20.balanceOf(accounts[4]) + niftsy20.balanceOf(accounts[3]) == transfer_fee_amount
     assert niftsy20.balanceOf(wrapper.address) == 2*transfer_fee_amount
-    assert niftsy20.balanceOf(accounts[3]) == 0
+    assert niftsy20.balanceOf(accounts[2]) == 0

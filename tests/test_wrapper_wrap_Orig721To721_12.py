@@ -131,25 +131,25 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, er
     before_dai_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, dai.address)[0]+wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId1, dai.address)[0]
     before_weth_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, weth.address)[0]+wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId1, weth.address)[0]
     before_eth_balance = wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, zero_address)[0]+wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId1, zero_address)[0]
-    before_acc_balance = accounts[2].balance()
+    before_acc_balance = accounts[3].balance()
 
     wrapper.unWrap(3, wnft721.address, wTokenId, {"from": accounts[3]})
     wrapper.unWrap(3, wnft721.address, wTokenId1, {"from": accounts[3]})
 
     #checks
     assert wrapper.balance() == 0
-    assert accounts[2].balance() == before_acc_balance + contract_eth_balance
+    assert accounts[3].balance() == before_acc_balance + contract_eth_balance
     assert dai.balanceOf(wrapper) == 0
     assert weth.balanceOf(wrapper) == 0
-    assert dai.balanceOf(accounts[2]) == before_dai_balance
-    assert weth.balanceOf(accounts[2]) == before_weth_balance
-    assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[2]
-    assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[1]) == accounts[2]
-    assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[2]) == accounts[2]
-    assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[3]) == accounts[2]
-    assert erc1155mock1.balanceOf(accounts[2], ORIGINAL_NFT_IDs[0]) == coll_amount
-    assert erc1155mock1.balanceOf(accounts[2], ORIGINAL_NFT_IDs[1]) == coll_amount - 1
-    assert erc1155mock1.balanceOf(accounts[2], ORIGINAL_NFT_IDs[2]) == coll_amount
-    assert erc1155mock1.balanceOf(accounts[2], ORIGINAL_NFT_IDs[3]) == coll_amount
+    assert dai.balanceOf(accounts[3]) == before_dai_balance
+    assert weth.balanceOf(accounts[3]) == before_weth_balance
+    assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[3]
+    assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[1]) == accounts[3]
+    assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[2]) == accounts[3]
+    assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[3]) == accounts[3]
+    assert erc1155mock1.balanceOf(accounts[3], ORIGINAL_NFT_IDs[0]) == coll_amount
+    assert erc1155mock1.balanceOf(accounts[3], ORIGINAL_NFT_IDs[1]) == coll_amount - 1
+    assert erc1155mock1.balanceOf(accounts[3], ORIGINAL_NFT_IDs[2]) == coll_amount
+    assert erc1155mock1.balanceOf(accounts[3], ORIGINAL_NFT_IDs[3]) == coll_amount
     assert wnft721.totalSupply() == 0
     

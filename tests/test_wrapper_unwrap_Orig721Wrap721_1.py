@@ -56,6 +56,6 @@ def test_addColl(accounts, wrapper, wnft721, niftsy20,  mockHacker721_1, erc1155
 	#Emergency mode
 	wrapper.unWrap(3, wnft721.address, wTokenId, True, {"from": accounts[3]})
 
-	assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[2]
-	assert erc1155mock1.balanceOf(accounts[2], ORIGINAL_NFT_IDs[0]) == coll_amount
+	assert erc721mock1.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[3]
+	assert erc1155mock1.balanceOf(accounts[3], ORIGINAL_NFT_IDs[0]) == coll_amount
 

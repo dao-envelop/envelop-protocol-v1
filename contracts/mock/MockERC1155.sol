@@ -19,4 +19,32 @@ contract Token1155Mock is ERC1155 {
         
         _mint(to, tokenId, amount, '');
     }
+
+    function mintBatch(
+        address to, 
+        uint256[] calldata ids,
+        uint256[] calldata amounts,
+        bytes calldata data
+    ) external {
+        
+        _mintBatch(to, ids, amounts, '');
+    }
+
+    function burn(
+        address from, 
+        uint256 tokenId,
+        uint256 amount
+    ) external {
+        
+        _burn(from, tokenId, amount);
+    }
+
+    function burnBatch(
+        address from, 
+        uint256[] calldata ids,
+        uint256[] calldata amounts
+    ) external {
+        
+        _burnBatch(from, ids, amounts);
+    }
 }
