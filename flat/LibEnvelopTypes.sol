@@ -41,7 +41,7 @@ library ETypes {
     struct WNFT {
         AssetItem inAsset;
         AssetItem[] collateral;
-        address unWrapDestinition;
+        address unWrapDestination;
         Fee[] fees;
         Lock[] locks;
         Royalty[] royalties;
@@ -51,7 +51,7 @@ library ETypes {
 
     struct INData {
         AssetItem inAsset;
-        address unWrapDestinition;
+        address unWrapDestination;
         Fee[] fees;
         Lock[] locks;
         Royalty[] royalties;

@@ -16,7 +16,7 @@ eth_amount = "1 ether"
 #can unwrap
 def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
 	logging.info(
-		'\n=========wNFT=============\nwNFT:{0},{1}\nInAsset: {2}\nCollrecords:\n{3}\nunWrapDestinition: {4}'
+		'\n=========wNFT=============\nwNFT:{0},{1}\nInAsset: {2}\nCollrecords:\n{3}\nunWrapDestination: {4}'
 		'\nFees: {5} \nLocks: {6} \nRoyalty: {7} \nrules: {8}({9:0>16b}) \n=========================='.format(
 		_wnft721, _wTokenId,
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[0],
@@ -109,7 +109,7 @@ def test_unwrap(accounts, erc1155mock, wrapper, wnft1155, niftsy20):
 	with reverts("ERC115 unwrap available only for all totalSupply"):
 		wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[9]})
 
-	#refuse to unwrap by UnwrapDestinition
+	#refuse to unwrap by UnwrapDestination
 	with reverts("ERC115 unwrap available only for all totalSupply"):
 		wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})
 

@@ -21,8 +21,8 @@ contract WrapperRemovable is WrapperBaseV1 {
         address _receiver
     ) public virtual {
         // require(
-        //     (wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition != address(0) 
-        //     && wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition != address(this)),
+        //     (wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestination != address(0) 
+        //     && wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestination != address(this)),
         //     "Undefined receiver"
         // );
         require(protocolWhiteList != address(0), "Only with whitelist");
@@ -55,7 +55,7 @@ contract WrapperRemovable is WrapperBaseV1 {
             }
         //}
         require(
-            _mustTransfered(_collateralItem) == _transferSafe(_collateralItem, address(this), wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition),
+            _mustTransfered(_collateralItem) == _transferSafe(_collateralItem, address(this), wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestination),
             "Suspicious asset for wrap or collateral"
         );
     } 

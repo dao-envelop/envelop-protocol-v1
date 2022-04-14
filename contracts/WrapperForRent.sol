@@ -35,8 +35,8 @@ contract WrapperForRent is WrapperBaseV1 {
     ) internal override 
     {
         super._saveWNFTinfo(wNFTAddress, tokenId, _inData);
-        // We will use _inData.unWrapDestinition  ONLY for RENT implementation
-        wrappedTokens[wNFTAddress][tokenId].unWrapDestinition = _inData.unWrapDestinition;
+        // We will use _inData.unWrapDestination  ONLY for RENT implementation
+        wrappedTokens[wNFTAddress][tokenId].unWrapDestination = _inData.unWrapDestination;
     }
 
     function _checkCoreUnwrap(ETypes.AssetType _wNFTType, address _wNFTAddress, uint256 _wNFTTokenId) 
@@ -48,8 +48,8 @@ contract WrapperForRent is WrapperBaseV1 {
         if (_wNFTType == ETypes.AssetType.ERC721) {
             // Only token owner or unwraper can UnWrap
             burnFor = IERC721Mintable(_wNFTAddress).ownerOf(_wNFTTokenId);
-            require(getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition == msg.sender,
-                'Only unWrapDestinition can unwrap it'
+            require(getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestination == msg.sender,
+                'Only unWrapDestination can unwrap it'
             ); 
             return (burnFor, burnBalance);
 
@@ -62,13 +62,13 @@ contract WrapperForRent is WrapperBaseV1 {
                 ,'ERC115 unwrap available only for all totalSupply'
             );
             // Only token owner or unwraper can UnWrap
-            if (getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestinition != msg.sender) {
+            if (getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestination != msg.sender) {
                 require(
                    !_checkRule(0x0001, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules), 
-                   'Only unWrapDestinition can unwrap forbidden wnft'
+                   'Only unWrapDestination can unwrap forbidden wnft'
                 );
                 require(msg.sender == burnFor,
-                   'Only unWrapDestinition or owner can unwrap this wnft'
+                   'Only unWrapDestination or owner can unwrap this wnft'
                 );
             }
 

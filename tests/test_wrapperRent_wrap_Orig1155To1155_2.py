@@ -16,7 +16,7 @@ eth_amount = "1 ether"
 #not unwrap by owner
 def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
 	logging.info(
-		'\n=========wNFT=============\nwNFT:{0},{1}\nInAsset: {2}\nCollrecords:\n{3}\nunWrapDestinition: {4}'
+		'\n=========wNFT=============\nwNFT:{0},{1}\nInAsset: {2}\nCollrecords:\n{3}\nunWrapDestination: {4}'
 		'\nFees: {5} \nLocks: {6} \nRoyalty: {7} \nrules: {8}({9:0>16b}) \n=========================='.format(
 		_wnft721, _wTokenId,
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[0],
@@ -107,8 +107,8 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 		wrapperRent.wrap(wNFT, [], accounts[4], {"from": accounts[3]})
 
 	#refuse unwrap by owner
-	with reverts("Only unWrapDestinition can unwrap forbidden wnft"):
+	with reverts("Only unWrapDestination can unwrap forbidden wnft"):
 		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
 
-	#unwrap by UnwrapDestinition
+	#unwrap by UnwrapDestination
 	wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})

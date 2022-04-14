@@ -39,7 +39,7 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, w
 	chain.sleep(120)
 	chain.mine()
 
-	#unwrap by UnwrapDestinition
+	#unwrap by UnwrapDestination
 	with reverts("ERC115 unwrap available only for all totalSupply"):
 		wrapper.unWrap(4, wnft1155.address, wTokenId, {"from": accounts[2]})
 

@@ -234,7 +234,7 @@ contract WrapperBaseV1 is
             wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.asset.contractAddress,
             _wNFTTokenId, 
             wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.tokenId,
-            wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition, 
+            wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestination, 
             nativeCollateralAmount,  // TODO Check  GAS
             wrappedTokens[_wNFTAddress][_wNFTTokenId].rules 
         );
@@ -334,9 +334,9 @@ contract WrapperBaseV1 is
     ) internal virtual 
     {
         wrappedTokens[wNFTAddress][tokenId].inAsset = _inData.inAsset;
-        // We will use _inData.unWrapDestinition  ONLY for RENT implementation
-        // wrappedTokens[wNFTAddress][tokenId].unWrapDestinition = _inData.unWrapDestinition;
-        wrappedTokens[wNFTAddress][tokenId].unWrapDestinition = address(0);
+        // We will use _inData.unWrapDestination  ONLY for RENT implementation
+        // wrappedTokens[wNFTAddress][tokenId].unWrapDestination = _inData.unWrapDestination;
+        wrappedTokens[wNFTAddress][tokenId].unWrapDestination = address(0);
         wrappedTokens[wNFTAddress][tokenId].rules = _inData.rules;
         
         // Copying of type struct ETypes.Fee memory[] 
@@ -572,8 +572,8 @@ contract WrapperBaseV1 is
     {
         uint256 transfered;
         address receiver = msg.sender;
-        if (wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition != address(0)) {
-            receiver = wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestinition;
+        if (wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestination != address(0)) {
+            receiver = wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestination;
         }
 
         for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {

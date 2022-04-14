@@ -13,10 +13,10 @@ eth_amount = "1 ether"
 #not wrap again
 #not add collateral
 #can transfer
-#can unwrap by UnwrapDestinition
+#can unwrap by UnwrapDestination
 def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
 	logging.info(
-		'\n=========wNFT=============\nwNFT:{0},{1}\nInAsset: {2}\nCollrecords:\n{3}\nunWrapDestinition: {4}'
+		'\n=========wNFT=============\nwNFT:{0},{1}\nInAsset: {2}\nCollrecords:\n{3}\nunWrapDestination: {4}'
 		'\nFees: {5} \nLocks: {6} \nRoyalty: {7} \nrules: {8}({9:0>16b}) \n=========================='.format(
 		_wnft721, _wTokenId,
 		_wrapper.getWrappedToken(_wnft721, _wTokenId)[0],
@@ -106,7 +106,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 		wrapperRent.wrap(wNFT, [], accounts[4], {"from": accounts[3]})
 
 	#unwrap by other user
-	with reverts("Only unWrapDestinition or owner can unwrap this wnft"):
+	with reverts("Only unWrapDestination or owner can unwrap this wnft"):
 		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[9]})
 
 	#unwrap by owner
@@ -122,7 +122,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 	assert event['nativeCollateralAmount'] == 0
 	assert event['rules'] == '0x000A'
 
-	#unwrap by UnwrapDestinition
+	#unwrap by UnwrapDestination
 	#wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})
 
 	assert erc1155mock.balanceOf(accounts[2], ORIGINAL_NFT_IDs[0]) == coll_amount

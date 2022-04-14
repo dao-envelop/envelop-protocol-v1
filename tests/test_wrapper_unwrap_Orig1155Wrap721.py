@@ -38,7 +38,7 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft721, niftsy20, wr
 	chain.sleep(120)
 	chain.mine()
 
-	#unwrap by UnwrapDestinition
+	#unwrap by UnwrapDestination
 	with reverts("Only owner can unwrap it"):
 		wrapper.unWrap(3, wnft721.address, wTokenId, {"from": accounts[2]})
 

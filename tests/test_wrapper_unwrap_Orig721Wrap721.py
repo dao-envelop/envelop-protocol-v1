@@ -34,11 +34,11 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, wra
 	before_acc_balance = accounts[3].balance()
 
 
-	#unwrap by not owner and UnwrapDestinition
+	#unwrap by not owner and UnwrapDestination
 	with reverts("Only owner can unwrap it"):
 		wrapper.unWrap(3, wnft721.address, wTokenId, {"from": accounts[9]})
 
-	#unwrap by UnwrapDestinition
+	#unwrap by UnwrapDestination
 	with reverts("Only owner can unwrap it"):
 		wrapper.unWrap(3, wnft721.address, wTokenId, {"from": accounts[2]})
 
