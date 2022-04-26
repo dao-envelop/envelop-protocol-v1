@@ -62,7 +62,7 @@ contract WrapperForRent is WrapperBaseV1 {
                 ,'ERC115 unwrap available only for all totalSupply'
             );
             // Only token owner or unwraper can UnWrap
-            if (getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestination != msg.sender) {
+            /*if (getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestination != msg.sender) {
                 require(
                    !_checkRule(0x0001, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules), 
                    'Only unWrapDestination can unwrap forbidden wnft'
@@ -70,8 +70,13 @@ contract WrapperForRent is WrapperBaseV1 {
                 require(msg.sender == burnFor,
                    'Only unWrapDestination or owner can unwrap this wnft'
                 );
-            }
+            }*/
 
+            require(getWrappedToken(_wNFTAddress, _wNFTTokenId).unWrapDestination == msg.sender,
+                'Only unWrapDestination can unwrap forbidden wnft'); 
+            require(
+               !_checkRule(0x0001, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules), 
+                   'UnWrapp forbidden by author'
             return (burnFor, burnBalance);
             
         } else {

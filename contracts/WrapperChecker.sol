@@ -83,10 +83,6 @@ contract WrapperChecker {
     {
         bool result = true;
         string memory messages = "";
-        if (_inData.unWrapDestination == address(0)) {
-            result = false;
-            messages="unWrapDestination cant be zero, ";
-            }
 
         if (_wrappFor == address(0)) {
             result = false; 
