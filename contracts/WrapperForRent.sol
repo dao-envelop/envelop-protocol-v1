@@ -76,7 +76,7 @@ contract WrapperForRent is WrapperBaseV1 {
                 'Only unWrapDestination can unwrap forbidden wnft'); 
             require(
                !_checkRule(0x0001, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules), 
-                   'UnWrapp forbidden by author'
+                   'UnWrapp forbidden by author');
             return (burnFor, burnBalance);
             
         } else {

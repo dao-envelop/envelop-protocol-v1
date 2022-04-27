@@ -25,17 +25,17 @@ accounts.add(private_key)'''
 
 def main():
     #techERC20 = TechTokenV1.at('0xE1604b54CaC27970aa67b4e38495F206b59CEe42')
-    wrapper = WrapperBaseV1.at('0x352cbAF36eDD05e6a85A7BFA9f5d91Ef4Ea13F39')
+    wrapper = WrapperBaseV1.at('0x8368f72a85f5b3bC9f41FF9f3a681b09DA0fE21f')
     #wnft1155 = EnvelopwNFT1155.at('0x0ff3a4F7De32588CFfe22A838D5a18A45CD4358a')
-    wnft721 = EnvelopwNFT721.at('0xdFeB55cBD23c13C4aC3195048824D14787E10732')
+    wnft721 = EnvelopwNFT721.at('0xd3FDE1C83B144d07878CDa57b66B35176A785e61')
     erc721mock = OrigNFT.at('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578')
     #erc721mock = Envelop721Mock.at('0x166f56bd3fe11bc55a981a99dcc61ab931585abd')
-    erc1155mock = Token1155Mock.at('0x403cEDfF16ad12d4Ef53b2D8aFe55965a1a61BFE')
+    erc1155mock = Token1155Mock.at('0xD48fdbCf81070547d5a3fB276203b5bf96344b10')
     #whiteLists = AdvancedWhiteList.at('0x0Cbc46647D4529E8f9bbB13c0F2113B1E74c7Aed')
-    niftsy20 = Niftsy.at('0x3125B3b583D576d86dBD38431C937F957B94B47d')
+    niftsy20 = Niftsy.at('0x432cdbC749FD96AA35e1dC27765b23fDCc8F5cf1')
     #niftsy201 = Niftsy.at('0xcF54c844DBe67b3976667698552EaAAb12333b0B')
 
-    price = "10 gwei"
+    price = "50 gwei"
 
     #niftsy201 = Niftsy.deploy(accounts[0], {'from':accounts[0]})
     
@@ -50,7 +50,7 @@ def main():
     out_type = 3
     in_nft_amount = 3
     out_nft_amount = 5
-    print(wnft721.wnftInfo(300))
+    #print(wnft721.wnftInfo(300))
 
     #wl_data = (False, True, False, techERC20.address)
     #whiteLists.setWLItem(niftsy201, wl_data, {"from": accounts[1]})
