@@ -13,6 +13,12 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
     using Strings for uint160;
     
     address public wrapper;       // main protocol contarct
+
+    // Token name
+    string public name;
+
+    // Token symbol
+    string public symbol;
     
     constructor(
         string memory name_,
@@ -31,6 +37,8 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
                 "/"
             )
         ));
+        name = name_;
+        symbol = symbol_;
     }
 
     function mint(address _to, uint256 _tokenId, uint256 _amount) external {
