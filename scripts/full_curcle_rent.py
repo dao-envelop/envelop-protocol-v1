@@ -18,24 +18,24 @@ private_key='721fd469cc7604dcc6ab618e4055822216d977cd14deeae23e6e452c82da9ae9'
 accounts.add(private_key)
 
 
-
+#tech 0x8368f72a85f5b3bc9f41ff9f3a681b09da0fe21f
 
 def main():
-	wrapper     = WrapperForRent.at('0x446EC4c1793B664Bb4f42b956DdD147362Ef4AB4')
-	wnft1155         = EnvelopwNFT1155.at('0x0E3b3E63c4e1f37629930bf904A76Fd812f81b83')
-	original_nft_contract = Token1155Mock.at('0x948f114eB8D40BE607F5589Cb63bF361a859466c')
+	wrapper = WrapperForRent.at('0x2Ef106DD93beDC6E01EaF127F4434C39cEbC188F')
+	wnft1155 = EnvelopwNFT1155.at('0x2ba1ec4526A276F36AfBd7066F8b63B9347B537B')
+	original_nft_contract = Token1155Mock.at('0xD48fdbCf81070547d5a3fB276203b5bf96344b10')
 	in_type = 4
 	out_type = 4
 	in_nft_amount = 5
 	out_nft_amount = 5 
 	
 	original_nft_id = 1 #increase number +1 to mint new original NFT 
-	price = "10 gwei"
+	price = "50 gwei"
 
-	#original_nft_contract.mint(accounts[0], original_nft_id, in_nft_amount, {"from": accounts[0], "gas_price": price})
+	original_nft_contract.mint(accounts[0], original_nft_id, in_nft_amount, {"from": accounts[0], "gas_price": price})
 	
 	#make allowance to use original NFT
-	#original_nft_contract.setApprovalForAll(wrapper.address, True,  {"from": accounts[0], "gas_price": price})
+	original_nft_contract.setApprovalForAll(wrapper.address, True,  {"from": accounts[0], "gas_price": price})
 
 	
 	token_property = (in_type, original_nft_contract)
@@ -56,7 +56,7 @@ def main():
 	)
 	
 	#wrap NFT
-	#wrapper.wrap(wNFT, [], accounts[1], {"from": accounts[0],'gas_price': price})
+	wrapper.wrap(wNFT, [], accounts[1], {"from": accounts[0],'gas_price': price})
 	wTokenId = wrapper.lastWNFTId(out_type)[1]
 
 	assert wnft1155.balanceOf(accounts[1], wTokenId) == out_nft_amount
