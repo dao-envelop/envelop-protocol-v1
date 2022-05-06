@@ -13,20 +13,20 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
     mapping(address => ETypes.WhiteListItem) internal whiteList;
     mapping(address => bool) internal blackList;
     mapping(address => ETypes.Rules) internal rulesChecker;
-    address[] public whiteListedArray;
-    address[] public blackListedArray;
+    ETypes.Asset[] public whiteListedArray;
+    ETypes.Asset[] public blackListedArray;
 
     /////////////////////////////////////////////////////////////////////
     //                    Admin functions                              //
     /////////////////////////////////////////////////////////////////////
-    function setWLItem(address _asset, ETypes.WhiteListItem calldata _assetItem) 
+    function setWLItem(ETypes.Asset calldata _asset, ETypes.WhiteListItem calldata _assetItem) 
         external onlyOwner 
     {
         require(_assetItem.transferFeeModel != address(0), 'Cant be zero, use default instead');
-        whiteList[_asset] = _assetItem;
+        whiteList[_asset.contractAddress] = _assetItem;
         bool alreadyExist;
         for (uint256 i = 0; i < whiteListedArray.length; i ++) {
-            if (whiteListedArray[i] == _asset){
+            if (whiteListedArray[i].contractAddress == _asset.contractAddress){
                 alreadyExist = true;
                 break;
             }
@@ -35,7 +35,7 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
                whiteListedArray.push(_asset); 
         }
         emit WhiteListItemChanged(
-            _asset, 
+            _asset.contractAddress, 
             _assetItem.enabledForFee, 
             _assetItem.enabledForCollateral, 
             _assetItem.enabledRemoveFromCollateral,
@@ -43,10 +43,10 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
         );
     }
 
-    function removeWLItem(address _asset) external onlyOwner {
+    function removeWLItem(ETypes.Asset calldata _asset) external onlyOwner {
         uint256 deletedIndex;
         for (uint256 i = 0; i < whiteListedArray.length; i ++) {
-            if (whiteListedArray[i] == _asset){
+            if (whiteListedArray[i].contractAddress == _asset.contractAddress){
                 deletedIndex = i;
                 break;
             }
@@ -58,18 +58,18 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
             whiteListedArray[deletedIndex] = whiteListedArray[whiteListedArray.length - 1];
         } 
         whiteListedArray.pop();
-        delete whiteList[_asset];
+        delete whiteList[_asset.contractAddress];
         emit WhiteListItemChanged(
-            _asset, 
+            _asset.contractAddress, 
             false, false, false, address(0)
         );
     }
 
-    function setBLItem(address _asset, bool _isBlackListed) external onlyOwner {
-        blackList[_asset] = _isBlackListed;
+    function setBLItem(ETypes.Asset calldata _asset, bool _isBlackListed) external onlyOwner {
+        blackList[_asset.contractAddress] = _isBlackListed;
         if (_isBlackListed) {
             for (uint256 i = 0; i < blackListedArray.length; i ++){
-                if (blackListedArray[i] == _asset) {
+                if (blackListedArray[i].contractAddress == _asset.contractAddress) {
                     return;
                 }
             }
@@ -78,7 +78,7 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
         } else {
             uint256 deletedIndex;
             for (uint256 i = 0; i < blackListedArray.length; i ++){
-                if (blackListedArray[i] == _asset) {
+                if (blackListedArray[i].contractAddress == _asset.contractAddress) {
                     deletedIndex = i;
                     break;
                 }
@@ -90,10 +90,10 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
                 blackListedArray[deletedIndex] = blackListedArray[blackListedArray.length - 1];
             } 
             blackListedArray.pop();
-            delete blackList[_asset];
+            delete blackList[_asset.contractAddress];
 
         }
-        emit BlackListItemChanged(_asset, _isBlackListed);
+        emit BlackListItemChanged(_asset.contractAddress, _isBlackListed);
     }
 
     function setRules(address _asset, bytes2 _only, bytes2 _disabled) public onlyOwner {
@@ -111,11 +111,11 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
         return whiteListedArray.length;
     }
 
-    function getWLAddressByIndex(uint256 _index) external view returns (address) {
+    function getWLAddressByIndex(uint256 _index) external view returns (ETypes.Asset memory) {
         return whiteListedArray[_index];
     }
 
-    function getWLAddresses() external view returns (address[] memory) {
+    function getWLAddresses() external view returns (ETypes.Asset[] memory) {
         return whiteListedArray;
     }
 
@@ -128,11 +128,11 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
         return blackListedArray.length;
     }
 
-    function getBLAddressByIndex(uint256 _index) external view returns (address) {
+    function getBLAddressByIndex(uint256 _index) external view returns (ETypes.Asset memory) {
         return blackListedArray[_index];
     }
 
-    function getBLAddresses() external view returns (address[] memory) {
+    function getBLAddresses() external view returns (ETypes.Asset[] memory) {
         return blackListedArray;
     }
 
