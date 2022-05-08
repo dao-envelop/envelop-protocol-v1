@@ -37,6 +37,8 @@ contract WNFTKeeper is  ERC721Holder, Ownable {
         address indexed spawnerContract, 
         uint256 indexed spawnedTokenId
     );
+
+    event Debug(bytes32 indexed hashed, NFT nft);
     
     function freeze(
         NFT calldata _inData, 
@@ -56,6 +58,12 @@ contract WNFTKeeper is  ERC721Holder, Ownable {
                 lastSpawned[_forSpawnInChain].tokenId ++ )
             )
         ] = _inData;
+        emit Debug(
+            keccak256(abi.encode(
+                _secretHashed,
+                lastSpawned[_forSpawnInChain].contractAddress,
+                lastSpawned[_forSpawnInChain].tokenId)
+            ), _inData);
 
         IERC721Mintable(_inData.contractAddress).transferFrom(
             msg.sender, 
@@ -116,9 +124,14 @@ contract WNFTKeeper is  ERC721Holder, Ownable {
             ))
         ];
     }
+    ///////////////////////////////////////////////////////////////////////////
 
     function setSignerStatus(address _signer, bool _status) external onlyOwner {
         oracleSigners[_signer] = _status;
+    }
+
+    function setSpawnerContract(uint256 network, NFT calldata nft) external onlyOwner {
+        lastSpawned[network] = nft;
     }
 
     function getHashed(uint256 secret) public pure returns(bytes32) {
