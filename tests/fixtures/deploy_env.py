@@ -169,48 +169,13 @@ def mockHacker1155_1(accounts, MaliciousMockERC1155_1):
     h = accounts[0].deploy(MaliciousMockERC1155_1,"https://github.com/")
     yield h
 
+###################################################################
+@pytest.fixture(scope="module")
+def keeper(accounts, WNFTKeeper):
+    k = accounts[0].deploy(WNFTKeeper)
+    yield k
 
-'''@pytest.fixture(scope="module")
-def mockHacker721_2(accounts, MaliciousTokenMock721_2):
-    h = accounts[0].deploy(MaliciousTokenMock721_2,"Hacker Malicious Token 721_2", "KLR721_2")
-    yield h'''
-
-# @pytest.fixture(scope="module")
-# def distributor(accounts, WrapperDistributor721, techERC20):
-#     t = accounts[0].deploy(WrapperDistributor721, techERC20.address)
-#     #niftsy20.addMinter(t.address, {'from':accounts[0]})
-#     techERC20.addMinter(t.address, {'from': accounts[0]})
-#     yield t  
-
-# @pytest.fixture(scope="module")
-# def ERC721Distr(accounts, ERC721Distribution, distributor):
-#     """
-#     Simple NFT with URI
-#     """
-#     b = accounts[0].deploy(ERC721Distribution, "Envelop Distribution NFT", "dNIFTSY")
-#     b.setMinterStatus(distributor.address, True, {"from": accounts[0]})
-#     #t.setURI(0, 'https://maxsiz.github.io/')
-#     yield b
-
-# @pytest.fixture(scope="module")
-# def launcpad(accounts, distributor, LaunchpadWNFT, niftsy20):
-#     l = accounts[0].deploy(LaunchpadWNFT, distributor.address, niftsy20.address, 0)
-#     yield l
-
-
-# @pytest.fixture(scope="module")
-# def farming(accounts, WrapperFarming, techERC20, niftsy20):
-#     t = accounts[0].deploy(
-#         WrapperFarming, 
-#         techERC20.address,
-#         niftsy20 
-#     )
-#     #niftsy20.addMinter(t.address, {'from':accounts[0]})
-#     techERC20.addMinter(t.address, {'from': accounts[0]})
-#     t.addRewardSettingsSlot(niftsy20, 100, 1000, {'from': accounts[0]})
-#     t.addRewardSettingsSlot(niftsy20, 200, 2000, {'from': accounts[0]})
-#     t.addRewardSettingsSlot(niftsy20, 300, 3000, {'from': accounts[0]})
-#     t.addRewardSettingsSlot(niftsy20, 400, 4000, {'from': accounts[0]})
-#     yield t  
-
-
+@pytest.fixture(scope="module")
+def spawner721(accounts, Spawner721):
+    s = accounts[0].deploy(Spawner721,"Envelop NFT Spawner", "sNFT", "https://api.envelop.is/metadata/" )
+    yield s
