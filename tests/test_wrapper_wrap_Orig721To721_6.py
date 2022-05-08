@@ -55,7 +55,7 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc11
         wrapper.wrap(wNFT, [erc1155_data], accounts[3], {"from": accounts[1], "value": eth_amount})
 
     wl_data = (False, True, False, accounts[9])
-    whiteLists.setWLItem(erc1155mock1.address, wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((4, erc1155mock1.address), wl_data, {"from": accounts[0]})
 
     wrapper.wrap(wNFT, [erc1155_data], accounts[3], {"from": accounts[1], "value": eth_amount})    
     wTokenId = wrapper.lastWNFTId(out_type)[1]

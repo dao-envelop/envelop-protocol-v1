@@ -98,7 +98,7 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
 
     #transferFee flag is switched on
     wl_data = (True, False, False, techERC20.address)
-    whiteLists.setWLItem(niftsy20.address, wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((2, niftsy20.address), wl_data, {"from": accounts[0]})
 
     niftsy20.transfer(accounts[3], transfer_fee_amount, {"from": accounts[0]})
     niftsy20.approve(wrapper.address, transfer_fee_amount, {"from": accounts[3]})

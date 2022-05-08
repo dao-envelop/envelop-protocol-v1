@@ -57,11 +57,11 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
 
     #transferFee flag is switched on
     wl_data = (True, False, False, techERC20.address)
-    whiteLists.setWLItem(niftsy20.address, wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((2, niftsy20.address), wl_data, {"from": accounts[0]})
 
     #wnft can be in collateral
     wl_data = (False, True, False, accounts[9])
-    whiteLists.setWLItem(wnft1155.address, wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((4, wnft1155.address), wl_data, {"from": accounts[0]})
 
     logging.info("wrap1*************************")
     wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})

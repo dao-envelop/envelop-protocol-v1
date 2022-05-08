@@ -39,8 +39,8 @@ def test_addCollateral(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy
     #add items in whiteList
     wl_data = (False, True, False, accounts[9])
     with reverts("Ownable: caller is not the owner"):
-        whiteLists.setWLItem(dai.address, wl_data, {"from": accounts[1]})
-    whiteLists.setWLItem(dai.address, wl_data, {"from": accounts[0]})
+        whiteLists.setWLItem((2, dai.address), wl_data, {"from": accounts[1]})
+    whiteLists.setWLItem((2, dai.address), wl_data, {"from": accounts[0]})
 
     #add collaterall
     wrapper.addCollateral(wnft721.address, wTokenId, [dai_data], {"from": accounts[1], "value": eth_amount})

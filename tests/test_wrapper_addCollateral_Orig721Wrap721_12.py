@@ -39,7 +39,7 @@ def test_addCollateral(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy
 
     #add items in whiteList
     wl_data = (False, True, False, accounts[9])
-    whiteLists.setWLItem(erc1155mock.address, wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((4, erc1155mock.address), wl_data, {"from": accounts[0]})
 
     #add collaterall
     wrapper.addCollateral(wnft721.address, wTokenId, [erc1155_data], {"from": accounts[1], "value": eth_amount})

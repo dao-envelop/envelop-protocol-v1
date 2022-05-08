@@ -52,14 +52,14 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
         wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
     
     wl_data = (False, False, False, techERC20.address)
-    whiteLists.setWLItem(niftsy20.address, wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((2, niftsy20.address), wl_data, {"from": accounts[0]})
 
     with reverts("WL:Some assets are not enabled for fee"):
         wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 
     #transferFee flag is switched on
     wl_data = (True, False, False, techERC20.address)
-    whiteLists.setWLItem(niftsy20.address, wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((2, niftsy20.address), wl_data, {"from": accounts[0]})
 
     wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 

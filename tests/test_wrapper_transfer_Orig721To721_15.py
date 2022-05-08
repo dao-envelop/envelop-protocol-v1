@@ -52,7 +52,7 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
     wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 
     wl_data = (False, True, False, techERC20.address)
-    whiteLists.setWLItem(niftsy20.address, wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((2, niftsy20.address), wl_data, {"from": accounts[0]})
     niftsy20.approve(wrapper.address, 2*transfer_fee_amount, {"from": accounts[3]})
     wTokenId = wrapper.lastWNFTId(out_type)[1]
 
