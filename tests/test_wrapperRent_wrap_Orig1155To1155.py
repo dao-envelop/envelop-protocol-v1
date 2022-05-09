@@ -106,11 +106,11 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 		wrapperRent.wrap(wNFT, [], accounts[4], {"from": accounts[3]})
 
 	#unwrap by other user
-	with reverts("Only unWrapDestination or owner can unwrap this wnft"):
+	with reverts("Only unWrapDestination can unwrap forbidden wnft"):
 		wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[9]})
 
 	#unwrap by owner
-	tx = wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
+	tx = wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})
 	event = tx.events['UnWrappedV1']
 	logging.info(event)
 

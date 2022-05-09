@@ -51,7 +51,7 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
 
     #transferFee flag is switched on
     wl_data = (True, False, False, techERC20.address)
-    whiteLists.setWLItem(techERC20.address, wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((2, techERC20.address), wl_data, {"from": accounts[0]})
 
     wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 
@@ -73,6 +73,3 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
 
     assert techERC20.balanceOf(accounts[2]) == 3*transfer_fee_amount*royalty[0][1]/techERC20.ROYALTY_PERCENT_BASE()
     assert erc1155mock.balanceOf(accounts[2], ORIGINAL_NFT_IDs[0]) == in_nft_amount 
-
-
-    

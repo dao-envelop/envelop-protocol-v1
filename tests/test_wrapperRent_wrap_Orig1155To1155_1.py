@@ -80,7 +80,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155, niftsy20):
 		wrapperRent.addCollateral(wnft1155.address, wTokenId, [], {"from": accounts[1], "value": "1 ether"})
 
 	# unwrap by owner
-	wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[3]})
+	wrapperRent.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[2]})
 
 	
 	#wrap wNFT

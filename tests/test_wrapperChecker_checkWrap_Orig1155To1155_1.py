@@ -60,8 +60,8 @@ def test_transfer(accounts, erc1155mock, erc721mock,  wrapper, dai, weth, wnft11
         '0'
         )
 
-    assert wrapperChecker.checkWrap(wNFT, [], accounts[3])[0] == False
-    assert (wrapperChecker.checkWrap(wNFT, [], accounts[3])[1]).find("unWrapDestination cant be zero", 0)!= -1
+    assert wrapperChecker.checkWrap(wNFT, [], accounts[3])[0] == True
+    assert (wrapperChecker.checkWrap(wNFT, [], accounts[3])[1]).find("Success", 0)!= -1
 
     #################################
     fee = []
@@ -417,7 +417,6 @@ def test_transfer(accounts, erc1155mock, erc721mock,  wrapper, dai, weth, wnft11
     )
     assert wrapperChecker.checkWrap(wNFT, [((2, niftsy20.address), 0, 0), ((4, erc1155mock.address), 1, 1), ((3, zero_address), 0, 1)], zero_address)[0] == False
 
-    assert (wrapperChecker.checkWrap(wNFT, [((2, niftsy20.address), 0, 0), ((4, erc1155mock.address), 1, 1), ((3, zero_address), 0, 1)], zero_address)[1]).find("unWrapDestination cant be zero", 0)!= -1
     assert (wrapperChecker.checkWrap(wNFT, [((2, niftsy20.address), 0, 0), ((4, erc1155mock.address), 1, 1), ((3, zero_address), 0, 1)], zero_address)[1]).find("WrapperFor cant be zero", 0)!= -1
     assert (wrapperChecker.checkWrap(wNFT, [((2, niftsy20.address), 0, 0), ((4, erc1155mock.address), 1, 1), ((3, zero_address), 0, 1)], zero_address)[1]).find("Wrong Fee settings", 0)!= -1
     assert (wrapperChecker.checkWrap(wNFT, [((2, niftsy20.address), 0, 0), ((4, erc1155mock.address), 1, 1), ((3, zero_address), 0, 1)], zero_address)[1]).find("NFT contract address cant be zero", 0)!= -1

@@ -42,23 +42,23 @@ def test_wrap(accounts, erc1155mock, wrapper, wnft1155, whiteLists, erc721mock, 
 		)
 
 	with reverts("Ownable: caller is not the owner"):
-		whiteLists.setBLItem(erc1155mock.address, True, {"from": accounts[2]})
+		whiteLists.setBLItem((4, erc1155mock.address), True, {"from": accounts[2]})
 
 	#switch on white list
 	wrapper.setWhiteList(whiteLists.address, {"from": accounts[0]})
-	whiteLists.setBLItem(erc1155mock.address, True, {"from": accounts[0]})
+	whiteLists.setBLItem((4, erc1155mock.address), True, {"from": accounts[0]})
 
 	with reverts("WL:Asset disabled for wrap"):
 		wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 
-	whiteLists.setBLItem(erc721mock.address, True, {"from": accounts[0]})
-	whiteLists.setBLItem(erc721mock1.address, True, {"from": accounts[0]})
+	whiteLists.setBLItem((3, erc721mock.address), True, {"from": accounts[0]})
+	whiteLists.setBLItem((3, erc721mock1.address), True, {"from": accounts[0]})
 
 	assert whiteLists.getBLItemCount() == 3
     
 	assert erc1155mock.balanceOf(accounts[1], ORIGINAL_NFT_IDs[0]) == in_nft_amount
 
-	whiteLists.setBLItem(erc1155mock.address, False, {"from": accounts[0]})
+	whiteLists.setBLItem((4, erc1155mock.address), False, {"from": accounts[0]})
 
 	assert whiteLists.getBLItemCount() == 2
 
@@ -66,7 +66,7 @@ def test_wrap(accounts, erc1155mock, wrapper, wnft1155, whiteLists, erc721mock, 
 	assert erc1155mock.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[0]) == in_nft_amount
 
 	#add in blist again
-	whiteLists.setBLItem(erc1155mock.address, True, {"from": accounts[0]})
+	whiteLists.setBLItem((4, erc1155mock.address), True, {"from": accounts[0]})
 	assert whiteLists.getBLItemCount() == 3
 
 	erc1155mock.safeTransferFrom(accounts[0], accounts[1], ORIGINAL_NFT_IDs[1], in_nft_amount, "",  {"from": accounts[0]})
