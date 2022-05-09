@@ -6,7 +6,7 @@ if  (web3.eth.chainId != 56
     and web3.eth.chainId != 137
     and web3.eth.chainId != 43114):
     # Testnets
-    private_key='7a1851357aebcd2b94291fa3a321901430ed7715fa48906ec1b6d7dd28b1b723'
+    private_key='???'
 else:
     # Mainnet
     private_key=input('PLease input private key for deployer address..:')
