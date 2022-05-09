@@ -6,14 +6,15 @@ LOGGER = logging.getLogger(__name__)
 
 accounts.clear()
 
+
+
 #1-0xE71978b1696a972b1a8f724A4eBDB906d9dA0885
-private_key='2cdbeadae3122f6b30a67733fd4f0fb6c27ccd85c3c68de97c8ff534c87603c8'
+private_key='???'
 accounts.add(private_key)
 
 #0-0xa11103Da33d2865C3B70947811b1436ea6Bb32eF
-private_key='c4f373082110065841b63c9e005710309756f78bc7b09dbf2a242442173b1ddc'
+private_key='???'
 accounts.add(private_key)
-
 
 
 '''#2-0xAeb5a5FaB00b30d5d34257317882Ff1561e23755
@@ -26,7 +27,7 @@ accounts.add(private_key)'''
 
 
 def main():
-    techERC20 = TechTokenV1.at('0xE1604b54CaC27970aa67b4e38495F206b59CEe42')
+    techERC20 = TechTokenV1.at('0xc7F296aF2E3698B4157BDBA573bdcbcE6D3e3660')
     #wrapper = WrapperBaseV1.at('0xa459d2f635812792Df0F175B2263D4bE15A0D5aa')
     #wnft1155 = EnvelopwNFT1155.at('0xD7C46FbBD3e6E4Af1E3ced59d74A506E33181b7D')
     #wnft721 = EnvelopwNFT721.at('0xb9c9CBe8a55e67C2d8a14A3472E8f2a3f09f8dC6')
@@ -46,7 +47,7 @@ def main():
     #whiteLists.setWLItem('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578', wl_data, {"from": accounts[0]})
     whiteLists.setRules('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578', '0x0000', '0x0000', {"from": accounts[0], "gas_price": price})
 
-    '''zero_address = '0x0000000000000000000000000000000000000000'
+    zero_address = '0x0000000000000000000000000000000000000000'
     call_amount = 1e18
     eth_amount = "0.0001 ether"
     transfer_fee_amount = 100
@@ -58,18 +59,20 @@ def main():
     out_nft_amount = 5
     #print(wnft721.wnftInfo(300))
 
-    #erc20Mock.approve(wrapper.address, call_amount, {"from": accounts[0], "gas_price": price})
-    #erc20Mock.approve(wrapper.address, call_amount, {"from": accounts[0], "gas_price": price})
+    erc20Mock.approve(wrapper.address, call_amount, {"from": accounts[0], "gas_price": price})
     
-    origTokenId = 5
-    print(erc721mock.ownerOf(origTokenId))
-    #erc721mock.mint(accounts[0], origTokenId, {"from": accounts[0], "gas_price": price})
-    #erc1155mock.mint(accounts[0], origTokenId, in_nft_amount, {"from": accounts[0], "gas_price": price})
+    origTokenId = 12
+    #print(erc721mock.ownerOf(origTokenId))
+    erc721mock.mint(accounts[0], origTokenId, {"from": accounts[0], "gas_price": price})
+    erc1155mock.mint(accounts[0], origTokenId, in_nft_amount, {"from": accounts[0], "gas_price": price})
     
-    ColltokenId = 6
+    ColltokenId = 13
+    #erc721mock.mint(accounts[0], ColltokenId, {"from": accounts[0], "gas_price": price})
+    erc1155mock.mint(accounts[0], ColltokenId, in_nft_amount, {"from": accounts[0], "gas_price": price})
     #erc1155mock.mint(accounts[0], ColltokenId, in_nft_amount, {"from": accounts[0], "gas_price": price})
     #erc721mock.mint(accounts[0], erc721tokenId, {"from": accounts[0], "gas_price": price})
     erc721mock.approve(wrapper.address, origTokenId, {"from": accounts[0], "gas_price": price})
+    #erc721mock.approve(wrapper.address, ColltokenId, {"from": accounts[0], "gas_price": price})
     
     
     #erc721tokenId = erc721mock.tokenOfOwnerByIndex(accounts[0], erc721mock.balanceOf(accounts[0])-1)
@@ -89,10 +92,10 @@ def main():
 
     fee = [(Web3.toBytes(0x00), transfer_fee_amount, erc20Mock.address)]
     #fee = []
-    lock = [('0x00', chain.time() + 100), ('0x01', 100)]
+    lock = [('0x00', chain.time() + 100), ('0x01', 100), ('0x02', 4)]
     #lock = []
     royalty = [(accounts[0], 5000), (accounts[1], 5000)]
-    royalty = []
+    #royalty = []
 
     wNFT = ( token_data,
         accounts[0],
@@ -107,10 +110,10 @@ def main():
         )
     collateral = [((3, erc721mock.address),origTokenId, 0), ((4, erc1155mock.address), ColltokenId, in_nft_amount), ((2, erc20Mock.address),0, call_amount) ]
     #collateral = []
-    tx = wrapper.wrap(wNFT, collateral , accounts[0], {"from": accounts[0],'gas_price': price, "value": "0.00001 ether"})
-    wTokenId = wrapper.lastWNFTId(4)[1]
+    tx = wrapper.wrap(wNFT, collateral , accounts[0], {"from": accounts[0],'gas_price': price, "value": "0.0000000001 ether"})
+    wTokenId = wrapper.lastWNFTId(3)[1]
     #print(wnft721.wnftInfo(wTokenId))
-    print(wnft1155.wnftInfo(wTokenId))
+    print(wnft721.wnftInfo(wTokenId))
     #print("wTokenId = {}".format(wTokenId))
 
     #wnft721.transferFrom(accounts[0], '0x88Bd8864e90e851BaB14E9c22b3a342AF6e43CE8', 32, {"from": accounts[0], 'gas_price': price})
