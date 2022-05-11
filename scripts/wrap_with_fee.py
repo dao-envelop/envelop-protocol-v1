@@ -13,8 +13,8 @@ private_key='???'
 accounts.add(private_key)
 
 #0-0xa11103Da33d2865C3B70947811b1436ea6Bb32eF
-private_key='???'
-accounts.add(private_key)
+#private_key='???'
+#accounts.add(private_key)
 
 
 '''#2-0xAeb5a5FaB00b30d5d34257317882Ff1561e23755
@@ -28,16 +28,27 @@ accounts.add(private_key)'''
 
 def main():
     techERC20 = TechTokenV1.at('0xc7F296aF2E3698B4157BDBA573bdcbcE6D3e3660')
-    #wrapper = WrapperBaseV1.at('0xa459d2f635812792Df0F175B2263D4bE15A0D5aa')
-    #wnft1155 = EnvelopwNFT1155.at('0xD7C46FbBD3e6E4Af1E3ced59d74A506E33181b7D')
-    #wnft721 = EnvelopwNFT721.at('0xb9c9CBe8a55e67C2d8a14A3472E8f2a3f09f8dC6')
+    wrapper = WrapperBaseV1.at('0xa459d2f635812792Df0F175B2263D4bE15A0D5aa')
+    wnft1155 = EnvelopwNFT1155.at('0xD7C46FbBD3e6E4Af1E3ced59d74A506E33181b7D')
+    wnft1155_1 = EnvelopwNFT1155.at('0xD7C46FbBD3e6E4Af1E3ced59d74A506E33181b7D')
+    wnft721 = EnvelopwNFT721.at('0xb9c9CBe8a55e67C2d8a14A3472E8f2a3f09f8dC6')
     #erc721mock = OrigNFT.at('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578')
-    #erc721mock = Envelop721Mock.at('0x166f56bD3fE11bc55A981a99dCC61Ab931585AbD')
-    #erc1155mock = Token1155Mock.at('0x2d65336E7AEc57F52D76a333eD65Ee5e29F7eB25')
-    whiteLists = AdvancedWhiteList.at('0x0Cbc46647D4529E8f9bbB13c0F2113B1E74c7Aed')
-    #erc20Mock = TokenMock.at('0xB7Ca883C29045D435d01de25b9522b937964f583')
+    erc721mock = Envelop721Mock.at('0x166f56bD3fE11bc55A981a99dCC61Ab931585AbD')
+    erc1155mock = Token1155Mock.at('0x2d65336E7AEc57F52D76a333eD65Ee5e29F7eB25')
+    whiteLists = AdvancedWhiteList.at('0x3C23392cee7BA6fc33c4E166122E690be977C94E')
+    erc20Mock = TokenMock.at('0xB7Ca883C29045D435d01de25b9522b937964f583')
     #niftsy201 = Niftsy.at('0xcF54c844DBe67b3976667698552EaAAb12333b0B')
     
+
+    print(wrapper.owner())
+    print(wnft1155.owner())
+    print(wnft1155_1.owner())
+    print(wnft721.owner())
+    print(whiteLists.owner())
+
+    #wrapper.transferOwnership('0xa0cff013918ddaED7F2e6066D0403C6D50a58a7c', {"from": accounts[0]})
+    #whiteLists.transferOwnership('0xa0cff013918ddaED7F2e6066D0403C6D50a58a7c', {"from": accounts[0]})
+
 
     price = "20 gwei"
     print(accounts[0].balance())
@@ -45,7 +56,7 @@ def main():
 
     #wl_data = (False, True, False, techERC20.address)
     #whiteLists.setWLItem('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578', wl_data, {"from": accounts[0]})
-    whiteLists.setRules('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578', '0x0000', '0x0000', {"from": accounts[0], "gas_price": price})
+    '''whiteLists.setRules('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578', '0x0000', '0x0000', {"from": accounts[0], "gas_price": price})
 
     zero_address = '0x0000000000000000000000000000000000000000'
     call_amount = 1e18

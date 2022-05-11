@@ -54,6 +54,12 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
     wl_data = (False, False, False, techERC20.address)
     whiteLists.setWLItem((2, niftsy20.address), wl_data, {"from": accounts[0]})
 
+    #checkin of whiteList get methods working
+    assert whiteLists.getWLItemCount() == 1
+    assert whiteLists.getWLAddressByIndex(0)[0] == 2
+    assert whiteLists.getWLAddressByIndex(0)[1] == niftsy20.address
+    assert whiteLists.getWLAddresses() == [(2, niftsy20.address)]
+
     with reverts("WL:Some assets are not enabled for fee"):
         wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 

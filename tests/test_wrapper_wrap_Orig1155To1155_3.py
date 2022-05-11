@@ -48,6 +48,13 @@ def test_wrap(accounts, erc1155mock, wrapper, wnft1155, whiteLists, erc721mock, 
 	wrapper.setWhiteList(whiteLists.address, {"from": accounts[0]})
 	whiteLists.setBLItem((4, erc1155mock.address), True, {"from": accounts[0]})
 
+	#checkin of blacklist get methods working
+	assert whiteLists.getBLItemCount() == 1
+	assert whiteLists.getBLAddressByIndex(0)[0] == 4
+	assert whiteLists.getBLAddressByIndex(0)[1] == erc1155mock.address
+	assert whiteLists.getBLAddresses() == [(4, erc1155mock.address)]
+
+
 	with reverts("WL:Asset disabled for wrap"):
 		wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 
