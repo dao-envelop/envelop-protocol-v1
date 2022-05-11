@@ -130,3 +130,9 @@ def test_spawn(accounts, keeper, spawner721):
     tx = chain.get_transaction(freeze_tx)
     logging.info('\ntx: {} \nsender: {}\n logs:{}'.format(tx.txid, tx.sender, tx.logs))
     logging.info('Freeze event:{}'.format(tx.events['NewFreeze']))
+    # Lets prepare  signed  message
+    encoded_msg = encode_single(
+        '(address,uint256,address,uint256)',
+         (hashed_secret, tx.events['NewFreeze']['spawnerContract'], tx.events['NewFreeze']['spawnedTokenId'])
+    )
+    hashed_msg = Web3.solidityKeccak(['bytes32'], [encoded_msg])
