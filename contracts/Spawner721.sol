@@ -49,7 +49,8 @@ contract Spawner721 is ERC721, Ownable {
         require(
             keccak256(abi.encode(
                 msg.sender,
-                block.chainid,
+                //block.chainid,
+                1337,  // for test with Ganache
                 address(this),
                 _tokenId
             )).toEthSignedMessageHash() == _msgForSign, 
@@ -68,6 +69,28 @@ contract Spawner721 is ERC721, Ownable {
     function burn(uint256 tokenId) public virtual {
         _burn(tokenId);
     }
+
+    // function debug(uint256 tokenId, address _sender) public view returns (bytes32) {
+    //     return keccak256(abi.encode(
+    //             _sender,
+    //             block.chainid,
+    //             address(this),
+    //             tokenId
+    //         )).toEthSignedMessageHash();        
+    // }
+
+    // function debug1(uint256 tokenId, address _sender) public view returns (bytes32) {
+    //     return keccak256(abi.encode(
+    //             _sender,
+    //             block.chainid,
+    //             address(this),
+    //             tokenId
+    //         ));        
+    // }
+
+    // function debugNet() public view returns(uint256) {
+    //     return block.chainid;
+    // }
 
     /////////////////////////////////////////////////////////////
 

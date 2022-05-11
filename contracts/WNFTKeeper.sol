@@ -78,7 +78,10 @@ contract WNFTKeeper is  ERC721Holder, Ownable {
             _inData.tokenId
         );
         
-        spawned = NFT(lastSpawned[_forSpawnInChain].contractAddress,lastSpawned[_forSpawnInChain].tokenId);
+        spawned = NFT(
+            lastSpawned[_forSpawnInChain].contractAddress,
+            lastSpawned[_forSpawnInChain].tokenId
+        );
 
         emit NewFreeze(
             _forSpawnInChain, 
@@ -128,6 +131,22 @@ contract WNFTKeeper is  ERC721Holder, Ownable {
                 getHashed(secret),
                 spawnedContract,
                 spawnedtokenId
+            ))
+        ];
+    }
+
+    function checkWNFTByProof(
+        bytes32 proof, 
+        address spawnedContract, 
+        uint256 spawnedtokenId
+    ) external view returns (NFT memory wnft) 
+    {
+        wnft = frozenItems[
+            keccak256(abi.encode(
+                proof,
+                spawnedContract,
+                spawnedtokenId
+
             ))
         ];
     }
