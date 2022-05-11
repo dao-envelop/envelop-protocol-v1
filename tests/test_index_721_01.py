@@ -107,7 +107,7 @@ def test_freeze(accounts, erc721mock, wrapper, wnft721, keeper, spawner721):
     keeper.setSpawnerContract(4,(spawner721, 22),{'from': accounts[0]})
     tx = keeper.freeze((wnft721, wTokenId), 4, hashed_secret,{'from': accounts[3]})
     logging.info('Freeze event:{}'.format(tx.events['NewFreeze']))
-    logging.info('Debug event:{}'.format(tx.events['Debug']))
+    #logging.info('Debug event:{}'.format(tx.events['Debug']))
     encoded_msg = encode_single(
         '(bytes32,address,uint256)',
          (hashed_secret, tx.events['NewFreeze']['spawnerContract'], tx.events['NewFreeze']['spawnedTokenId'])
@@ -117,8 +117,16 @@ def test_freeze(accounts, erc721mock, wrapper, wnft721, keeper, spawner721):
         Web3.toBytes(hashed_msg).hex(), 
         keeper.frozenItems(Web3.toBytes(hashed_msg))
     ))
+    logging.info('tx.hash={}'.format(tx.txid))
+    global freeze_tx
+    freeze_tx = tx.txid
     #assert keeper
     assert wnft721.balanceOf(keeper) == 1
     assert wnft721.ownerOf(wTokenId) == keeper.address
+    assert keeper.frozenItems(Web3.toBytes(hashed_msg))[1] == wTokenId
 
-
+def test_spawn(accounts, keeper, spawner721):
+    # get tx datails from Oracle
+    tx = chain.get_transaction(freeze_tx)
+    logging.info('\ntx: {} \nsender: {}\n logs:{}'.format(tx.txid, tx.sender, tx.logs))
+    logging.info('Freeze event:{}'.format(tx.events['NewFreeze']))
