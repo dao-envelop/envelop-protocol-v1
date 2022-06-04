@@ -43,13 +43,14 @@ contract WNFTKeeper is  ERC721Holder, Ownable {
     function freeze(
         NFT memory _inData, 
         uint256 _forSpawnInChain, 
-        bytes32 _secretHashed  // must pass keccak256(abi.encode(uint256Secret)), NOT secret
+        bytes32 _secretHashed  // must pass keccak256(abi.encode(uint256 Secret)), NOT secret
     ) 
         public 
         returns (NFT memory spawned) 
     {
 
-        require(_forSpawnInChain != 0, "No zero target");
+        require(lastSpawned[_forSpawnInChain].contractAddress != address(0), "Only enabled target");
+
         lastSpawned[_forSpawnInChain].tokenId ++;
         frozenItems[
             keccak256(abi.encode(
@@ -94,23 +95,22 @@ contract WNFTKeeper is  ERC721Holder, Ownable {
         uint256 secret, 
         address spawnedContract, 
         uint256 spawnedtokenId,
-        bytes32 _msgForSign, 
+        //bytes32 _msgForSign, 
         bytes calldata _signature
 
     ) public 
     {
-        // Check signature  author
-        require(oracleSigners[_msgForSign.recover(_signature)], "Unexpected signer");
+        
 
-        // Check message integrity 
-        require(
-            keccak256(abi.encode(
+        bytes32 msgMustWasSigned = keccak256(abi.encode(
                 msg.sender,
                 spawnedContract,
                 spawnedtokenId
-            )).toEthSignedMessageHash() == _msgForSign, 
-            "Integrity check fail"
-        );
+        )).toEthSignedMessageHash(); 
+        
+
+        // Check signature  author
+        require(oracleSigners[msgMustWasSigned.recover(_signature)], "Unexpected signer");
 
         NFT memory frozzenItem = frozenItems[
             keccak256(abi.encode(

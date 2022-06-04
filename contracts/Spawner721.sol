@@ -39,23 +39,20 @@ contract Spawner721 is ERC721, Ownable {
 
     function mint(
         uint256 _tokenId, 
-        bytes32 _msgForSign, 
+        //bytes32 _msgForSign, 
         bytes calldata _signature
-    ) external {
-        // Check signature  author
-        require(oracleSigners[_msgForSign.recover(_signature)], "Unexpected signer");
+    ) external virtual {
 
-        // Check message integrity 
-        require(
-            keccak256(abi.encode(
+        bytes32 msgMustWasSigned = keccak256(abi.encode(
                 msg.sender,
-                //block.chainid,
-                1337,  // for test with Ganache
+                block.chainid,
                 address(this),
                 _tokenId
-            )).toEthSignedMessageHash() == _msgForSign, 
-            "Integrity check fail"
-        );
+        )).toEthSignedMessageHash();
+
+        // Check signature  author
+        require(oracleSigners[msgMustWasSigned.recover(_signature)], "Unexpected signer");
+
         _mint(msg.sender, _tokenId);
     }
 

@@ -179,3 +179,8 @@ def keeper(accounts, WNFTKeeper):
 def spawner721(accounts, Spawner721):
     s = accounts[0].deploy(Spawner721,"Envelop NFT Spawner", "sNFT", "https://api.envelop.is/metadata/" )
     yield s
+
+@pytest.fixture(scope="module")
+def spawner721mock(accounts, Spawner721Mock):
+    s = accounts[0].deploy(Spawner721Mock,"Envelop NFT Spawner Mock", "sNFT", "https://api.envelop.is/metadata/" )
+    yield s

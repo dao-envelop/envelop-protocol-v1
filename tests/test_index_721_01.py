@@ -102,11 +102,11 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
 
     #wrapper.unWrap(3, wnft721, wTokenId, {'from': accounts[3]})
         
-def test_freeze(accounts, erc721mock, wrapper, wnft721, keeper, spawner721):
+def test_freeze(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
     wTokenId = wrapper.lastWNFTId(out_type)[1]
     wnft721.setApprovalForAll(keeper, True, {'from': accounts[3]})
     hashed_secret = keeper.getHashed(secret)
-    keeper.setSpawnerContract(web3.eth.chain_id,(spawner721, 22),{'from': accounts[0]})
+    keeper.setSpawnerContract(web3.eth.chain_id,(spawner721mock, 22),{'from': accounts[0]})
     tx = keeper.freeze((wnft721, wTokenId), web3.eth.chain_id, hashed_secret,{'from': accounts[3]})
     logging.info('Freeze event:{}'.format(tx.events['NewFreeze']))
     #logging.info('Debug event:{}'.format(tx.events['Debug']))
@@ -127,7 +127,7 @@ def test_freeze(accounts, erc721mock, wrapper, wnft721, keeper, spawner721):
     assert wnft721.ownerOf(wTokenId) == keeper.address
     assert keeper.frozenItems(Web3.toBytes(hashed_msg))[1] == wTokenId
 
-def test_spawn(accounts, keeper, spawner721):
+def test_spawn(accounts, keeper, spawner721mock):
     # get tx datails from Oracle
     tx = chain.get_transaction(freeze_tx)
     logging.info('\ntx: {} \nsender: {}\n logs:{}'.format(tx.txid, tx.sender, tx.logs))
@@ -147,7 +147,7 @@ def test_spawn(accounts, keeper, spawner721):
     signed_message = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
     logging.info('sign_message is {}'.format(signed_message))
 
-    spawner721.setSignerStatus(ORACLE_ADDRESS, True, {'from':accounts[0]})
+    spawner721mock.setSignerStatus(ORACLE_ADDRESS, True, {'from':accounts[0]})
     # logging.info('debug msg:{}'.format(
     #     spawner721.debug(Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']), accounts[3])
     # ))
@@ -157,20 +157,20 @@ def test_spawn(accounts, keeper, spawner721):
     # logging.info('debug chainid:{}'.format(
     #     spawner721.debugNet()
     # ))
-    spawntx = spawner721.mint(
+    spawntx = spawner721mock.mint(
         Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']), 
-        signed_message.messageHash, 
+        #signed_message.messageHash, 
         signed_message.signature,
         {'from':accounts[3]}
     )
     global spawned_token_id
-    assert spawner721.ownerOf(tx.events['NewFreeze']['spawnedTokenId']) == accounts[3]
+    assert spawner721mock.ownerOf(tx.events['NewFreeze']['spawnedTokenId']) == accounts[3]
     spawned_token_id = tx.events['NewFreeze']['spawnedTokenId']
 
-def test_reclaim(accounts, erc721mock, wrapper, wnft721, keeper, spawner721):
-    spawner721.transferFrom(accounts[3], accounts[4], spawned_token_id, {'from':accounts[3]})
+def test_reclaim(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
+    spawner721mock.transferFrom(accounts[3], accounts[4], spawned_token_id, {'from':accounts[3]})
     tx = chain.get_transaction(freeze_tx)
-    tx_burn = spawner721.burn(spawned_token_id, {'from':accounts[4]})
+    tx_burn = spawner721mock.burn(spawned_token_id, {'from':accounts[4]})
     
     # Lets prepare  signed  message
     encoded_msg = encode_single(
@@ -200,7 +200,7 @@ def test_reclaim(accounts, erc721mock, wrapper, wnft721, keeper, spawner721):
         secret,
         Web3.toChecksumAddress(tx.events['NewFreeze']['spawnerContract']), 
         Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']),
-        signed_message.messageHash, 
+        #signed_message.messageHash, 
         signed_message.signature,
         {'from':accounts[4]}
 
