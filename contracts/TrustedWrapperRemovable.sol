@@ -9,6 +9,15 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
 
 	mapping(address => bool) public trustedOperators;
 
+    event CollateralRemoved(
+        address indexed wrappedAddress,
+        uint256 indexed wrappedId,
+        uint8   assetType,
+        address collateralAddress,
+        uint256 collateralTokenId,
+        uint256 collateralBalance
+    );
+
     constructor (address _erc20)
     WrapperBaseV1(_erc20) 
     {
@@ -95,13 +104,78 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
         require(_chargeFees(
             _wNFTAddress, 
             _wNFTTokenId, 
-            address(this), 
-            msg.sender, 
-            _feeType
+            address(this),      // this mean that transfers will be from collateral vault 
+            _collateralAddress, // erc20 collateral address
+            0x04                // this fee type implement remove collateral mechanics
             ), "Remove fail"
         );
 
     }
 
+    function _chargeFees(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId, 
+        address _from, 
+        address _to,
+        bytes1 _feeType
+    ) 
+        internal
+        override  
+        returns (bool) 
+    {
+        // _feeType == 0x04 - remove collateral mechanics
+        if (_feeType == 0x04) {
+            (uint256 removeBalance, ) = getCollateralBalanceAndIndex(
+                _wNFTAddress, 
+                _wNFTTokenId,
+                ETypes.AssetType(2), 
+                _to,
+                0
+            );
+           // - get modelAddress.  Default feeModel adddress always live in
+           // protocolTechToken. When white list used it is possible override that model.
+           // default model always  must be set  as protocolTechToken
+           address feeModel = protocolTechToken;
+            if  (protocolWhiteList != address(0)) {
+                feeModel = IAdvancedWhiteList(protocolWhiteList).getWLItem(
+                    _to
+                ).transferFeeModel;
+            }
 
+
+            // - get transfer list from external model by feetype(with royalties)
+            (ETypes.AssetItem[] memory assetItems, 
+             address[] memory from, 
+             address[] memory to
+            ) =
+                IFeeRoyaltyModel(feeModel).getTransfersList(
+                    //erc20ItemForRemove,
+                    ETypes.Fee({
+                      feeType: 0x04,        // it can be used in FeeRoyalty model
+                      param: removeBalance, // balance for remove
+                      token: _to            // token for remove
+                    }),
+                    wrappedTokens[_wNFTAddress][_wNFTTokenId].royalties,
+                    _from, 
+                    _to 
+                );
+            // - execute transfers
+            uint256 actualTransfered;
+            for (uint256 j = 0; j < to.length; j ++){
+                actualTransfered = _transferSafe(assetItems[j], from[j], to[j]);
+                emit CollateralRemoved(
+                    _wNFTAddress,
+                    _wNFTTokenId,
+                    2,
+                    _to,
+                    0,
+                    removeBalance
+                );
+            }
+            return true; 
+
+        } else {
+            return super._chargeFees(_wNFTAddress, _wNFTTokenId, _from, _to, _feeType);
+        }
+    }
 }
