@@ -178,4 +178,23 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
             return super._chargeFees(_wNFTAddress, _wNFTTokenId, _from, _to, _feeType);
         }
     }
+
+
+    function _checkCoreUnwrap(
+        ETypes.AssetType _wNFTType, 
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId
+    ) 
+        internal 
+        view 
+        override 
+        returns (address burnFor, uint256 burnBalance) 
+    {
+        require (trustedOperators[msg.sender] == true, "Only trusted address");
+        for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
+            require(wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[1].amount == 0);
+        }
+        super._checkCoreUnwrap(_wNFTType, _wNFTAddress, _wNFTTokenId);
+        
+    }
 }
