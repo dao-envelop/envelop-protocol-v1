@@ -5,7 +5,7 @@ import "./WrapperBaseV1.sol";
 
 pragma solidity 0.8.11;
 
-contract TrustedWrapper is WrapperBaseV1{
+contract TrustedWrapperRemovable is WrapperBaseV1{
 
 	mapping(address => bool) public trustedOperators;
 
@@ -24,13 +24,13 @@ contract TrustedWrapper is WrapperBaseV1{
         trustedOperators[_operator] = _status;
     }
 
-    function wrapUnsafe(
+    function wrap(
         ETypes.INData calldata _inData, 
         ETypes.AssetItem[] calldata _collateral, 
         address _wrappFor
     ) 
-        public
-        virtual 
+        public 
+        override
         payable
         onlyTrusted 
         nonReentrant 
@@ -83,22 +83,24 @@ contract TrustedWrapper is WrapperBaseV1{
         );
     }
 
-    function addCollateralUnsafe(
+    function removeERC20Collateral(
         address _wNFTAddress, 
-        uint256 _wNFTTokenId, 
-        ETypes.AssetItem[] calldata _collateral
+        uint256 _wNFTTokenId,
+        address _collateralAddress,
+        address _amount
     ) 
-        public 
-        payable 
-        virtual 
-        onlyTrusted 
+        public
+        nonReentrant 
     {
-
-        _addCollateral(
+        require(_chargeFees(
             _wNFTAddress, 
             _wNFTTokenId, 
-            _collateral
+            address(this), 
+            msg.sender, 
+            _feeType
+            ), "Remove fail"
         );
+
     }
 
 
