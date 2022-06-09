@@ -187,10 +187,10 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
     ) 
         internal 
         view 
-        override 
+        override
+        onlyTrusted  
         returns (address burnFor, uint256 burnBalance) 
     {
-        require (trustedOperators[msg.sender] == true, "Only trusted address");
         for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
             require(wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[1].amount == 0);
         }
