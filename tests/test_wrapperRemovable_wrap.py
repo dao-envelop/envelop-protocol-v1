@@ -41,7 +41,7 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
         royalty,
         out_type,
         0,
-        '0'
+        Web3.toBytes(0x0006)
         )
 
 
