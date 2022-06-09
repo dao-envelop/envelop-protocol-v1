@@ -184,3 +184,15 @@ def spawner721(accounts, Spawner721):
 def spawner721mock(accounts, Spawner721Mock):
     s = accounts[0].deploy(Spawner721Mock,"Envelop NFT Spawner Mock", "sNFT", "https://api.envelop.is/metadata/" )
     yield s
+
+@pytest.fixture(scope="module")
+def techERC20ForWrapperRemovable(accounts, TechTokenV1):
+    erc20 = accounts[0].deploy(TechTokenV1)
+    yield erc20 
+
+@pytest.fixture(scope="module")
+def wrapperRemovable(accounts, TrustedWrapperRemovable, techERC20ForWrapperRemovable):
+    t = accounts[0].deploy(TrustedWrapperRemovable, techERC20ForWrapperRemovable.address)
+    #t.setTokenService(tokenService.address, {'from':accounts[0]})
+    yield t 
+
