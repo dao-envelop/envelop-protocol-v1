@@ -5,17 +5,17 @@ from web3 import Web3
 LOGGER = logging.getLogger(__name__)
 
 
-#0-0xa11103Da33d2865C3B70947811b1436ea6Bb32eF  - leasingPool
-private_key='???'
+#0-0x5992Fe461F81C8E0aFFA95b831E50e9b3854BA0E  - leasingPool
+private_key=''
 accounts.add(private_key)
 
-#1-0xbD7E5fB7525ED8583893ce1B1f93E21CC0cf02F6 
-private_key='???'
+#1-0xa11103Da33d2865C3B70947811b1436ea6Bb32eF 
+private_key=''
 accounts.add(private_key)
 
 #2-0x989FA3062bc4329B2E3c5907c48Ea48a38437fB7 
-private_key='???'
-accounts.add(private_key)
+#private_key='???'
+#accounts.add(private_key)
 
 
 #tech 0x8368f72a85f5b3bc9f41ff9f3a681b09da0fe21f
@@ -24,12 +24,14 @@ def main():
 	wrapper = WrapperForRent.at('0x2Ef106DD93beDC6E01EaF127F4434C39cEbC188F')
 	wnft1155 = EnvelopwNFT1155.at('0x2ba1ec4526A276F36AfBd7066F8b63B9347B537B')
 	original_nft_contract = Token1155Mock.at('0xD48fdbCf81070547d5a3fB276203b5bf96344b10')
+	origNFT = OrigNFT.at('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578')
+
 	in_type = 4
 	out_type = 4
-	in_nft_amount = 5
-	out_nft_amount = 5 
+	in_nft_amount = 1
+	out_nft_amount = 1 
 	
-	original_nft_id = 1 #increase number +1 to mint new original NFT 
+	original_nft_id = 6 #increase number +1 to mint new original NFT 
 	price = "50 gwei"
 
 	original_nft_contract.mint(accounts[0], original_nft_id, in_nft_amount, {"from": accounts[0], "gas_price": price})
@@ -42,11 +44,11 @@ def main():
 	token_data = (token_property, original_nft_id, in_nft_amount)
 	
 	fee = []
-	lock = []
+	lock = [('0x00', chain.time()+300)]
 	royalty = []
 
 	wNFT = ( token_data,
-		accounts[0], #leasingPool
+		accounts[0], #owner of original nft
 		fee,
 		lock,
 		royalty,
@@ -58,8 +60,17 @@ def main():
 	#wrap NFT
 	wrapper.wrap(wNFT, [], accounts[1], {"from": accounts[0],'gas_price': price})
 	wTokenId = wrapper.lastWNFTId(out_type)[1]
+	print(wTokenId)
 
-	assert wnft1155.balanceOf(accounts[1], wTokenId) == out_nft_amount
+	#accounts
+	#0-0x5992Fe461F81C8E0aFFA95b831E50e9b3854BA0E 
+	#1-0xa11103Da33d2865C3B70947811b1436ea6Bb32eF
+	#wrapper = WrapperForRent.at('0x2Ef106DD93beDC6E01EaF127F4434C39cEbC188F')
+	#wnft1155 = EnvelopwNFT1155.at('0x2ba1ec4526A276F36AfBd7066F8b63B9347B537B')
+	#original_nft_contract = Token1155Mock.at('0xD48fdbCf81070547d5a3fB276203b5bf96344b10') 
+
+
+	'''assert wnft1155.balanceOf(accounts[1], wTokenId) == out_nft_amount
 	assert original_nft_contract.balanceOf(wrapper.address, original_nft_id) == in_nft_amount
 
 	#try to transfer wrapped NFT
@@ -121,7 +132,7 @@ def main():
 	wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[0], "gas_price": price})
 
 	assert original_nft_contract.balanceOf(accounts[0], original_nft_id) == in_nft_amount
-	assert wnft1155.balanceOf(accounts[1], wTokenId) == 0
+	assert wnft1155.balanceOf(accounts[1], wTokenId) == 0'''
 
 
 

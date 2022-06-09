@@ -29,7 +29,7 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
         _;
     }
 
-    function setTrustedAddres(address _operator, bool _status) public onlyOwner {
+    function setTrustedAddress(address _operator, bool _status) public onlyOwner {
         trustedOperators[_operator] = _status;
     }
 
