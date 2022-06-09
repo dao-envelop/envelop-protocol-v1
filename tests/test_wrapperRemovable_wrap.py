@@ -32,7 +32,7 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
     
     fee = []
     lock = []
-    royalty = [(accounts[0], 6000), (accounts[1], 4000)]
+    royalty = [(accounts[1], 4000), (accounts[0], 6000)]
 
     wNFT = ( token_data,
         accounts[2],
@@ -56,7 +56,7 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
         wrapperRemovable.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 
     #trusted address tries to wrap original nft of account[1]
-    wrapperRemovable.wrap(wNFT, [], accounts[3], {"from": accounts[0]})
+    wrapperRemovable.wrap(wNFT, [], accounts[0], {"from": accounts[0]})
 
 
 
