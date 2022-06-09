@@ -29,8 +29,8 @@ contract TrustedWrapper is WrapperBaseV1{
         ETypes.AssetItem[] calldata _collateral, 
         address _wrappFor
     ) 
-        public 
-        virtual
+        public
+        virtual 
         payable
         onlyTrusted 
         nonReentrant 
