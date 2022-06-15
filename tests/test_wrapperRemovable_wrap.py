@@ -74,7 +74,22 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
     assert niftsy20.balanceOf(accounts[2]) == 0
     wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1]}) 
     assert niftsy20.balanceOf(accounts[1]) + niftsy20.balanceOf(accounts[2]) == coll_amount
+    assert niftsy20.balanceOf(wrapperRemovable.address) == 0
+
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == 0
+
+
+    with reverts("Only trusted address"):
+        wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[1]})
     
+
+    with reverts("Only trusted address"):
+        wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[1]})
+
+    with reverts("Only trusted address"):
+        wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[2]})
+
+    wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[0]})
 
     
 
@@ -83,13 +98,7 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
     #    address _collateralAddress,
     #    address _amount
         
-    
-
-
-
-
-
-
+   
 
     #account[0] - platform
     #account[1] - investor
