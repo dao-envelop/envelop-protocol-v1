@@ -56,6 +56,8 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
         wrapperRemovable.wrap(wNFT, [], accounts[2], {"from": accounts[1]})
 
     #trusted address tries to wrap original nft of account[1]
+    with reverts('Only trusted address'):
+        wrapperRemovable.wrap(wNFT, [], accounts[2], {"from": accounts[1]})
     wrapperRemovable.wrap(wNFT, [], accounts[2], {"from": accounts[0]})
 
     assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == wrapperRemovable.address
@@ -65,13 +67,16 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
 
     niftsy20.approve(wrapperRemovable.address, coll_amount, {"from": accounts[0]})
 
-    wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((2, niftsy20.address), 0, coll_amount )])
+    wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((2, niftsy20.address), 0, coll_amount )], {"from": accounts[0]})
     assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == coll_amount
-
-    wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, niftsy20.address {"from": accounts[1]}) 
 
     assert niftsy20.balanceOf(accounts[1]) == 0
     assert niftsy20.balanceOf(accounts[2]) == 0
+    wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1]}) 
+    assert niftsy20.balanceOf(accounts[1]) + niftsy20.balanceOf(accounts[2]) == coll_amount
+    
+
+    
 
     #address _wNFTAddress, 
     #    uint256 _wNFTTokenId,
