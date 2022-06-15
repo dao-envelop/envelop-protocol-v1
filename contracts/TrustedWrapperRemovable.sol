@@ -34,7 +34,7 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
     }
 
     function wrap(
-        ETypes.INData calldata _inData, 
+        ETypes.INData      calldata _inData, 
         ETypes.AssetItem[] calldata _collateral, 
         address _wrappFor
     ) 
@@ -45,13 +45,11 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
         nonReentrant 
         returns (ETypes.AssetItem memory) 
     {
-        // 1. Take users inAsset
-        if ( _inData.inAsset.asset.assetType != ETypes.AssetType.NATIVE &&
-             _inData.inAsset.asset.assetType != ETypes.AssetType.EMPTY
-            )
-        { 
-            _transfer(_inData.inAsset, msg.sender, address(this));
-        }
+        
+        require(_inData.unWrapDestination == address(0), "Must define in this implementation");
+        // 1. take original    
+        _transfer(_inData.inAsset, _inData.unWrapDestination, address(this));
+
         // 2. Mint wNFT
         _mintNFT(
             _inData.outType,     // what will be minted instead of wrapping asset
@@ -60,7 +58,7 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
             lastWNFTId[_inData.outType].tokenId + 1,        
             _inData.outBalance                           // wNFT tokenId
         );
-        lastWNFTId[_inData.outType].tokenId += 1;  //Save just minted id 
+        lastWNFTId[_inData.outType].tokenId += 1;        //Save just minted id 
 
 
         // 4. Safe wNFT info
@@ -69,7 +67,8 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
             lastWNFTId[_inData.outType].tokenId,
             _inData
         );
-
+        
+        // 5. Add collateral
         _addCollateral(
             lastWNFTId[_inData.outType].contractAddress, 
             lastWNFTId[_inData.outType].tokenId, 
@@ -112,6 +111,18 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
 
     }
 
+    
+    /**
+     * @dev Function implement remove collateral logic 
+     * based on fee & royalties functionality 
+     *
+     * @param _wNFTAddress address of wNFT contract
+     * @param _wNFTTokenId id of wNFT 
+     * @param _from source address of token transfers (vault for removeable)   
+     * @param _to asset address for remove
+     * @param _feeType == 0x04 - remove collateral mechanics
+     * @return true when remove have been done
+     */
     function _chargeFees(
         address _wNFTAddress, 
         uint256 _wNFTTokenId, 
@@ -179,6 +190,32 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
         }
     }
 
+    function _saveWNFTinfo(
+        address wNFTAddress, 
+        uint256 tokenId, 
+        ETypes.INData calldata _inData
+    ) internal override 
+    {
+        wrappedTokens[wNFTAddress][tokenId].inAsset = _inData.inAsset;
+        // We will use _inData.unWrapDestination  ONLY for RENT implementation
+        wrappedTokens[wNFTAddress][tokenId].unWrapDestination = _inData.unWrapDestination;
+        wrappedTokens[wNFTAddress][tokenId].rules = _inData.rules;
+        
+        // Copying of type struct ETypes.Fee memory[] 
+        // memory to storage not yet supported.
+        for (uint256 i = 0; i < _inData.fees.length; i ++) {
+            wrappedTokens[wNFTAddress][tokenId].fees.push(_inData.fees[i]);            
+        }
+
+        for (uint256 i = 0; i < _inData.locks.length; i ++) {
+            wrappedTokens[wNFTAddress][tokenId].locks.push(_inData.locks[i]);            
+        }
+
+        for (uint256 i = 0; i < _inData.royalties.length; i ++) {
+            wrappedTokens[wNFTAddress][tokenId].royalties.push(_inData.royalties[i]);            
+        }
+
+    }
 
     function _checkCoreUnwrap(
         ETypes.AssetType _wNFTType, 
@@ -192,7 +229,7 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
         returns (address burnFor, uint256 burnBalance) 
     {
         for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
-            require(wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[1].amount == 0);
+            require(wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].amount == 0);
         }
         super._checkCoreUnwrap(_wNFTType, _wNFTAddress, _wNFTTokenId);
         
