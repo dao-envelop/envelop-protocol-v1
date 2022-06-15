@@ -46,7 +46,7 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
         returns (ETypes.AssetItem memory) 
     {
         
-        require(_inData.unWrapDestination == address(0), "Must define in this implementation");
+        require(_inData.unWrapDestination != address(0), "Must define in this implementation");
         // 1. take original    
         _transfer(_inData.inAsset, _inData.unWrapDestination, address(this));
 
