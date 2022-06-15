@@ -88,18 +88,32 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
     
     wl_data = (True, True, False, techERC20.address)
     whiteLists.setWLItem((2, niftsy20.address), wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((2, dai.address), wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((2, weth.address), wl_data, {"from": accounts[0]})
 
     wrapper.wrap(wNFT, [], accounts[2], {"from": accounts[0]})
     wTokenId = wrapper.lastWNFTId(3)[1]
 
     wrapper.addCollateral(wnft721.address, wTokenId, [((2, niftsy20.address), 0, 0)], {"from": accounts[0]})
 
+    dai.approve(wrapper.address, 1e18, {"from": accounts[0]})
+    wrapper.addCollateral(wnft721.address, wTokenId, [((2, dai.address), 0, 1e18)], {"from": accounts[0]})
+
+    weth.approve(wrapper.address, 1e18, {"from": accounts[0]})
+    with reverts('Too much collateral slots for this wNFT'):
+         wrapper.addCollateral(wnft721.address, wTokenId, [((2, weth.address), 0, 1e18)], {"from": accounts[0]})
+
+    logging.info(wrapper.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0))
+    logging.info(wrapper.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0))
+
+    
     niftsy20.approve(wrapper.address, transfer_fee_amount, {"from": accounts[2]})
 
     niftsy20.transfer(accounts[2], transfer_fee_amount, {"from": accounts[0]})
     wTokenId = wrapper.lastWNFTId(3)[1]
 
-    wnft721.transferFrom(accounts[2], accounts[1], wTokenId, {"from": accounts[2]})
+    with reverts("Too much collateral slots for this wNFT"):
+        wnft721.transferFrom(accounts[2], accounts[1], wTokenId, {"from": accounts[2]})
 
 
 
