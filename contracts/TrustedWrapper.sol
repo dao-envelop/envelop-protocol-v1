@@ -37,12 +37,8 @@ contract TrustedWrapper is WrapperBaseV1{
         returns (ETypes.AssetItem memory) 
     {
         // 1. Take users inAsset
-        if ( _inData.inAsset.asset.assetType != ETypes.AssetType.NATIVE &&
-             _inData.inAsset.asset.assetType != ETypes.AssetType.EMPTY
-            )
-        { 
-            _transfer(_inData.inAsset, msg.sender, address(this));
-        }
+        _transfer(_inData.inAsset, msg.sender, address(this));
+
         // 2. Mint wNFT
         _mintNFT(
             _inData.outType,     // what will be minted instead of wrapping asset

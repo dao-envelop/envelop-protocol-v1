@@ -434,7 +434,14 @@ contract WrapperBaseV1 is
             collateralItem.tokenId
         );
 
-        if (_amnt > 0) {
+        if (_amnt > 0 ||
+            (_index == 0 
+             && wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].asset.contractAddress 
+             == collateralItem.asset.contractAddress
+             && wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length > 0
+            )
+        ) 
+        {
             // We dont need addition if  for erc721 because for erc721 _amnt always be zero
             wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount 
               += collateralItem.amount;
