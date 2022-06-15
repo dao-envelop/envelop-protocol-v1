@@ -225,13 +225,38 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
         internal 
         view 
         override
-        onlyTrusted  
+        onlyTrusted  // for platform operator
         returns (address burnFor, uint256 burnBalance) 
     {
         for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
-            require(wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].amount == 0);
+            require(wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].amount == 0, 'Need remove collateral before unwrap');
         }
-        super._checkCoreUnwrap(_wNFTType, _wNFTAddress, _wNFTTokenId);
+
+        // Lets check wNFT rules 
+        // 0x0001 - this rule disable unwrap wrappednFT 
+        require(!_checkRule(0x0001, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules),
+            "UnWrapp forbidden by author"
+        );
+
+        if (_wNFTType == ETypes.AssetType.ERC721) {
+            // Only token owner can UnWrap
+            burnFor = IERC721Mintable(_wNFTAddress).ownerOf(_wNFTTokenId);
+            // require(burnFor == msg.sender, 
+            //     'Only owner can unwrap it'
+            // ); 
+
+        } else if (_wNFTType == ETypes.AssetType.ERC1155) {
+            burnBalance = IERC1155Mintable(_wNFTAddress).totalSupply(_wNFTTokenId);
+            burnFor = wrappedTokens[_wNFTAddress][_wNFTTokenId].royalties[1].beneficiary;
+            require(
+                burnBalance ==
+                IERC1155Mintable(_wNFTAddress).balanceOf(burnFor, _wNFTTokenId)
+                ,'ERC115 unwrap available only for all totalSupply'
+            );
+            
+        } else {
+            revert UnSupportedAsset(ETypes.AssetItem(ETypes.Asset(_wNFTType,_wNFTAddress),_wNFTTokenId, 0));
+        }
         
     }
 }
