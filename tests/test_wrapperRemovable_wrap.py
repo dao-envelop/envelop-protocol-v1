@@ -32,7 +32,7 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
     
     fee = []
     lock = []
-    royalty = [(accounts[1], 4000), (accounts[2], 6000)]
+    royalty = [(accounts[1], 4250), (accounts[2], 4250), (accounts[3], 1500)]
 
     wNFT = ( token_data,
         accounts[1],
@@ -50,6 +50,7 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
     
     wl_data = (False, True, False, techERC20.address)
     whiteLists.setWLItem((2, niftsy20.address), wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((2, dai.address), wl_data, {"from": accounts[0]})
 
     # owner of original nft tries to wrap it
     with reverts('Only trusted address'):
@@ -70,11 +71,64 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
     wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((2, niftsy20.address), 0, coll_amount )], {"from": accounts[0]})
     assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == coll_amount
 
+    #remove collateral niftsy
     assert niftsy20.balanceOf(accounts[1]) == 0
     assert niftsy20.balanceOf(accounts[2]) == 0
+    assert niftsy20.balanceOf(accounts[3]) == 0
     wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1]}) 
-    assert niftsy20.balanceOf(accounts[1]) + niftsy20.balanceOf(accounts[2]) == coll_amount
+    assert niftsy20.balanceOf(accounts[1]) + niftsy20.balanceOf(accounts[2]) + niftsy20.balanceOf(accounts[3]) == coll_amount
+    assert niftsy20.balanceOf(accounts[1]) == coll_amount*wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[5][0][1]/10000
+    assert niftsy20.balanceOf(accounts[2]) == coll_amount*wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[5][1][1]/10000
+    assert niftsy20.balanceOf(accounts[3]) == coll_amount*wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[5][2][1]/10000
     assert niftsy20.balanceOf(wrapperRemovable.address) == 0
+
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == 0
+
+    #add collateral - dai tokens
+    dai.approve(wrapperRemovable.address, coll_amount, {"from": accounts[0]})
+    wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((2, dai.address), 0, coll_amount )], {"from": accounts[0]})    
+
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[0] == coll_amount
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[1] == 1 #index
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == 0
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[1] == 0 #index
+    assert dai.balanceOf(wrapperRemovable.address) == coll_amount
+    assert niftsy20.balanceOf(wrapperRemovable.address) == 0
+    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
+
+    #add collateral - niftsy tokens again
+    niftsy20.approve(wrapperRemovable.address, coll_amount, {"from": accounts[0]})
+    wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((2, niftsy20.address), 0, coll_amount )], {"from": accounts[0]})
+
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == coll_amount
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[1] == 0
+    assert niftsy20.balanceOf(wrapperRemovable.address) == coll_amount
+    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[0] == coll_amount
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[1] == 1
+    assert dai.balanceOf(wrapperRemovable.address) == coll_amount
+    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
+
+    #remove again collateral niftsy
+    wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1]}) 
+    assert niftsy20.balanceOf(accounts[1]) + niftsy20.balanceOf(accounts[2])+ niftsy20.balanceOf(accounts[3]) == 2*coll_amount
+    assert niftsy20.balanceOf(wrapperRemovable.address) == 0
+    assert dai.balanceOf(wrapperRemovable.address) == coll_amount
+    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == 0
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[1] == 0
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[0] == coll_amount
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[1] == 1
+    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
+
+
+    wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1]}) 
+
+    # проверить точно доли у счетов
+    # добавить обеспечение в другом токене
+    # добавить обеспечение в нифсях
+    # сделать проверку - что массив коллейтерал не пухнет от добавления обеспечения, апдейтится все также одна и таже запись
+
 
     assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == 0
 
@@ -103,6 +157,8 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
     #account[0] - platform
     #account[1] - investor
     #account[2] - scolar
+    #account[3] - unitbox platform
+
 
 
 
