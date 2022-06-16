@@ -7,7 +7,7 @@ pragma solidity 0.8.11;
 
 contract TrustedWrapperRemovable is WrapperBaseV1{
 
-	mapping(address => bool) public trustedOperators;
+    mapping(address => bool) public trustedOperators;
 
     event CollateralRemoved(
         address indexed wrappedAddress,
@@ -152,13 +152,12 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
             //         _to
             //     ).transferFeeModel;
             // }
-
-
             // - get transfer list from external model by feetype(with royalties)
             (ETypes.AssetItem[] memory assetItems, 
              address[] memory from, 
              address[] memory to
             ) =
+                // This implementation only with native model from protocolTechToken
                 IFeeRoyaltyModel(protocolTechToken).getTransfersList(
                     //erc20ItemForRemove,
                     ETypes.Fee({
@@ -172,19 +171,18 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
                 );
             // Update collateral:  decrease value in collateral record
              wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[removeIndex].amount 
-                    -= removeBalance;    
+                    -= removeBalance;
+            emit CollateralRemoved(
+                _wNFTAddress,
+                _wNFTTokenId,
+                2,
+                _to,
+                0,
+                removeBalance
+            );    
             // - execute transfers
-            uint256 actualTransfered;
             for (uint256 j = 0; j < to.length; j ++){
-                actualTransfered = _transferSafe(assetItems[j], from[j], to[j]);
-                emit CollateralRemoved(
-                    _wNFTAddress,
-                    _wNFTTokenId,
-                    2,
-                    _to,
-                    0,
-                    actualTransfered
-                );
+                _transferSafe(assetItems[j], from[j], to[j]);
             }
             return true; 
 
