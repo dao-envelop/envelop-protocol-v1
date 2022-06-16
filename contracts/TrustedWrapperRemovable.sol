@@ -135,7 +135,7 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
     {
         // _feeType == 0x04 - remove collateral mechanics
         if (_feeType == 0x04) {
-            (uint256 removeBalance, ) = getCollateralBalanceAndIndex(
+            (uint256 removeBalance, uint256 removeIndex) = getCollateralBalanceAndIndex(
                 _wNFTAddress, 
                 _wNFTTokenId,
                 ETypes.AssetType(2), 
@@ -145,12 +145,12 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
            // - get modelAddress.  Default feeModel adddress always live in
            // protocolTechToken. When white list used it is possible override that model.
            // default model always  must be set  as protocolTechToken
-           address feeModel = protocolTechToken;
-            if  (protocolWhiteList != address(0)) {
-                feeModel = IAdvancedWhiteList(protocolWhiteList).getWLItem(
-                    _to
-                ).transferFeeModel;
-            }
+           //address feeModel = protocolTechToken;
+            // if  (protocolWhiteList != address(0)) {
+            //     feeModel = IAdvancedWhiteList(protocolWhiteList).getWLItem(
+            //         _to
+            //     ).transferFeeModel;
+            // }
 
 
             // - get transfer list from external model by feetype(with royalties)
@@ -158,7 +158,7 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
              address[] memory from, 
              address[] memory to
             ) =
-                IFeeRoyaltyModel(feeModel).getTransfersList(
+                IFeeRoyaltyModel(protocolTechToken).getTransfersList(
                     //erc20ItemForRemove,
                     ETypes.Fee({
                       feeType: 0x04,        // it can be used in FeeRoyalty model
@@ -169,6 +169,9 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
                     _from, 
                     _to 
                 );
+            // Update collateral:  decrease value in collateral record
+             wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[removeIndex].amount 
+                    -= removeBalance;    
             // - execute transfers
             uint256 actualTransfered;
             for (uint256 j = 0; j < to.length; j ++){
@@ -179,7 +182,7 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
                     2,
                     _to,
                     0,
-                    removeBalance
+                    actualTransfered
                 );
             }
             return true; 
