@@ -112,8 +112,15 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
     niftsy20.transfer(accounts[2], transfer_fee_amount, {"from": accounts[0]})
     wTokenId = wrapper.lastWNFTId(3)[1]
 
-    with reverts("Too much collateral slots for this wNFT"):
-        wnft721.transferFrom(accounts[2], accounts[1], wTokenId, {"from": accounts[2]})
+    wnft721.transferFrom(accounts[2], accounts[1], wTokenId, {"from": accounts[2]})
+
+    assert niftsy20.balanceOf(wrapper.address) == transfer_fee_amount
+    assert dai.balanceOf(wrapper.address) == 1e18
+    assert len(wrapper.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
+    assert wrapper.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == transfer_fee_amount
+    assert wrapper.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[1] == 0
+    assert wrapper.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[0] == 1e18
+    assert wrapper.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[1] == 1
 
 
 
