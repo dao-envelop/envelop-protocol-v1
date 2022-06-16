@@ -134,6 +134,9 @@ contract TrustedWrapperRemovable is WrapperBaseV1, IWrapperRemovable {
                 _to,
                 0
             );
+            if (removeBalance == 0) {
+                return false;
+            }
            // - get modelAddress.  Default feeModel adddress always live in
            // protocolTechToken. When white list used it is possible override that model.
            // default model always  must be set  as protocolTechToken
