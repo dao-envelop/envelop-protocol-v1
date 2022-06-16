@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 
+
 pragma solidity 0.8.13;
 
+import "../../LibEnvelopTypes.sol";
 
 interface IUnitBox  {
 
@@ -15,15 +17,25 @@ interface IUnitBox  {
     struct GameTokenDex {
         DexType dex;
         address dexAddress;
+        address[] path;
         bool enabled;
-    } 
+    }
 
-    function wrapForRent() external virtual returns (address wnftContract, uint256 tokenId);
-    function claimAndSwap() external virtual;
-    function swapMe(address token) external virtual;
 
-    function withdrawEther() external virtual;
+    function wrapForRent(
+        ETypes.INData calldata _inData,
+        //address _wNFTAddress, 
+        //uint256 _nftId,
+        //ETypes.Royalty[] calldata _shares,
+        uint256 _nonce,
+        bytes memory _signature
+    ) external  returns (address wnftContract, uint256 tokenId);
+    
+    function claimAndSwap() external;
+    function swapMe(address token) external;
 
-    function withdrawTokens(address _token) external virtual;
+    function withdrawEther() external;
+
+    function withdrawTokens(address _token) external;
    
 }
