@@ -460,6 +460,7 @@ contract WrapperBaseV1 is
             }
 
         }  else {
+
             _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
         }
         /////////////////////////////////////////
