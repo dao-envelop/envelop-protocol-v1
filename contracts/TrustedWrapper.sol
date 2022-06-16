@@ -3,7 +3,7 @@
 
 import "./WrapperBaseV1.sol";
 
-pragma solidity 0.8.11;
+pragma solidity 0.8.13;
 
 contract TrustedWrapper is WrapperBaseV1{
 

@@ -4,7 +4,7 @@
 import "./WrapperBaseV1.sol";
 import "../interfaces/IWrapperRemovable.sol";
 
-pragma solidity 0.8.11;
+pragma solidity 0.8.13;
 
 contract TrustedWrapperRemovable is WrapperBaseV1, IWrapperRemovable {
 
