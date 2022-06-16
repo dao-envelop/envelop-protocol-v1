@@ -122,13 +122,8 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
     assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
 
 
-    wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1]}) 
-
-    # проверить точно доли у счетов
-    # добавить обеспечение в другом токене
-    # добавить обеспечение в нифсях
-    # сделать проверку - что массив коллейтерал не пухнет от добавления обеспечения, апдейтится все также одна и таже запись
-
+    tx = wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1]}) 
+    logging.info(tx.events['Transfer'])
 
     assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == 0
 
@@ -143,8 +138,24 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
     with reverts("Only trusted address"):
         wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[2]})
 
-    wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[0]})
+    with reverts("Need remove collateral before unwrap"):
+        wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[0]})
 
+    #remove collateral dai
+    wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, dai.address, {"from": accounts[1]}) 
+    assert niftsy20.balanceOf(accounts[1]) + niftsy20.balanceOf(accounts[2])+ niftsy20.balanceOf(accounts[3]) == 2*coll_amount
+    assert dai.balanceOf(accounts[1]) + dai.balanceOf(accounts[2]) + dai.balanceOf(accounts[3]) == coll_amount
+    assert niftsy20.balanceOf(wrapperRemovable.address) == 0
+    assert dai.balanceOf(wrapperRemovable.address) == 0
+    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == 0
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[1] == 0
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[0] == 0
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[1] == 1
+    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
+
+    
+    wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[0]})
     
 
     #address _wNFTAddress, 
