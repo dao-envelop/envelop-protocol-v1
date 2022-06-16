@@ -2,21 +2,13 @@
 // ENVELOP(NIFTSY) protocol V1 for NFT. 
 
 import "./WrapperBaseV1.sol";
+import "../interfaces/IWrapperRemovable.sol";
 
 pragma solidity 0.8.11;
 
-contract TrustedWrapperRemovable is WrapperBaseV1{
+contract TrustedWrapperRemovable is WrapperBaseV1, IWrapperRemovable {
 
     mapping(address => bool) public trustedOperators;
-
-    event CollateralRemoved(
-        address indexed wrappedAddress,
-        uint256 indexed wrappedId,
-        uint8   assetType,
-        address collateralAddress,
-        uint256 collateralTokenId,
-        uint256 collateralBalance
-    );
 
     constructor (address _erc20)
     WrapperBaseV1(_erc20) 
@@ -39,7 +31,7 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
         address _wrappFor
     ) 
         public 
-        override
+        override(WrapperBaseV1, IWrapper)
         payable
         onlyTrusted 
         nonReentrant 

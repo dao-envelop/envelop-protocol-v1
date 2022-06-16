@@ -455,12 +455,12 @@ contract WrapperBaseV1 is
                 += collateralItem.amount;
 
             } else {
-                // _index == 0 &&  and no this  token recrd yet
+                // _index == 0 &&  and no this  token record yet
                 _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
             }
 
         }  else {
-
+             // First record in collateral
             _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
         }
         /////////////////////////////////////////
