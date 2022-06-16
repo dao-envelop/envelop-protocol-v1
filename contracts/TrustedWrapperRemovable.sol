@@ -94,7 +94,7 @@ contract TrustedWrapperRemovable is WrapperBaseV1{
     function removeERC20Collateral(
         address _wNFTAddress, 
         uint256 _wNFTTokenId,
-        address _collateralAddress,
+        address _collateralAddress
     ) 
         public
         nonReentrant 
