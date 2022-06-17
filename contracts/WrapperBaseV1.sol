@@ -425,29 +425,29 @@ contract WrapperBaseV1 is
         ETypes.AssetItem memory collateralItem
     ) internal virtual 
     {
-        (uint256 _amnt, uint256 _index) = getCollateralBalanceAndIndex(
-            _wNFTAddress, 
-            _wNFTTokenId,
-            collateralItem.asset.assetType, 
-            //ETypes.AssetType.ERC20,
-            collateralItem.asset.contractAddress,
-            collateralItem.tokenId
-        );
-
-        // if (_amnt > 0 ||
-        //     (_index == 0 
-        //      && wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].asset.contractAddress 
-        //      == collateralItem.asset.contractAddress
-        //      && wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length > 0
-        //     )
-        // ) 
-        if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length > 0)
+        if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length == 0 
+            || collateralItem.asset.assetType == ETypes.AssetType.ERC721 
+        )
         {
+            // First record in collateral or 721
+            _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
+        }  else {
+             // length > 0 
+            (uint256 _amnt, uint256 _index) = getCollateralBalanceAndIndex(
+                _wNFTAddress, 
+                _wNFTTokenId,
+                collateralItem.asset.assetType, 
+                //ETypes.AssetType.ERC20,
+                collateralItem.asset.contractAddress,
+                collateralItem.tokenId
+            );
+
             if (_index > 0 ||
                    (_index == 0 
                     && wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].asset.contractAddress 
-                    == collateralItem.asset.contractAddress 
-                    && wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].asset.assetType != ETypes.AssetType.ERC721
+                        == collateralItem.asset.contractAddress 
+                    // && wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].asset.assetType 
+                    //    != ETypes.AssetType.ERC721
                     ) 
                 ) 
             {
@@ -459,10 +459,6 @@ contract WrapperBaseV1 is
                 // _index == 0 &&  and no this  token record yet
                 _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
             }
-
-        }  else {
-             // First record in collateral
-            _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
         }
         /////////////////////////////////////////
         //  ERC20 & NATIVE Collateral         ///
