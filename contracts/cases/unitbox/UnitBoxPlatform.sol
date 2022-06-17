@@ -16,10 +16,8 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
     using ECDSA for bytes32;
     
     uint256 constant public DELTA_FOR_SWAP_DEADLINE = 300;
-
     address constant public UniswapV2Router02 = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
     address constant public UniswapV2Factory  = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
-    address public assetForTreasure; // USDT
     address public treasure;
     bytes2 public wnftRules = 0x0000;
 
@@ -33,19 +31,19 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         wrapper = IWrapperRemovable(_wrapper);
         // predefined settings for some networks
         if (block.chainid == 1) {
-            dexForChain.router = UniswapV2Router02;
+            dexForChain.router  = UniswapV2Router02;
             dexForChain.factory = UniswapV2Factory;
-            dexForChain.nativeAsset = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // WETH
+            dexForChain.nativeAsset      = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // WETH
             dexForChain.assetForTreasure = 0xdAC17F958D2ee523a2206206994597C13D831ec7; // USDT
         
         } else if (block.chainid == 4) {
-            dexForChain.router = UniswapV2Router02;
+            dexForChain.router  = UniswapV2Router02;
             dexForChain.factory = UniswapV2Factory;
-            dexForChain.nativeAsset = 0xc778417E063141139Fce010982780140Aa0cD5Ab ; // WETH
+            dexForChain.nativeAsset      = 0xc778417E063141139Fce010982780140Aa0cD5Ab ; // WETH
             dexForChain.assetForTreasure = 0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735; //DAI
 
         } else if (block.chainid == 56) {
-            //exForChain.nativeAsset = ; //  ???
+            //dexForChain.nativeAsset = ; //  ???
             dexForChain.assetForTreasure =  0x55d398326f99059fF775485246999027B3197955; //USDT BSC
 
         }
@@ -68,6 +66,7 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         )).toEthSignedMessageHash();
         require(_checkSign(msgMustWasSigned, _signature), "Signature check failed");
         require(!nonceUsed[_nonce], "Nonce used");
+        
         // Check and prepare params for wrap
         require(_inData.royalties.length > 2, "No beneficiaries");
         require(_inData.royalties[_inData.royalties.length - 1].beneficiary == address(this),
@@ -89,7 +88,6 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         require(dexForAsset[_collateralAddress].enabled, "Disable for claim");
         wrapper.removeERC20Collateral(_wNFTAddress, _wNFTTokenId, _collateralAddress);
         swapMe(_collateralAddress);
-
     }
 
     function swapMe(address token) public {
