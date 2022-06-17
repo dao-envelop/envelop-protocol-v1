@@ -99,7 +99,6 @@ contract TrustedWrapperRemovable is WrapperBaseV1, IWrapperRemovable {
             0x04                // this fee type implement remove collateral mechanics
             ), "Remove fail"
         );
-
     }
 
     
