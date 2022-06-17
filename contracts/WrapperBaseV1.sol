@@ -425,41 +425,6 @@ contract WrapperBaseV1 is
         ETypes.AssetItem memory collateralItem
     ) internal virtual 
     {
-        if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length == 0 
-            || collateralItem.asset.assetType == ETypes.AssetType.ERC721 
-        )
-        {
-            // First record in collateral or 721
-            _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
-        }  else {
-             // length > 0 
-            (uint256 _amnt, uint256 _index) = getCollateralBalanceAndIndex(
-                _wNFTAddress, 
-                _wNFTTokenId,
-                collateralItem.asset.assetType, 
-                //ETypes.AssetType.ERC20,
-                collateralItem.asset.contractAddress,
-                collateralItem.tokenId
-            );
-
-            if (_index > 0 ||
-                   (_index == 0 
-                    && wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].asset.contractAddress 
-                        == collateralItem.asset.contractAddress 
-                    // && wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].asset.assetType 
-                    //    != ETypes.AssetType.ERC721
-                    ) 
-                ) 
-            {
-                // We dont need addition if  for erc721 because for erc721 _amnt always be zero
-                wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount 
-                += collateralItem.amount;
-
-            } else {
-                // _index == 0 &&  and no this  token record yet
-                _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
-            }
-        }
         /////////////////////////////////////////
         //  ERC20 & NATIVE Collateral         ///
         /////////////////////////////////////////
@@ -483,6 +448,39 @@ contract WrapperBaseV1 is
         if (collateralItem.asset.assetType == ETypes.AssetType.ERC721 ) {
             require(collateralItem.amount == 0, "Amount must be zero");
             return;
+        }
+        /////////////////////////////////////////
+        if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length == 0 
+            || collateralItem.asset.assetType == ETypes.AssetType.ERC721 
+        )
+        {
+            // First record in collateral or 721
+            _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
+        }  else {
+             // length > 0 
+            (uint256 _amnt, uint256 _index) = getCollateralBalanceAndIndex(
+                _wNFTAddress, 
+                _wNFTTokenId,
+                collateralItem.asset.assetType, 
+                collateralItem.asset.contractAddress,
+                collateralItem.tokenId
+            );
+
+            if (_index > 0 ||
+                   (_index == 0 
+                    && wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[0].asset.contractAddress 
+                        == collateralItem.asset.contractAddress 
+                    ) 
+                ) 
+            {
+                // We dont need addition if  for erc721 because for erc721 _amnt always be zero
+                wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].amount 
+                += collateralItem.amount;
+
+            } else {
+                // _index == 0 &&  and no this  token record yet
+                _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
+            }
         }
     }
 
