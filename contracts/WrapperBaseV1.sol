@@ -432,14 +432,13 @@ contract WrapperBaseV1 is
             collateralItem.asset.assetType == ETypes.AssetType.NATIVE) 
         {
             require(collateralItem.tokenId == 0, "TokenId must be zero");
-            return;    
         }
 
         /////////////////////////////////////////
         //  ERC1155 Collateral                ///
         // /////////////////////////////////////////
         // if (collateralItem.asset.assetType == ETypes.AssetType.ERC1155) {
-
+        //  No need special checks
         // }    
 
         /////////////////////////////////////////
@@ -447,7 +446,6 @@ contract WrapperBaseV1 is
         /////////////////////////////////////////
         if (collateralItem.asset.assetType == ETypes.AssetType.ERC721 ) {
             require(collateralItem.amount == 0, "Amount must be zero");
-            return;
         }
         /////////////////////////////////////////
         if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length == 0 
