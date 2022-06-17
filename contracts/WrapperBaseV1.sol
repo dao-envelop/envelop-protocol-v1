@@ -446,7 +446,8 @@ contract WrapperBaseV1 is
             if (_index > 0 ||
                    (_index == 0 
                     && wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].asset.contractAddress 
-                    == collateralItem.asset.contractAddress
+                    == collateralItem.asset.contractAddress 
+                    && wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[_index].asset.assetType != ETypes.AssetType.ERC721
                     ) 
                 ) 
             {

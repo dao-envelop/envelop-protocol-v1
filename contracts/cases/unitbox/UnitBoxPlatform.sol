@@ -37,7 +37,6 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         external 
         returns (address wnftContract, uint256 tokenId) 
     {
-        {
         bytes32 msgMustWasSigned = keccak256(abi.encode(
                 _inData.inAsset.asset.contractAddress,
                 _inData.inAsset.tokenId,
@@ -47,7 +46,6 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         )).toEthSignedMessageHash();
         require(_checkSign(msgMustWasSigned, _signature), "Signature check failed");
         require(!nonceUsed[_nonce], "Nonce used");
-        }
         // Check and prepare params for wrap
         require(_inData.royalties.length > 2, "No beneficiaries");
         //ETypes.Fee[] memory f;
