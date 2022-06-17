@@ -9,12 +9,16 @@ interface IUnitBox  {
 
     enum DexType {None, UniSwapV2, UniSwapV3}
 
-    
+    struct DexParams{
+        address router;
+        address factory;
+        address nativeAsset;
+        address assetForTreasure;
+    }
 
     struct GameTokenDex {
         DexType dexType;
         address dexAddress;
-        address[] path;
         bool enabled;
     }
 

@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "./IUniswapV2Router02.sol";
+import "./IUniswapV2Factory.sol";
 import "../../../interfaces/IWrapperRemovable.sol";
 import "./IUnitBox.sol";
 
@@ -16,21 +17,38 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
     
     uint256 constant public DELTA_FOR_SWAP_DEADLINE = 300;
 
-    // Next to vars must bu redefine for BSC
-    address public UniswapV2Router02 = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
-    address public UniswapV2Factory  = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    address constant public UniswapV2Router02 = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+    address constant public UniswapV2Factory  = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
     address public assetForTreasure; // USDT
     address public treasure;
     bytes2 public wnftRules = 0x0000;
 
     IWrapperRemovable public wrapper;
-
+    DexParams public dexForChain;
     mapping(address => bool) public trustedSigners;
     mapping(address => GameTokenDex) public dexForAsset; 
     mapping(uint256 =>bool) public nonceUsed;
 
     constructor (address _wrapper) {
         wrapper = IWrapperRemovable(_wrapper);
+        // predefined settings for some networks
+        if (block.chainid == 1) {
+            dexForChain.router = UniswapV2Router02;
+            dexForChain.factory = UniswapV2Factory;
+            dexForChain.nativeAsset = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // WETH
+            dexForChain.assetForTreasure = 0xdAC17F958D2ee523a2206206994597C13D831ec7; // USDT
+        
+        } else if (block.chainid == 4) {
+            dexForChain.router = UniswapV2Router02;
+            dexForChain.factory = UniswapV2Factory;
+            dexForChain.nativeAsset = 0xc778417E063141139Fce010982780140Aa0cD5Ab ; // WETH
+            dexForChain.assetForTreasure = 0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735; //DAI
+
+        } else if (block.chainid == 56) {
+            //exForChain.nativeAsset = ; //  ???
+            dexForChain.assetForTreasure =  0x55d398326f99059fF775485246999027B3197955; //USDT BSC
+
+        }
     }
 
     function wrapForRent(
@@ -81,20 +99,67 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
             address router = dexForAsset[token].dexAddress;
             address receiver = treasure;
             if (router == address(0)) {
-                router = UniswapV2Router02;
+                router = dexForChain.router;
             }
+            
             if (receiver == address(0)) {
                 receiver = address(this);
             } 
+
+            // Lets discover path
+            address pair = IUniswapV2Factory(dexForChain.factory).getPair(
+                token, 
+                dexForChain.assetForTreasure
+            );
+            uint256 lenPath = pair == address(0) ? 3 : 2;
+            address[] memory path = new address[](lenPath);
+            if (lenPath == 2) {
+               path[0] = token;
+               path[1] = dexForChain.assetForTreasure;
+            } else {
+               path[0] = token;
+               path[1] = dexForChain.nativeAsset;
+               path[2] = dexForChain.assetForTreasure;    
+            }
+            
             IUniswapV2Router02(router).swapExactTokensForTokens(
                 IERC20(token).balanceOf(address(this)), // amountIn
                 0, // amountOutMin
-                dexForAsset[token].path, // path
+                path, // path
                 receiver, // to
                 block.timestamp + DELTA_FOR_SWAP_DEADLINE // deadline
             );
         } else {
-            return;
+            // Dummy Swap - transfer to owner
+            IERC20(token).transfer(owner(), IERC20(token).balanceOf(address(this)));
+        }
+
+    }
+
+    function swapMeWithPath(address token, address[] calldata _path) public {
+
+        if (dexForAsset[token].dexType == DexType.UniSwapV2) {
+            // UniswapV2 Router implementation
+            address router = dexForAsset[token].dexAddress;
+            address receiver = treasure;
+            if (router == address(0)) {
+                router = dexForChain.router;
+            }
+            
+            if (receiver == address(0)) {
+                receiver = address(this);
+            } 
+            // https://docs.uniswap.org/protocol/V2/guides/smart-contract-integration/trading-from-a-smart-contract  
+            IUniswapV2Router02(router).swapExactTokensForTokens(
+                IERC20(token).balanceOf(address(this)), // amountIn
+                0, // amountOutMin
+                _path, // path
+                receiver, // to
+                block.timestamp + DELTA_FOR_SWAP_DEADLINE // deadline
+            );
+        } else {
+            // Dummy Swap - transfer to owner
+            IERC20(token).transfer(owner(), IERC20(token).balanceOf(address(this)));
         }
 
 
@@ -110,7 +175,10 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
     }
 
     function withdrawTokens(address _token) external onlyOwner {
-        IERC20(_token).transfer(owner(), IERC20(_token).balanceOf(address(this)));
+        IERC20(_token).transfer(
+            owner(), 
+            IERC20(_token).balanceOf(address(this))
+        );
 
     }
 
@@ -126,8 +194,13 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         wnftRules = _rule;
     }
 
+    function setTreasure(address _treasure) external onlyOwner {
+        treasure = _treasure;
+    }
 
-
+    function setDexForChain(DexParams calldata _dexParams) external onlyOwner {
+        dexForChain = _dexParams;
+    }
     ///////////////////////////////////////////////////////////////////
 
     function _checkSign(bytes32 _msg, bytes memory _signature) internal returns (bool) {
@@ -138,56 +211,4 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
             return false;
         }    
     }
-
-
-    /**
-     * @dev Swaps tokens with exact output amount
-     * @param amountOut - exact output amount
-     * @param amountInMax - minimal input amount
-     * @param path - array of token addresses with swap order
-     * @param deadline - swap deadline
-     * @param router - uniswap router name
-     */
-    function swapTokensForExactTokens(
-        uint256 amountOut,
-        uint256 amountInMax,
-        address[] calldata path,
-        uint256 deadline,
-        address router
-    ) internal  {
-
-        IUniswapV2Router02(router).swapTokensForExactTokens(
-            amountOut,
-            amountInMax,
-            path,
-            address(this),
-            deadline
-        );
-    }
-
-    /**
-     * @dev Swaps tokens with exact input amount
-     * @param amountIn - exact input amount
-     * @param amountOutMin - minimal output amount
-     * @param path - array of token addresses with swap order
-     * @param deadline - swap deadline
-     * @param router - uniswap router name
-     */
-    function swapExactTokensForTokens(
-        uint256 amountIn,
-        uint256 amountOutMin,
-        address[] calldata path,
-        uint256 deadline,
-        address router
-    ) internal  {
-
-        IUniswapV2Router02(router).swapExactTokensForTokens(
-            amountIn,
-            amountOutMin,
-            path,
-            address(this),
-            deadline
-        );
-    }
-
 }
