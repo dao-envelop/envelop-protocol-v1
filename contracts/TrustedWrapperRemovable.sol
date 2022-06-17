@@ -137,21 +137,12 @@ contract TrustedWrapperRemovable is WrapperBaseV1, IWrapperRemovable {
             if (removeBalance == 0) {
                 return false;
             }
-           // - get modelAddress.  Default feeModel adddress always live in
-           // protocolTechToken. When white list used it is possible override that model.
-           // default model always  must be set  as protocolTechToken
-           //address feeModel = protocolTechToken;
-            // if  (protocolWhiteList != address(0)) {
-            //     feeModel = IAdvancedWhiteList(protocolWhiteList).getWLItem(
-            //         _to
-            //     ).transferFeeModel;
-            // }
-            // - get transfer list from external model by feetype(with royalties)
+
             (ETypes.AssetItem[] memory assetItems, 
              address[] memory from, 
              address[] memory to
             ) =
-                // This implementation only with native model from protocolTechToken
+                // This implementation works only with native model from protocolTechToken
                 IFeeRoyaltyModel(protocolTechToken).getTransfersList(
                     //erc20ItemForRemove,
                     ETypes.Fee({
