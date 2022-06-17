@@ -9,13 +9,10 @@ interface IUnitBox  {
 
     enum DexType {None, UniSwapV2, UniSwapV3}
 
-    struct Share {
-        address beneficiary;
-        uint256 percent;
-    }
+    
 
     struct GameTokenDex {
-        DexType dex;
+        DexType dexType;
         address dexAddress;
         address[] path;
         bool enabled;

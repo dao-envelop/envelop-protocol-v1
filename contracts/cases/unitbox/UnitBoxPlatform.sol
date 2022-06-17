@@ -14,12 +14,19 @@ pragma solidity 0.8.13;
 contract UnitBoxPlatform is Ownable, IUnitBox{
     using ECDSA for bytes32;
     
+    uint256 constant public DELTA_FOR_SWAP_DEADLINE = 300;
+
+    // Next to vars must bu redefine for BSC
+    address public UniswapV2Router02 = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
+    address public UniswapV2Factory  = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    address public assetForTreasure; // USDT
+    address public treasure;
     bytes2 public wnftRules = 0x0000;
 
     IWrapperRemovable public wrapper;
 
     mapping(address => bool) public trustedSigners;
-    mapping(address => GameTokenDex) public dex; 
+    mapping(address => GameTokenDex) public dexForAsset; 
     mapping(uint256 =>bool) public nonceUsed;
 
     constructor (address _wrapper) {
@@ -61,13 +68,34 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         uint256 _wNFTTokenId,
         address _collateralAddress
     ) external {
-        require(dex[_collateralAddress].enabled, "Disable for claim");
+        require(dexForAsset[_collateralAddress].enabled, "Disable for claim");
         wrapper.removeERC20Collateral(_wNFTAddress, _wNFTTokenId, _collateralAddress);
         swapMe(_collateralAddress);
 
     }
 
     function swapMe(address token) public {
+
+        if (dexForAsset[token].dexType == DexType.UniSwapV2) {
+            // UniswapV2 Router implementation
+            address router = dexForAsset[token].dexAddress;
+            address receiver = treasure;
+            if (router == address(0)) {
+                router = UniswapV2Router02;
+            }
+            if (receiver == address(0)) {
+                receiver = address(this);
+            } 
+            IUniswapV2Router02(router).swapExactTokensForTokens(
+                IERC20(token).balanceOf(address(this)), // amountIn
+                0, // amountOutMin
+                dexForAsset[token].path, // path
+                receiver, // to
+                block.timestamp + DELTA_FOR_SWAP_DEADLINE // deadline
+            );
+        } else {
+            return;
+        }
 
 
     }
@@ -87,7 +115,7 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
     }
 
     function setTokenDex(address _token, GameTokenDex calldata _dex) external onlyOwner {
-        dex[_token] = _dex;
+        dexForAsset[_token] = _dex;
     }
 
     function setSignerState(address _signer, bool _state) external onlyOwner {
@@ -140,7 +168,7 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
     /**
      * @dev Swaps tokens with exact input amount
      * @param amountIn - exact input amount
-     * @param amountOutMin - maximal output amount
+     * @param amountOutMin - minimal output amount
      * @param path - array of token addresses with swap order
      * @param deadline - swap deadline
      * @param router - uniswap router name
