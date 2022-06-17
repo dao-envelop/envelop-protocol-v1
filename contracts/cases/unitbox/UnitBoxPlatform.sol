@@ -27,10 +27,7 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
     }
 
     function wrapForRent(
-        ETypes.INData      calldata _inData,
-        // address _nftAddress, 
-        //uint256 _nftId,
-        // ETypes.Royalty[] calldata _shares,
+        ETypes.INData  calldata _inData,
         uint256 _nonce,
         bytes memory _signature
     ) 
@@ -48,19 +45,10 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         require(!nonceUsed[_nonce], "Nonce used");
         // Check and prepare params for wrap
         require(_inData.royalties.length > 2, "No beneficiaries");
-        //ETypes.Fee[] memory f;
-        //ETypes.Lock[] memory l;
-        //ETypes.Royalty[] memory r;
-        // ETypes.INData memory _inData = ETypes.INData({
-        //     inAsset: ETypes.AssetItem(ETypes.Asset(ETypes.AssetType.ERC721, _nftAddress), _nftId, 0),
-        //     unWrapDestination: _shares[0].beneficiary, // by aggrement
-        //     fees: f,
-        //     locks: l,
-        //     royalties: _shares,
-        //     outType: ETypes.AssetType.ERC721,
-        //     outBalance: 0,      //0- for 721 and any amount for 1155
-        //     rules: wnftRules
-        // });
+        require(_inData.royalties[_inData.royalties.length - 1].beneficiary == address(this),
+             "Last record in royalties always this contract"
+        );
+
         ETypes.AssetItem[] memory _collateral; 
         ETypes.AssetItem memory _wnft;
 
@@ -68,11 +56,19 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         return (_wnft.asset.contractAddress, _wnft.tokenId);
     }
 
-    function claimAndSwap() external {
+    function claimAndSwap(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId,
+        address _collateralAddress
+    ) external {
+        require(dex[_collateralAddress].enabled, "Disable for claim");
+        wrapper.removeERC20Collateral(_wNFTAddress, _wNFTTokenId, _collateralAddress);
+        swapMe(_collateralAddress);
 
     }
 
-    function swapMe(address token) external {
+    function swapMe(address token) public {
+
 
     }
 
@@ -97,6 +93,12 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
     function setSignerState(address _signer, bool _state) external onlyOwner {
         trustedSigners[_signer] = _state;
     }
+
+    function setWrapRule(bytes2 _rule) external onlyOwner {
+        wnftRules = _rule;
+    }
+
+
 
     ///////////////////////////////////////////////////////////////////
 

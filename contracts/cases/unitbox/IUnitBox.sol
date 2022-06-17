@@ -31,7 +31,12 @@ interface IUnitBox  {
         bytes memory _signature
     ) external  returns (address wnftContract, uint256 tokenId);
     
-    function claimAndSwap() external;
+    function claimAndSwap(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId,
+        address _collateralAddress
+    ) external;
+    
     function swapMe(address token) external;
 
     function withdrawEther() external;
