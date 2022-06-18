@@ -21,12 +21,12 @@ accounts.add(private_key)
 #tech 0x8368f72a85f5b3bc9f41ff9f3a681b09da0fe21f
 
 def main():
-	techERC20 = TechTokenV1.at('0xDD2C613E4C06127f7c69fA4A941BDde50fc4A9b1')
-	wrapper = WrapperForRent.at('0x13c38357360f2A674FC49F8035DB9CeD8963B96C')
-	wnft721 = EnvelopwNFT721.at('0x1fBa8e7237C2Eef4104406a230bB562Bf66be162')
-	wnft1155 = EnvelopwNFT1155.at('0x34Ed6Af28AfA2e42e31C2604FD25D0Fe8B200910')
+	techERC20 = TechTokenV1.at('0x10ecdf7c53A95B83a55825ea8010d948b49288c2')
+	wrapper = WrapperForRent.at('0x2Ef106DD93beDC6E01EaF127F4434C39cEbC188F')
+	wnft721 = EnvelopwNFT721.at('0x178b4bFe0A36D7A524EF32F29E75C1F7d3cC715f')
+	wnft1155 = EnvelopwNFT1155.at('0x2ba1ec4526A276F36AfBd7066F8b63B9347B537B')
 
-	original_nft_contract = Token1155Mock.at('0x403cEDfF16ad12d4Ef53b2D8aFe55965a1a61BFE')
+	original_nft_contract = Token1155Mock.at('0xD48fdbCf81070547d5a3fB276203b5bf96344b10')
 	origNFT = OrigNFT.at('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578')
 
 	#wnft721
@@ -77,7 +77,7 @@ def main():
 
 	#try to deposit collateral
 	try:
-		wrapper.addCollateral(wnft721.address, wTokenId, [], {"from": accounts[1], "value": 0.1, "gas_price": price})
+		wrapper.addCollateral(wnft721.address, wTokenId, [], {"from": accounts[1], "value": 0.0001, "gas_price": price})
 	except ValueError as ve:
 		print(ve)
 	

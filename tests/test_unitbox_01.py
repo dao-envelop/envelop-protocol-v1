@@ -17,6 +17,7 @@ out_type = 3
 secret = 7777777
 ORACLE_ADDRESS = '0x8125F522a712F4aD849E6c7312ba8263bEBeEFeD' 
 ORACLE_PRIVATE_KEY = '0x222ead82a51f24a79887aae17052718249295530f8153c73bf1f257a9ca664af'
+coll_amount = 1e18
 
 
 def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
@@ -35,7 +36,7 @@ def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
         
     ))
 
-def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721):
+def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721, whiteLists, niftsy20, techERC20, dai):
     #make test data
     makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
 
@@ -61,7 +62,7 @@ def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721):
         royalty,
         out_type,
         0,
-        0x0000
+        0x0006
     )
 
     # Message for sign
@@ -84,8 +85,10 @@ def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721):
         Web3.toChecksumAddress(accounts[0].address), 
         Web3.toInt(0)
     )
+    logging.info('hashed_msg = {}'.format(hashed_msg))
     # Ether style signature
     message = encode_defunct(primitive=hashed_msg)
+    logging.info('message = {}'.format(message))
     signed_message = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
     logging.info('sign_message is {}'.format(signed_message))
     ####################################
@@ -101,7 +104,84 @@ def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721):
     assert wnft721.ownerOf(wrapperRemovable.lastWNFTId(out_type)[1]) == accounts[2].address
     assert wnft721.totalSupply() == 1
 
- 
+    
+    #switch on white list
+    wrapperRemovable.setWhiteList(whiteLists.address, {"from": accounts[0]})
+    
+    wl_data = (False, True, False, techERC20.address)
+    whiteLists.setWLItem((2, niftsy20.address), wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((2, dai.address), wl_data, {"from": accounts[0]})
+
+    wTokenId = wrapperRemovable.lastWNFTId(out_type)[1]
+
+    #add collateral - niftsy. Niftsy has DEX
+    niftsy20.approve(wrapperRemovable.address, coll_amount, {"from": accounts[0]})
+
+    wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((2, niftsy20.address), 0, coll_amount )], {"from": accounts[0]})
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == coll_amount
+
+    #set Dex for Token
+    with reverts("Ownable: caller is not the owner"):
+        unitbox.setTokenDex(niftsy20, (0, zero_address, True), {"from": accounts[1]})
+
+    unitbox.setTokenDex(niftsy20, (0, zero_address, True), {"from": accounts[0]})
+
+    #claim And Swap collateral niftsy
+    assert niftsy20.balanceOf(accounts[1]) == 0
+    assert niftsy20.balanceOf(accounts[2]) == 0
+    assert niftsy20.balanceOf(accounts[3]) == 0
+    before_balance0 = niftsy20.balanceOf(accounts[0])
+    unitbox.claimAndSwap(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1]}) 
+    assert niftsy20.balanceOf(accounts[1]) + niftsy20.balanceOf(accounts[2]) + niftsy20.balanceOf(accounts[0])-before_balance0 == coll_amount
+    assert niftsy20.balanceOf(accounts[1]) == coll_amount*wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[5][0][1]/10000
+    assert niftsy20.balanceOf(accounts[2]) == coll_amount*wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[5][1][1]/10000
+    assert niftsy20.balanceOf(accounts[0]) == before_balance0 + coll_amount*wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[5][2][1]/10000
+    assert niftsy20.balanceOf(wrapperRemovable.address) == 0
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == 0
+
+    #add collateral - dai tokens. DAI does not have DEX
+    dai.approve(wrapperRemovable.address, coll_amount, {"from": accounts[0]})
+    wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((2, dai.address), 0, coll_amount )], {"from": accounts[0]})    
+
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[0] == coll_amount
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[1] == 1 #index
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == 0
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[1] == 0 #index
+    assert dai.balanceOf(wrapperRemovable.address) == coll_amount
+    assert niftsy20.balanceOf(wrapperRemovable.address) == 0
+    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
+
+    #add collateral - niftsy tokens again
+    niftsy20.approve(wrapperRemovable.address, coll_amount, {"from": accounts[0]})
+    wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((2, niftsy20.address), 0, coll_amount )], {"from": accounts[0]})
+    before_balance0 = niftsy20.balanceOf(accounts[0])
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == coll_amount
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[1] == 0
+    assert niftsy20.balanceOf(wrapperRemovable.address) == coll_amount
+    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[0] == coll_amount
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[1] == 1
+    assert dai.balanceOf(wrapperRemovable.address) == coll_amount
+    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
+
+    #claim And Swap again collateral niftsy
+    before_balance0 = niftsy20.balanceOf(accounts[0])
+    unitbox.claimAndSwap(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1]}) 
+    assert niftsy20.balanceOf(accounts[1]) + niftsy20.balanceOf(accounts[2]) + 2*(niftsy20.balanceOf(accounts[0])-before_balance0) == 2*coll_amount
+    assert niftsy20.balanceOf(accounts[1]) == 2*coll_amount*wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[5][0][1]/10000
+    assert niftsy20.balanceOf(accounts[2]) == 2*coll_amount*wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[5][1][1]/10000
+    assert niftsy20.balanceOf(accounts[0]) == before_balance0 + coll_amount*wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[5][2][1]/10000
+    assert niftsy20.balanceOf(wrapperRemovable.address) == 0
+    assert dai.balanceOf(wrapperRemovable.address) == coll_amount
+    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == 0
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[1] == 0
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[0] == coll_amount
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[1] == 1
+    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
+
+    with reverts("Remove fail"):
+        unitbox.claimAndSwap(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1]})
     
 
 
