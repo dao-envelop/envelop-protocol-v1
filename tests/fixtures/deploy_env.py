@@ -196,3 +196,7 @@ def wrapperRemovable(accounts, TrustedWrapperRemovable, techERC20ForWrapperRemov
     #t.setTokenService(tokenService.address, {'from':accounts[0]})
     yield t 
 
+@pytest.fixture(scope="module")
+def unitbox(accounts, wrapperRemovable, UnitBoxPlatform):
+    u = accounts[0].deploy(UnitBoxPlatform, wrapperRemovable.address)
+    yield u

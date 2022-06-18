@@ -57,13 +57,13 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         external 
         returns (address wnftContract, uint256 tokenId) 
     {
-        bytes32 msgMustWasSigned = keccak256(abi.encode(
+        bytes32 msgMustWasSigned = prepareMessage(
                 _inData.inAsset.asset.contractAddress,
                 _inData.inAsset.tokenId,
                 _inData.royalties,
                 msg.sender,
                 _nonce
-        )).toEthSignedMessageHash();
+        ).toEthSignedMessageHash();
         require(_checkSign(msgMustWasSigned, _signature), "Signature check failed");
         require(!nonceUsed[_nonce], "Nonce used");
         
@@ -161,6 +161,16 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         }
 
 
+    }
+
+    function prepareMessage(
+        address _addr, 
+        uint256 _uint, 
+        ETypes.Royalty[] calldata _arr, 
+        address _sender, 
+        uint256 _nonce
+    ) public pure returns (bytes32) {
+        return keccak256(abi.encode(_addr, _uint, _arr, _sender, _nonce));
     }
 
     ///////////////////////////////////////////////////////////////////
