@@ -107,7 +107,6 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
     assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[0] == coll_amount
     assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[1] == 1
     assert dai.balanceOf(wrapperRemovable.address) == coll_amount
-    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
 
     #remove again collateral niftsy
     wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1]}) 
@@ -149,7 +148,6 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
     assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[1] == 0
     assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[0] == 0
     assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[1] == 1
-    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
 
     
     wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[0]})

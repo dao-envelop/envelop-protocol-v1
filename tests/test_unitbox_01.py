@@ -162,7 +162,6 @@ def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721, whiteLis
     assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[0] == coll_amount
     assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[1] == 1
     assert dai.balanceOf(wrapperRemovable.address) == coll_amount
-    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
 
     #claim And Swap again collateral niftsy
     before_balance0 = niftsy20.balanceOf(accounts[0])
@@ -178,10 +177,55 @@ def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721, whiteLis
     assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[1] == 0
     assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[0] == coll_amount
     assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[1] == 1
-    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
 
     with reverts("Remove fail"):
         unitbox.claimAndSwap(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1]})
+
+    with reverts("Only owner or  renter"):
+        unitbox.unWrap(wnft721.address, wTokenId, {"from": accounts[4]})
+
+    with reverts("Need remove collateral before unwrap"):
+        unitbox.unWrap(wnft721.address, wTokenId, {"from": accounts[1]})
+
+    #claim collateral dai
+    wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, dai.address, {"from": accounts[1]}) 
+    assert niftsy20.balanceOf(accounts[1]) + niftsy20.balanceOf(accounts[2]) + 2*(niftsy20.balanceOf(accounts[0])-before_balance0) == 2*coll_amount
+    assert dai.balanceOf(accounts[1]) + dai.balanceOf(accounts[2]) + dai.balanceOf(unitbox.address) == coll_amount
+    assert niftsy20.balanceOf(wrapperRemovable.address) == 0
+    assert dai.balanceOf(wrapperRemovable.address) == 0
+    assert len(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1]) == 2
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == 0
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[1] == 0
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[0] == 0
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[1] == 1
+
+    assert dai.balanceOf(accounts[1]) == coll_amount*wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[5][0][1]/10000
+    assert dai.balanceOf(accounts[2]) == coll_amount*wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[5][1][1]/10000
+    assert dai.balanceOf(unitbox.address) == coll_amount*wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[5][2][1]/10000
+
+    #investor unwraps wnft
+    unitbox.unWrap(wnft721.address, wTokenId, {"from": accounts[1]})
+
+    erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[1]
+
+    #withdraw dai tokens from unitbox platform
+    with reverts("Ownable: caller is not the owner"):
+        unitbox.withdrawTokens(dai.address, {"from": accounts[1]})
+
+    before_balance0 = dai.balanceOf(accounts[0])
+    before_balanceU = dai.balanceOf(unitbox.address)
+    unitbox.withdrawTokens(dai.address, {"from": accounts[0]})
+
+    assert dai.balanceOf(unitbox.address) == 0
+    assert dai.balanceOf(accounts[0]) == before_balance0 + before_balanceU
+
+
+
+
+
+
+    
+
     
 
 
