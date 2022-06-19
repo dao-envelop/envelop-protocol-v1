@@ -87,6 +87,11 @@ interface IWrapper  {
     //     payable;
 
     function unWrap(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId
+    ) external; 
+
+    function unWrap(
         ETypes.AssetType _wNFTType, 
         address _wNFTAddress, 
         uint256 _wNFTTokenId

@@ -80,6 +80,10 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         return (_wnft.asset.contractAddress, _wnft.tokenId);
     }
 
+    function unWrap(address _wNFTAddress, uint256 _wNFTTokenId) external {
+        wrapper.unWrap(_wNFTAddress, _wNFTTokenId);
+    }
+    
     function claimAndSwap(
         address _wNFTAddress, 
         uint256 _wNFTTokenId,
@@ -89,6 +93,8 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         wrapper.removeERC20Collateral(_wNFTAddress, _wNFTTokenId, _collateralAddress);
         swapMe(_collateralAddress);
     }
+
+
 
     function swapMe(address token) public {
 
