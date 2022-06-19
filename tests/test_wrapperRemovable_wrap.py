@@ -130,10 +130,10 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
     
 
     with reverts("Only trusted address"):
-        wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[1]})
+        wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[2]})
 
     with reverts("Only trusted address"):
-        wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[2]})
+        wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[3]})
 
     with reverts("Need remove collateral before unwrap"):
         wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[0]})
@@ -153,19 +153,14 @@ def test_UnitBox(accounts, erc721mock, wrapperRemovable, dai, weth, wnft721, nif
 
     
     wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[0]})
-    
 
-    #address _wNFTAddress, 
-    #    uint256 _wNFTTokenId,
-    #    address _collateralAddress,
-    #    address _amount
-        
+    erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[1]
    
 
-    #account[0] - platform
+    #account[0] - unitbox platform - trusted address
     #account[1] - investor
     #account[2] - scolar
-    #account[3] - unitbox platform
+    #account[3] - Treasury
 
 
 
