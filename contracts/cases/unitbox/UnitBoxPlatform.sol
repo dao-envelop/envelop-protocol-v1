@@ -18,7 +18,7 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
     uint256 constant public DELTA_FOR_SWAP_DEADLINE = 300;
     address constant public UniswapV2Router02 = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
     address constant public UniswapV2Factory  = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
-    address public treasure;
+    address public treasury;
     bytes2 public wnftRules = 0x0000;
 
     IWrapperRemovable public wrapper;
@@ -34,17 +34,17 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
             dexForChain.router  = UniswapV2Router02;
             dexForChain.factory = UniswapV2Factory;
             dexForChain.nativeAsset      = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // WETH
-            dexForChain.assetForTreasure = 0xdAC17F958D2ee523a2206206994597C13D831ec7; // USDT
+            dexForChain.assetForTreasury = 0xdAC17F958D2ee523a2206206994597C13D831ec7; // USDT
         
         } else if (block.chainid == 4) {
             dexForChain.router  = UniswapV2Router02;
             dexForChain.factory = UniswapV2Factory;
             dexForChain.nativeAsset      = 0xc778417E063141139Fce010982780140Aa0cD5Ab ; // WETH
-            dexForChain.assetForTreasure = 0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735; //DAI
+            dexForChain.assetForTreasury = 0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735; //DAI
 
         } else if (block.chainid == 56) {
             //dexForChain.nativeAsset = ; //  ???
-            dexForChain.assetForTreasure =  0x55d398326f99059fF775485246999027B3197955; //USDT BSC
+            dexForChain.assetForTreasury =  0x55d398326f99059fF775485246999027B3197955; //USDT BSC
 
         }
     }
@@ -81,9 +81,14 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
     }
 
     function unWrap(address _wNFTAddress, uint256 _wNFTTokenId) external {
+        ETypes.WNFT memory wnft =  wrapper.getWrappedToken(_wNFTAddress, _wNFTTokenId);
+        require(msg.sender == wnft.royalties[0].beneficiary 
+             || msg.sender == wnft.royalties[1].beneficiary,
+            "Only owner or  renter"
+        );
         wrapper.unWrap(_wNFTAddress, _wNFTTokenId);
     }
-    
+
     function claimAndSwap(
         address _wNFTAddress, 
         uint256 _wNFTTokenId,
@@ -101,7 +106,7 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         if (dexForAsset[token].dexType == DexType.UniSwapV2) {
             // UniswapV2 Router implementation
             address router = dexForAsset[token].dexAddress;
-            address receiver = treasure;
+            address receiver = treasury;
             if (router == address(0)) {
                 router = dexForChain.router;
             }
@@ -113,17 +118,17 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
             // Lets discover path
             address pair = IUniswapV2Factory(dexForChain.factory).getPair(
                 token, 
-                dexForChain.assetForTreasure
+                dexForChain.assetForTreasury
             );
             uint256 lenPath = pair == address(0) ? 3 : 2;
             address[] memory path = new address[](lenPath);
             if (lenPath == 2) {
                path[0] = token;
-               path[1] = dexForChain.assetForTreasure;
+               path[1] = dexForChain.assetForTreasury;
             } else {
                path[0] = token;
                path[1] = dexForChain.nativeAsset;
-               path[2] = dexForChain.assetForTreasure;    
+               path[2] = dexForChain.assetForTreasury;    
             }
             
             IUniswapV2Router02(router).swapExactTokensForTokens(
@@ -145,7 +150,7 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         if (dexForAsset[token].dexType == DexType.UniSwapV2) {
             // UniswapV2 Router implementation
             address router = dexForAsset[token].dexAddress;
-            address receiver = treasure;
+            address receiver = treasury;
             if (router == address(0)) {
                 router = dexForChain.router;
             }
@@ -208,8 +213,8 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         wnftRules = _rule;
     }
 
-    function setTreasure(address _treasure) external onlyOwner {
-        treasure = _treasure;
+    function settreasury(address _treasury) external onlyOwner {
+        treasury = _treasury;
     }
 
     function setDexForChain(DexParams calldata _dexParams) external onlyOwner {

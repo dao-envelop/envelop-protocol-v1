@@ -13,7 +13,7 @@ interface IUnitBox  {
         address router;
         address factory;
         address nativeAsset;
-        address assetForTreasure;
+        address assetForTreasury;
     }
 
     struct GameTokenDex {
