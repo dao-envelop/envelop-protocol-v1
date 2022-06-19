@@ -214,7 +214,15 @@ contract TrustedWrapperRemovable is WrapperBaseV1, IWrapperRemovable {
         returns (address burnFor, uint256 burnBalance) 
     {
         for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length; i ++) {
-            require(wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].amount == 0, 'Need remove collateral before unwrap');
+            if (wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].asset.assetType 
+                == ETypes.AssetType.ERC20
+            ) 
+            {
+                require(
+                    wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral[i].amount == 0, 
+                    'Need remove collateral before unwrap'
+                );
+            }
         }
 
         // Lets check wNFT rules 
