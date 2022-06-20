@@ -107,8 +107,14 @@ def test_UnitBox(accounts, erc721mock, erc1155mock, wrapperRemovable, dai, weth,
     with reverts(""):
         wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((0, niftsy20.address), 0, coll_amount )], {"from": accounts[0]})
 
-    with reverts("Need remove collateral before unwrap"):
-        wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[0]})
+    before_balance_ether1 = accounts[1].balance()
+
+    wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[0]})
+
+    assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[1]
+    assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[1]) == accounts[1]
+    assert erc1155mock.balanceOf(accounts[1], ORIGINAL_NFT_IDs[0]) == in_nft_amount
+    assert accounts[1].balance() == before_balance_ether1 + 1e18
 
 
     
