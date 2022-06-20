@@ -84,10 +84,15 @@ def test_UnitBox(accounts, erc721mock, erc1155mock, wrapperRemovable, dai, weth,
     with reverts("Remove fail"):
         wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1]}) 
 
+    #try to remove collateral for nonexists wnft
+    with reverts("Remove fail"):
+        wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId+1, dai.address, {"from": accounts[1]}) 
+
+    #remove dai tokens
     wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, dai.address, {"from": accounts[1]}) 
     #logging.info(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1])
 
-    #add erc721 in collateral
+    #add erc721 in collateral with amount
     erc721mock.approve(wrapperRemovable.address, ORIGINAL_NFT_IDs[1], {"from": accounts[0]})
     wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[1], 0 )], {"from": accounts[0]})
 
