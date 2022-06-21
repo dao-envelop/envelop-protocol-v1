@@ -130,7 +130,7 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
                path[1] = dexForChain.nativeAsset;
                path[2] = dexForChain.assetForTreasury;    
             }
-            
+            IERC20(token).approve(router,IERC20(token).balanceOf(address(this)));
             IUniswapV2Router02(router).swapExactTokensForTokens(
                 IERC20(token).balanceOf(address(this)), // amountIn
                 0, // amountOutMin
@@ -158,6 +158,7 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
             if (receiver == address(0)) {
                 receiver = address(this);
             } 
+            IERC20(token).approve(router,IERC20(token).balanceOf(address(this)));
             // https://docs.uniswap.org/protocol/V2/guides/smart-contract-integration/trading-from-a-smart-contract  
             IUniswapV2Router02(router).swapExactTokensForTokens(
                 IERC20(token).balanceOf(address(this)), // amountIn
