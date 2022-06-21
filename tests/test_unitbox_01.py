@@ -112,8 +112,6 @@ def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721, whiteLis
     whiteLists.setWLItem((2, niftsy20.address), wl_data, {"from": accounts[0]})
     whiteLists.setWLItem((2, dai.address), wl_data, {"from": accounts[0]})
 
-    wTokenId = wrapperRemovable.lastWNFTId(out_type)[1]
-
     #add collateral - niftsy. Niftsy has DEX
     niftsy20.approve(wrapperRemovable.address, coll_amount, {"from": accounts[0]})
 
