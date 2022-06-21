@@ -75,7 +75,7 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
 
         ETypes.AssetItem[] memory _collateral; 
         ETypes.AssetItem memory _wnft;
-
+        nonceUsed[_nonce] = true;
         _wnft = wrapper.wrap( _inData, _collateral, _inData.royalties[1].beneficiary);
         return (_wnft.asset.contractAddress, _wnft.tokenId);
     }
