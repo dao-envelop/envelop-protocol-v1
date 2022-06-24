@@ -20,8 +20,8 @@ def main():
 
     #wl_data = (False, True, False, techERC20.address)
     #whiteList.setWLItem((3,'0xdFeB55cBD23c13C4aC3195048824D14787E10732'), wl_data, {"from": accounts[0]})
-    whiteList.setBLItem((3,'0xe1383d47550b7b3b2ea6c4d327627a0a167f7b4b'), False, {"from": accounts[0]})
-    whiteList.setBLItem((4,'0x403cedff16ad12d4ef53b2d8afe55965a1a61bfe'), False, {"from": accounts[0]})
+    whiteList.setBLItem((3,'0xe1383d47550b7b3b2ea6c4d327627a0a167f7b4b'), True, {"from": accounts[0]})
+    whiteList.setBLItem((4,'0x403cedff16ad12d4ef53b2d8afe55965a1a61bfe'), True, {"from": accounts[0]})
    
     
     

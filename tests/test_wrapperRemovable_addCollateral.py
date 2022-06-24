@@ -18,6 +18,11 @@ transfer_fee_amount = 100
 #transfer with fee without royalty
 def test_UnitBox(accounts, erc721mock, erc1155mock, wrapperRemovable, dai, weth, wnft721, niftsy20, erc1155mock1, erc721mock1, whiteLists, techERC20, wrapperChecker):
 
+    with reverts("Ownable: caller is not the owner"):
+        wrapperRemovable.setTrustedAddress(accounts[1], True, {"from": accounts[1]})
+
+    wrapperRemovable.setTrustedAddress(accounts[1], True, {"from": accounts[0]})
+
     #make 721 token for wrapping
     makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
     #make 1155 tokens
@@ -99,6 +104,14 @@ def test_UnitBox(accounts, erc721mock, erc1155mock, wrapperRemovable, dai, weth,
     #add erc1155 in collateral
     erc1155mock.setApprovalForAll(wrapperRemovable.address,True, {"from": accounts[1]}) 
     wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[0], in_nft_amount)], {"from": accounts[1]})
+
+    #try to remove erc1155 from collateral
+    with reverts("Remove fail"):
+        wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, erc1155mock.address, {"from": accounts[1]}) 
+
+    #try to remove erc721 from collateral
+    with reverts("Remove fail"):
+        wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, erc721mock.address, {"from": accounts[1]}) 
 
     logging.info(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1])
 

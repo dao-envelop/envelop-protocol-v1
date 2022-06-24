@@ -85,15 +85,37 @@ def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721, whiteLis
         Web3.toChecksumAddress(accounts[0].address), 
         Web3.toInt(0)
     )
+
+    hashed_msg_wrong = unitbox.prepareMessage(
+        Web3.toChecksumAddress(erc721mock.address), 
+        Web3.toInt(ORIGINAL_NFT_IDs[1]), #we fixed tokenId in message
+        royalty, 
+        Web3.toChecksumAddress(accounts[0].address), 
+        Web3.toInt(0)
+    )
     logging.info('hashed_msg = {}'.format(hashed_msg))
     # Ether style signature
     message = encode_defunct(primitive=hashed_msg)
+    message_wrong = encode_defunct(primitive=hashed_msg_wrong)
+
     logging.info('message = {}'.format(message))
     signed_message = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
+    signed_message_wrong = web3.eth.account.sign_message(message_wrong, private_key=ORACLE_PRIVATE_KEY)
+
     logging.info('sign_message is {}'.format(signed_message))
     ####################################
+    with reverts("Ownable: caller is not the owner"):
+        unitbox.setSignerState(ORACLE_ADDRESS, True, {'from':accounts[1]})
     unitbox.setSignerState(ORACLE_ADDRESS, True, {'from':accounts[0]})
+    
+    with reverts("Only trusted address"):
+        unitbox.wrapForRent(inData, 0, signed_message.signature, {"from": accounts[0]})
+
     wrapperRemovable.setTrustedAddress(unitbox, True, {'from':accounts[0]})
+
+    #try to wrap when message is created with wrong data
+    with reverts("Signature check failed"):
+        unitbox.wrapForRent(inData, 0, signed_message_wrong.signature, {"from": accounts[0]})
 
     unitbox.wrapForRent(inData, 0, signed_message.signature, {"from": accounts[0]})
     wTokenId = wrapperRemovable.lastWNFTId(out_type)[1]
@@ -201,10 +223,16 @@ def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721, whiteLis
     assert dai.balanceOf(accounts[2]) == coll_amount*wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[5][1][1]/10000
     assert dai.balanceOf(unitbox.address) == coll_amount*wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[5][2][1]/10000
 
-    #investor unwraps wnft
-    unitbox.unWrap(wnft721.address, wTokenId, {"from": accounts[1]})
+    wrapperRemovable.addCollateral(wnft721, wTokenId, [], {"from": accounts[0], "value": "1 ether"})
 
-    erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[1]
+    #investor unwraps wnft
+    before_eth_balance1 = accounts[1].balance()
+    before_eth_balanceW = wrapperRemovable.balance()
+    unitbox.unWrap(wnft721.address, wTokenId, {"from": accounts[1]})
+    assert wrapperRemovable.balance() == 0
+    assert accounts[1].balance() == before_eth_balance1 + before_eth_balanceW
+
+    assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[1]
 
     #withdraw dai tokens from unitbox platform
     with reverts("Ownable: caller is not the owner"):
@@ -218,124 +246,59 @@ def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721, whiteLis
     assert dai.balanceOf(accounts[0]) == before_balance0 + before_balanceU
 
 
+    ##try use used nonce
+    erc721mock.approve(wrapperRemovable.address, ORIGINAL_NFT_IDs[1], {'from':accounts[0]})
+    erc721_property = (in_type, erc721mock.address)
+    erc721_data = (erc721_property, ORIGINAL_NFT_IDs[1], 1)
 
+    inData = (erc721_data,
+        accounts[0],
+        fee,
+        lock,
+        royalty,
+        out_type,
+        0,
+        0x0006
+    )
 
+    hashed_msg = unitbox.prepareMessage(
+        Web3.toChecksumAddress(erc721mock.address), 
+        Web3.toInt(ORIGINAL_NFT_IDs[1]),
+        royalty, 
+        Web3.toChecksumAddress(accounts[0].address), 
+        Web3.toInt(0)
+    )
 
+    logging.info('hashed_msg = {}'.format(hashed_msg))
+    # Ether style signature
+    message = encode_defunct(primitive=hashed_msg)
 
+    logging.info('message = {}'.format(message))
+    signed_message = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
+
+    logging.info('sign_message is {}'.format(signed_message))
+    ####################################
     
+    with reverts("Nonce used"):
+        unitbox.wrapForRent(inData, 0, signed_message.signature, {"from": accounts[0]})
 
-    
+    with reverts("Cannot send ether to nonpayable function"):
+        accounts[0].transfer(unitbox.address, "1 ether")
 
+    with reverts("Ownable: caller is not the owner"):
+        unitbox.setDexForChain((accounts[0], accounts[1], accounts[2], accounts[4]), {"from": accounts[1]})
 
-    #wrapper.unWrap(3, wnft721, wTokenId, {'from': accounts[3]})
-        
-# def test_freeze(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
-#     wTokenId = wrapper.lastWNFTId(out_type)[1]
-#     wnft721.setApprovalForAll(keeper, True, {'from': accounts[3]})
-#     hashed_secret = keeper.getHashed(secret)
-#     keeper.setSpawnerContract(web3.eth.chain_id,(spawner721mock, 22),{'from': accounts[0]})
-#     tx = keeper.freeze((wnft721, wTokenId), web3.eth.chain_id, hashed_secret,{'from': accounts[3]})
-#     logging.info('Freeze event:{}'.format(tx.events['NewFreeze']))
-#     #logging.info('Debug event:{}'.format(tx.events['Debug']))
-#     encoded_msg = encode_single(
-#         '(bytes32,address,uint256)',
-#          (hashed_secret, tx.events['NewFreeze']['spawnerContract'], tx.events['NewFreeze']['spawnedTokenId'])
-#     )
-#     hashed_msg = Web3.solidityKeccak(['bytes32'], [encoded_msg])
-#     logging.info('frozenItems[{}] = {}'.format(
-#         Web3.toBytes(hashed_msg).hex(), 
-#         keeper.frozenItems(Web3.toBytes(hashed_msg))
-#     ))
-#     logging.info('tx.hash={}'.format(tx.txid))
-#     global freeze_tx
-#     freeze_tx = tx.txid
-#     #assert keeper
-#     assert wnft721.balanceOf(keeper) == 1
-#     assert wnft721.ownerOf(wTokenId) == keeper.address
-#     assert keeper.frozenItems(Web3.toBytes(hashed_msg))[1] == wTokenId
+    unitbox.setDexForChain((accounts[0], accounts[1], accounts[2], accounts[4]), {"from": accounts[0]})
 
-# def test_spawn(accounts, keeper, spawner721mock):
-#     # get tx datails from Oracle
-#     tx = chain.get_transaction(freeze_tx)
-#     logging.info('\ntx: {} \nsender: {}\n logs:{}'.format(tx.txid, tx.sender, tx.logs))
-#     logging.info('Freeze event from Oracle:{}'.format(tx.events['NewFreeze']))
-#     # Lets prepare  signed  message
-#     encoded_msg = encode_single(
-#         '(address,uint256,address,uint256)',
-#         ( Web3.toChecksumAddress(accounts[3].address), 
-#           Web3.toInt(web3.eth.chain_id), 
-#           Web3.toChecksumAddress(tx.events['NewFreeze']['spawnerContract']), 
-#           Web3.toInt(tx.events['NewFreeze']['spawnedTokenId'])
-#         )
-#     )
-#     hashed_msg = Web3.solidityKeccak(['bytes32'], [encoded_msg])
-#     # Ether style signature
-#     message = encode_defunct(primitive=hashed_msg)
-#     signed_message = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
-#     logging.info('sign_message is {}'.format(signed_message))
+    with reverts("Ownable: caller is not the owner"):
+        unitbox.settreasury(niftsy20.address, {"from": accounts[1]})
 
-#     spawner721mock.setSignerStatus(ORACLE_ADDRESS, True, {'from':accounts[0]})
-#     # logging.info('debug msg:{}'.format(
-#     #     spawner721.debug(Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']), accounts[3])
-#     # ))
-#     # logging.info('debug msg no ether:{}'.format(
-#     #     spawner721.debug1(Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']), accounts[3])
-#     # ))
-#     # logging.info('debug chainid:{}'.format(
-#     #     spawner721.debugNet()
-#     # ))
-#     spawntx = spawner721mock.mint(
-#         Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']), 
-#         #signed_message.messageHash, 
-#         signed_message.signature,
-#         {'from':accounts[3]}
-#     )
-#     global spawned_token_id
-#     assert spawner721mock.ownerOf(tx.events['NewFreeze']['spawnedTokenId']) == accounts[3]
-#     spawned_token_id = tx.events['NewFreeze']['spawnedTokenId']
+    unitbox.settreasury(niftsy20.address, {"from": accounts[0]})
 
-# def test_reclaim(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
-#     spawner721mock.transferFrom(accounts[3], accounts[4], spawned_token_id, {'from':accounts[3]})
-#     tx = chain.get_transaction(freeze_tx)
-#     tx_burn = spawner721mock.burn(spawned_token_id, {'from':accounts[4]})
-    
-#     # Lets prepare  signed  message
-#     encoded_msg = encode_single(
-#         '(address,address,uint256)',
-#         ( Web3.toChecksumAddress(accounts[4].address), 
-#           Web3.toChecksumAddress(tx.events['NewFreeze']['spawnerContract']), 
-#           Web3.toInt(tx.events['NewFreeze']['spawnedTokenId'])
-#         )
-#     )
-#     hashed_msg = Web3.solidityKeccak(['bytes32'], [encoded_msg])
-#     # Ether style signature
-#     message = encode_defunct(primitive=hashed_msg)
-#     signed_message = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
-#     logging.info('sign_message is {}'.format(signed_message))
-#     keeper.setSignerStatus(ORACLE_ADDRESS, True, {'from':accounts[0]})
-#     logging.info('Check wnft by proof({}): {}'.format(
-#         keeper.getHashed(secret),
-#         keeper.checkWNFTByProof(
-#             keeper.getHashed(secret),
-#             Web3.toChecksumAddress(tx.events['NewFreeze']['spawnerContract']), 
-#             Web3.toInt(tx.events['NewFreeze']['spawnedTokenId'])
-#         )
-        
-#     ))
+    with reverts("Ownable: caller is not the owner"):
+        unitbox.setWrapRule(0x0006, {"from": accounts[1]})
 
-#     tx_unfreez = keeper.unFreeze(
-#         secret,
-#         Web3.toChecksumAddress(tx.events['NewFreeze']['spawnerContract']), 
-#         Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']),
-#         #signed_message.messageHash, 
-#         signed_message.signature,
-#         {'from':accounts[4]}
-
-#     )
-#     logging.info('tx_unfreez events {}'.format(tx_unfreez.events))
-#     wTokenId = wrapper.lastWNFTId(out_type)[1]
-#     assert wnft721.ownerOf(wTokenId) == accounts[4]
-
+    unitbox.setWrapRule(0x0006, {"from": accounts[0]})
 
 
 
