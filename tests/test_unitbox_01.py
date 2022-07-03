@@ -9,6 +9,7 @@ from eth_account.messages import encode_defunct
 
 LOGGER = logging.getLogger(__name__)
 ORIGINAL_NFT_IDs = [10000,11111,22222]
+ORIGINAL_NFT_IDs_BATCH = [10,11,12,13]
 zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
 eth_amount = "1 ether"
@@ -62,7 +63,7 @@ def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721, whiteLis
         royalty,
         out_type,
         0,
-        0x0006
+        0x0000
     )
 
     # Message for sign
@@ -302,3 +303,64 @@ def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721, whiteLis
 
 
 
+def test_wrap_batch(accounts, erc721mock, unitbox, wrapperRemovable, wnft721, whiteLists, niftsy20, techERC20, dai):
+    #make test data
+    makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs_BATCH)
+    [erc721mock.approve(wrapperRemovable.address, x, {'from':accounts[0]})
+       for x in ORIGINAL_NFT_IDs_BATCH[1:]
+    ]
+    
+    inDataS = []
+    nonceS = []
+    signatureS = []
+    for token_id in ORIGINAL_NFT_IDs_BATCH[1:]: 
+        erc721_property = (in_type, erc721mock.address)
+        erc721_data = (erc721_property, token_id, 1)
+        royalty=[
+            (accounts[1].address, 4000), # Maker
+            (accounts[2].address, 5000), # Taker
+            (unitbox.address, 1000) # Treasure proxy
+        ]
+
+        fee = []
+        lock = []
+
+        inData = (erc721_data,
+            accounts[0].address,
+            fee,
+            lock,
+            royalty,
+            out_type,
+            0,
+            0x0006
+        )
+        inDataS.append(inData)
+        nonceS.append(token_id)
+    
+    
+        hashed_msg = unitbox.prepareMessage(
+            Web3.toChecksumAddress(erc721mock.address), 
+            Web3.toInt(token_id),
+            royalty, 
+            Web3.toChecksumAddress(accounts[0].address), 
+            Web3.toInt(token_id)
+        )
+
+        logging.info('hashed_msg = {}'.format(hashed_msg))
+        # Ether style signature
+        message = encode_defunct(primitive=hashed_msg)
+        logging.info('message = {}'.format(message))
+        signed_message = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
+        logging.info('sign_message is {}'.format(signed_message))
+        signatureS.append(signed_message.signature)
+        logging.info('ownerOf[{}] = {}'.format(token_id, erc721mock.ownerOf(token_id)))         
+
+    logging.info('inDataS = {}'.format(inDataS))
+    logging.info('nonceS = {}'.format(nonceS))
+    logging.info('signatureS = {}'.format(signatureS))
+    logging.info('accounts[0] = {}'.format(accounts[0].address))
+    logging.info('accounts[1] = {}'.format(accounts[1].address))
+    ####################################
+
+    tx = unitbox.wrapBatch(inDataS, nonceS, signatureS, {"from": accounts[0]})
+    logging.info('tx.events.WrappedV1 = {}'.format(tx.events['WrappedV1']))
