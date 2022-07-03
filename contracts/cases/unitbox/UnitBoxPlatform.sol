@@ -12,6 +12,10 @@ import "./IUnitBox.sol";
 
 pragma solidity 0.8.13;
 
+/// @title UnitBoxPlatform middleware for rent nfts 
+/// @author Envelop project Team
+/// @notice You can use this contract for wrapping nfts with special rules
+/// @dev All function calls are currently implemented without side effects
 contract UnitBoxPlatform is Ownable, IUnitBox{
     using ECDSA for bytes32;
     
@@ -48,7 +52,12 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
 
         }
     }
-
+    
+    /// @notice Just for wrap batch of nfts in one transaction
+    /// @dev Please be patient in params encoding with web3 libs
+    /// @param _inDataS array of ETypes.INData
+    /// @param _nonceS array of _nonceS
+    /// @param _signatureS array of _signatureS
     function wrapBatch(
         ETypes.INData[]  calldata _inDataS,
         uint256[] calldata _nonceS,
@@ -64,6 +73,12 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         }
     }
 
+    /// @notice Just for wrap batch of nfts in one transaction
+    /// @dev You can use `prepareMessage` function from  this contract
+    /// before make sign
+    /// @param _inData array of ETypes.INData
+    /// @param _nonce just uniq identifier against any kind of double spend
+    /// @param _signature subj
     function wrapForRent(
         ETypes.INData  calldata _inData,
         uint256 _nonce,
