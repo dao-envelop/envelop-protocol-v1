@@ -49,12 +49,27 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         }
     }
 
+    function wrapBatch(
+        ETypes.INData[]  calldata _inDataS,
+        uint256[] calldata _nonceS,
+        bytes[] calldata _signatureS
+
+    ) external {
+        for (uint256 i = 0; i < _inDataS.length; i++) {
+            wrapForRent(
+                _inDataS[i],
+                _nonceS[i],
+                _signatureS[i]
+            );
+        }
+    }
+
     function wrapForRent(
         ETypes.INData  calldata _inData,
         uint256 _nonce,
         bytes memory _signature
     ) 
-        external 
+        public 
         returns (address wnftContract, uint256 tokenId) 
     {
         bytes32 msgMustWasSigned = prepareMessage(
@@ -72,6 +87,7 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         require(_inData.royalties[_inData.royalties.length - 1].beneficiary == address(this),
              "Last record in royalties always this contract"
         );
+        require(_inData.rules == wnftRules, "Rules check fail");
 
         ETypes.AssetItem[] memory _collateral; 
         ETypes.AssetItem memory _wnft;
