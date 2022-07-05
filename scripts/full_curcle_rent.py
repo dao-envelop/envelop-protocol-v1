@@ -5,15 +5,15 @@ from web3 import Web3
 LOGGER = logging.getLogger(__name__)
 
 
-#0-0x5992Fe461F81C8E0aFFA95b831E50e9b3854BA0E  - leasingPool
+#0-0x110FA9c41cb43c08ad98391dFb52a9A0713d9613  - leasingPool
 private_key=''
 accounts.add(private_key)
 
-#1-0xa11103Da33d2865C3B70947811b1436ea6Bb32eF 
+#1-0xf315B9006C20913D6D8498BDf657E778d4Ddf2c4 
 private_key=''
 accounts.add(private_key)
 
-#2-0x989FA3062bc4329B2E3c5907c48Ea48a38437fB7 
+#2-0xF8E02D473710506DB5D9210D96725cccbf4137c9 
 private_key=''
 accounts.add(private_key)
 
@@ -21,12 +21,12 @@ accounts.add(private_key)
 #tech 0x8368f72a85f5b3bc9f41ff9f3a681b09da0fe21f
 
 def main():
-	techERC20 = TechTokenV1.at('0x10ecdf7c53A95B83a55825ea8010d948b49288c2')
-	wrapper = WrapperForRent.at('0x2Ef106DD93beDC6E01EaF127F4434C39cEbC188F')
-	wnft721 = EnvelopwNFT721.at('0x178b4bFe0A36D7A524EF32F29E75C1F7d3cC715f')
-	wnft1155 = EnvelopwNFT1155.at('0x2ba1ec4526A276F36AfBd7066F8b63B9347B537B')
+	techERC20 = TechTokenV1.at('0x8368f72a85f5b3bc9f41ff9f3a681b09da0fe21f')
+	wrapper = WrapperForRent.at('0x4a80d07a1e8c15069c397cf34c407a627dcb8487')
+	wnft721 = EnvelopwNFT721.at('0x3D11D84679852F98AbA7d3b2c84299Fb7a9305A6')
+	wnft1155 = EnvelopwNFT1155.at('0xd3fde1c83b144d07878cda57b66b35176a785e61')
 
-	original_nft_contract = Token1155Mock.at('0xD48fdbCf81070547d5a3fB276203b5bf96344b10')
+	original_nft_contract = Token1155Mock.at('0x948f114eB8D40BE607F5589Cb63bF361a859466c')
 	origNFT = OrigNFT.at('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578')
 
 	#wnft721
@@ -36,11 +36,14 @@ def main():
 	
 	price = "50 gwei"
 
-	#origNFT.mint(accounts[0], {"from": accounts[0], "gas_price": price})
-	original_nft_id = origNFT.lastNFTId()
+	#tx = origNFT.mint(accounts[0], {"from": accounts[0], "gas_price": price})
+	#original_nft_id = tx.events['Transfer']['tokenId']
+	original_nft_id = 43
+
+	print(original_nft_id)
 	
 	#make allowance to use original NFT
-	origNFT.approve(wrapper.address, original_nft_id,  {"from": accounts[0], "gas_price": price})
+	#origNFT.approve(wrapper.address, original_nft_id,  {"from": accounts[0], "gas_price": price})
 
 	
 	token_property = (in_type, origNFT)
@@ -61,9 +64,12 @@ def main():
 	)
 	
 	#wrap NFT
-	wrapper.wrap(wNFT, [], accounts[1], {"from": accounts[0],'gas_price': price})
-	wTokenId = wrapper.lastWNFTId(out_type)[1]
+	#tx = wrapper.wrap(wNFT, [], accounts[1], {"from": accounts[0],'gas_price': price})
+	#wTokenId =   tx.events['WrappedV1']['outTokenId'] #wrapper.lastWNFTId(out_type)[1]
+	wTokenId = 3
 	print(wTokenId)
+
+	print(wrapper.getWrappedToken(wnft721, wTokenId))
 
 
 	assert wnft721.ownerOf(wTokenId) == accounts[1]
@@ -77,7 +83,7 @@ def main():
 
 	#try to deposit collateral
 	try:
-		wrapper.addCollateral(wnft721.address, wTokenId, [], {"from": accounts[1], "value": 0.0001, "gas_price": price})
+		wrapper.addCollateral(wnft721.address, wTokenId, [], {"from": accounts[1], "value": 1000, "gas_price": price})
 	except ValueError as ve:
 		print(ve)
 	
