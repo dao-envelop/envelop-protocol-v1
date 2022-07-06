@@ -7,6 +7,7 @@ from eth_account.messages import encode_defunct
 
 ###wrap, add Collateral, claim and swap through direct swap pair, unwrap
 
+
 ###before
 # add trustedSigner status for msg.sender for wrap in unitboxPlatform
 # check trustedOperator in TrustedWrapperRemovable == UnitBoxPlatform
@@ -43,14 +44,14 @@ def main():
     ORACLE_PRIVATE_KEY = '0x222ead82a51f24a79887aae17052718249295530f8153c73bf1f257a9ca664af'
     coll_amount = 1e18
     price = "50 gwei"
-    nonce = 3  ##increase nonce!!
+    nonce = 4  ##increase nonce!!
 
     techERC20 = TechTokenV1.at('0xf84cb379Cb536732AFc737921B4EF97390db92eD')
     wrapper = TrustedWrapperRemovable.at('0x522aCbA649165FFB287Bd1cdF2dd85429E4dcD49')
     wnft1155 = EnvelopwNFT1155.at('0x03C496376043259284Ca152D91b8d416Fd125b0d')
     wnft721 = EnvelopwNFT721.at('0x3b24709991c7A9D1FCC0743Dc8C607D5fb779e5C')
     whitelist = AdvancedWhiteList.at('0xa3F83E9Cf253EDc4E26e63F050ceB2D41eb27b26')
-    unitbox = UnitBoxPlatform.at('0x43Ed98d72AbDD15F5374751b68c6C0ea4993AE13')
+    unitbox = UnitBoxPlatform.at('0x5a2407832A211E6899e279BbfD3060D3d207EFa7')
     erc721mock = OrigNFT.at('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578')
     niftsy20 = Niftsy.at('0x3125B3b583D576d86dBD38431C937F957B94B47d') #swapable token
     usdt = TokenMock.at('0x876F77e05C77A37d6Dd2d46DFC76D8BC54Be293F') #tresury token
@@ -116,7 +117,7 @@ def main():
         print(ve)
     
     #wrap
-    tx = unitbox.wrapForRent(inData, nonce, signed_message.signature, {"from": accounts[0], "gas_price": price})  
+    tx = unitbox.wrapForRent(inData, nonce, signed_message.signature, {"from": accounts[0], "gas_price": price}) 
     wTokenId = wrapper.lastWNFTId(out_type)[1]
     wNFT = wrapper.getWrappedToken(wnft721, wTokenId)   
     print(wTokenId)
@@ -171,7 +172,7 @@ def main():
     assert wrapper.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[0] == coll_amount
     assert wrapper.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[1] == 1
     assert dai.balanceOf(wrapper.address) == coll_amount
-
+    print(accounts[2].balance())
     #claim And Swap again collateral niftsy
     before_balance0 = niftsy20.balanceOf(accounts[0])
     before_niftsy_balance1 = niftsy20.balanceOf(accounts[1])
