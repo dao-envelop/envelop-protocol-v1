@@ -157,6 +157,15 @@ def test_spawn(accounts, keeper, spawner721mock):
     # logging.info('debug chainid:{}'.format(
     #     spawner721.debugNet()
     # ))
+    #try to create key nft in target chain not owner of wnft
+    with reverts('Unexpected signer'):
+        spawner721mock.mint(
+            Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']), 
+            #signed_message.messageHash, 
+            signed_message.signature,
+            {'from':accounts[1]}
+        )
+
     spawntx = spawner721mock.mint(
         Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']), 
         #signed_message.messageHash, 
@@ -195,6 +204,17 @@ def test_reclaim(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock)
         )
         
     ))
+
+    with reverts('Unexpected signer'):
+        keeper.unFreeze(
+            secret,
+            Web3.toChecksumAddress(tx.events['NewFreeze']['spawnerContract']), 
+            Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']),
+            #signed_message.messageHash, 
+            signed_message.signature,
+            {'from':accounts[3]}
+
+        )
 
     tx_unfreez = keeper.unFreeze(
         secret,
