@@ -39,7 +39,6 @@ contract Spawner721 is ERC721, Ownable {
 
     function mint(
         uint256 _tokenId, 
-        //bytes32 _msgForSign, 
         bytes calldata _signature
     ) external virtual {
 
@@ -67,27 +66,7 @@ contract Spawner721 is ERC721, Ownable {
         _burn(tokenId);
     }
 
-    // function debug(uint256 tokenId, address _sender) public view returns (bytes32) {
-    //     return keccak256(abi.encode(
-    //             _sender,
-    //             block.chainid,
-    //             address(this),
-    //             tokenId
-    //         )).toEthSignedMessageHash();        
-    // }
-
-    // function debug1(uint256 tokenId, address _sender) public view returns (bytes32) {
-    //     return keccak256(abi.encode(
-    //             _sender,
-    //             block.chainid,
-    //             address(this),
-    //             tokenId
-    //         ));        
-    // }
-
-    // function debugNet() public view returns(uint256) {
-    //     return block.chainid;
-    // }
+    
 
     /////////////////////////////////////////////////////////////
 
