@@ -38,7 +38,7 @@ contract WNFTKeeper is  ERC721Holder, Ownable {
         uint256 indexed spawnedTokenId
     );
 
-    event Debug(bytes32 indexed hashed, NFT nft);
+    //event Debug(bytes32 indexed hashed, NFT nft);
     
     function freeze(
         NFT memory _inData, 
@@ -60,18 +60,6 @@ contract WNFTKeeper is  ERC721Holder, Ownable {
             )
         ] = _inData;
 
-        // emit Debug(
-        //     keccak256(abi.encode(
-        //         _secretHashed,
-        //         lastSpawned[_forSpawnInChain].contractAddress,
-        //         lastSpawned[_forSpawnInChain].tokenId)
-        //     ), frozenItems[
-        //     keccak256(abi.encode(
-        //         _secretHashed,
-        //         lastSpawned[_forSpawnInChain].contractAddress,
-        //         lastSpawned[_forSpawnInChain].tokenId)
-        //     )
-        // ]);
 
         IERC721Mintable(_inData.contractAddress).transferFrom(
             msg.sender, 

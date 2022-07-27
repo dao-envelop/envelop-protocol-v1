@@ -1,17 +1,24 @@
 from brownie import *
 import json
 
-if  (web3.eth.chainId != 56 
-    and web3.eth.chainId != 1 
-    and web3.eth.chainId != 137
-    and web3.eth.chainId != 43114):
+if  web3.eth.chain_id in [4, 97]:
     # Testnets
-    private_key='???'
-else:
+    #private_key='???'
+    accounts.load('tzero');
+elif web3.eth.chain_id in [1,56,137]:
+    accounts.load('envdeployer')
+    
+    pass
+#else:
+    #my local ganache
     # Mainnet
-    private_key=input('PLease input private key for deployer address..:')
-    accounts.clear()    
-    accounts.add(private_key)
+    #private_key=input('PLease input private key for deployer address..:')
+#accounts.clear()    
+#accounts.add(private_key)
+
+
+print('Deployer:{}'.format(accounts[0]))
+print('web3.eth.chain_id={}'.format(web3.eth.chainId))
 
 print('Deployer:{}'.format(accounts[0]))
 print('web3.eth.chain_id={}'.format(web3.eth.chainId))
@@ -24,9 +31,9 @@ ETH_MAIN_ERC20_COLLATERAL_TOKENS = [
 ]
 
 ETH_RINKEBY_ERC20_COLLATERAL_TOKENS = [
-(2,'0x1E991eA872061103560700683991A6cF88BA0028'), #NIFTSI ERC20
-(2,'0xc7ad46e0b8a400bb3c915120d284aafba8fc4735'),  #DAIAlex
-(2,'0xc778417e063141139fce010982780140aa0cd5ab'),  #WETH
+'0x1E991eA872061103560700683991A6cF88BA0028', #NIFTSI ERC20
+'0xc7ad46e0b8a400bb3c915120d284aafba8fc4735',  #DAI
+'0xc778417e063141139fce010982780140aa0cd5ab',  #WETH
 ]
 
 BSC_TESTNET_ERC20_COLLATERAL_TOKENS = [
@@ -43,7 +50,8 @@ POLYGON_MAIN_ERC20_COLLATERAL_TOKENS = [
 '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',  #DAI
 '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',  #USDT
 '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',  #USDC
-'0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619'   #WETH
+'0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619',  #WETH
+'0x432cdbC749FD96AA35e1dC27765b23fDCc8F5cf1' # NIFTSY
 ]
 
 AVALANCHE_MAIN_ERC20_COLLATERAL_TOKENS = [
@@ -71,22 +79,22 @@ CHAIN = {
 }.get(web3.eth.chainId, {'explorer_base':'io'})
 print(CHAIN)
 tx_params = {'from':accounts[0]}
-if web3.eth.chainId in  [1,4]:
+if web3.eth.chainId in  [1,4, 137]:
     tx_params={'from':accounts[0], 'priority_fee': chain.priority_fee}
 
 def main():
     print('Deployer account= {}'.format(accounts[0]))
     techERC20 = TechTokenV1.deploy(tx_params)
-    #techERC20 = TechTokenV1.at('0x5076D59fE7D718a120C3f359648Caed26B81C1e1')
+    #techERC20 = TechTokenV1.at('')
     wrapper   = WrapperBaseV1.deploy(techERC20.address,tx_params) 
-    #wrapper = WrapperBaseV1.at('0x8368f72a85f5b3bC9f41FF9f3a681b09DA0fE21f')
+    #wrapper = WrapperBaseV1.at('')
     wnft1155 = EnvelopwNFT1155.deploy(
-         'ENVELOP 1155 wNFT Collection', 
-         'wNFT', 
-         'https://api.envelop.is/metadata/',
-         tx_params
+        'ENVELOP 1155 wNFT Collection', 
+        'wNFT', 
+        'https://api.envelop.is/metadata/',
+        tx_params
     )
-    #wnft1155 = EnvelopwNFT1155.at('0x4A80d07a1e8C15069c397cF34c407A627dcb8487')
+    #wnft1155 = EnvelopwNFT1155.at('')
     
     wnft721 = EnvelopwNFT721.deploy(
         'ENVELOP 721 wNFT Collection', 
@@ -97,7 +105,7 @@ def main():
     #wnft721 = EnvelopwNFT721.at('0xd3FDE1C83B144d07878CDa57b66B35176A785e61')
 
     whitelist = AdvancedWhiteList.deploy(tx_params)
-    #whitelist = AdvancedWhiteList.at('0x38E08929a82b2F59037301fa92979eAC90090655')
+    #whitelist = AdvancedWhiteList.at('')
     #Init
     wnft1155.setMinterStatus(wrapper.address, tx_params)
     wnft721.setMinter(wrapper.address, tx_params)
@@ -131,5 +139,8 @@ def main():
         EnvelopwNFT721.publish_source(wnft721);
         AdvancedWhiteList.publish_source(whitelist);
 
-
+    if len(CHAIN.get('enabled_erc20', [])) > 0:
+        print('Enabling collateral...')
+        for erc in CHAIN.get('enabled_erc20', []):
+            whitelist.setWLItem((2,erc), (True, True, True, techERC20) ,tx_params)
 
