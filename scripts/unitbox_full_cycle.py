@@ -44,33 +44,35 @@ def main():
     ORACLE_PRIVATE_KEY = '0x222ead82a51f24a79887aae17052718249295530f8153c73bf1f257a9ca664af'
     coll_amount = 1e18
     price = "50 gwei"
-    nonce = 4  ##increase nonce!!
+    nonce = 20  ##increase nonce!!
 
-    techERC20 = TechTokenV1.at('0xf84cb379Cb536732AFc737921B4EF97390db92eD')
-    wrapper = TrustedWrapperRemovable.at('0x522aCbA649165FFB287Bd1cdF2dd85429E4dcD49')
-    wnft1155 = EnvelopwNFT1155.at('0x03C496376043259284Ca152D91b8d416Fd125b0d')
-    wnft721 = EnvelopwNFT721.at('0x3b24709991c7A9D1FCC0743Dc8C607D5fb779e5C')
-    whitelist = AdvancedWhiteList.at('0xa3F83E9Cf253EDc4E26e63F050ceB2D41eb27b26')
-    unitbox = UnitBoxPlatform.at('0x5a2407832A211E6899e279BbfD3060D3d207EFa7')
-    erc721mock = OrigNFT.at('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578')
-    niftsy20 = Niftsy.at('0x3125B3b583D576d86dBD38431C937F957B94B47d') #swapable token
-    usdt = TokenMock.at('0x876F77e05C77A37d6Dd2d46DFC76D8BC54Be293F') #tresury token
-    dai = TokenMock.at('0xafB8D77EE821275ff7E12464edafe3C8b6A37725') #unswapable token
+    techERC20 = TechTokenV1.at('0x3AEe8a578021E5082cd00634B55af984A0D8D386')
+    wrapper = TrustedWrapperRemovable.at('0x56Ea9ccf5892D3F543FE707735E6b1A10BC91ede')
+    wnft1155 = EnvelopwNFT1155.at('0xDb359A2d2C3B9928e61B03CebB4810d5E36e7cFe')
+    wnft721 = EnvelopwNFT721.at('0xdA9FA61DD368e6FF8011a1e861FD34119e67689d')
+    whitelist = AdvancedWhiteList.at('0x1FF12bC583D6579e4fbe032735E84BEA29532483')
+    unitbox = UnitBoxPlatform.at('0x0db1ebcF530E9ac80fF5C711C8038b3826553D36')
+    erc721mock = OrigNFT.at('0x45f75542d555eabd46b03a6995D314704501c7dc')
+    niftsy20 = Niftsy.at('0x376e8EA664c2E770E1C45ED423F62495cB63392D') #swapable token
+    usdt = TokenMock.at('0x4aCd4B8e758260d2688101b2670fE22B39D6D616') #tresury token
+    dai = TokenMock.at('0xe1160486dA9591ff325Da13F6589D3a1eeB50EEA') #unswapable token
 
     #unitbox.settreasury(accounts[3], {"from": accounts[0],  "gas_price": price})
     #unitbox.setTokenDex(niftsy20.address, (1, unitbox.dexForChain()[0], True), {"from": accounts[0], "gas_price": price})
     #unitbox.setDexForChain((unitbox.UniswapV2Router02(), unitbox.UniswapV2Factory(), '0xc778417E063141139Fce010982780140Aa0cD5Ab', usdt.address), {"from": accounts[0], "gas_price": price} )
     #unitbox.setSignerState(ORACLE_ADDRESS, True, {'from':accounts[0], "gas_price": price})
+    #unitbox.setWrapRule('0x0006', {"from": accounts[0], "gas_price": price})
 
     #wl_data = (False, True, False, techERC20.address)
-    #whitelist.setWLItem((2, dai.address), wl_data, {"from": accounts[0], "gas_price": price})
-
+    #whitelist.setWLItem((2, '0x7c0273F3492042291D80CdF18af6C73876109da6'), wl_data, {"from": accounts[0], "gas_price": price})
+    #wrapper.setTrustedAddress(unitbox.address, True, {"from": accounts[0], "gas_price": price})
+    
     
     #mint original nft erc721
-    erc721mock.mint(accounts[1], {"from": accounts[1], "gas_price": price})
+    #erc721mock.mint(accounts[1], {"from": accounts[1], "gas_price": price})
     erc721mock_nft_id = erc721mock.lastNFTId()
     #make allowance to use original NFT
-    erc721mock.approve(wrapper.address, erc721mock_nft_id,  {"from": accounts[1], "gas_price": price})
+    #erc721mock.approve(wrapper.address, erc721mock_nft_id,  {"from": accounts[1], "gas_price": price})
    
 
     erc721_property = (in_type, erc721mock.address)
@@ -147,7 +149,7 @@ def main():
     assert niftsy20.balanceOf(unitbox.address) == 0
     print(niftsy20.balanceOf(unitbox.address))
     assert wrapper.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == 0
-
+    
     #add collateral - dai tokens. DAI does not have DEX
     dai.approve(wrapper.address, coll_amount, {"from": accounts[0]})
     wrapper.addCollateral(wnft721.address, wTokenId, [((2, dai.address), 0, coll_amount )], {"from": accounts[0], "gas_price": price})    

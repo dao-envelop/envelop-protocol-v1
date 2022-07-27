@@ -39,6 +39,12 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
             dexForChain.factory = UniswapV2Factory;
             dexForChain.nativeAsset      = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // WETH
             dexForChain.assetForTreasury = 0xdAC17F958D2ee523a2206206994597C13D831ec7; // USDT
+
+        } else if (block.chainid == 3) {
+            dexForChain.router  = UniswapV2Router02;
+            dexForChain.factory = UniswapV2Factory;
+            dexForChain.nativeAsset      = 0xc778417E063141139Fce010982780140Aa0cD5Ab ; // WETH
+            dexForChain.assetForTreasury = 0xaD6D458402F60fD3Bd25163575031ACDce07538D; //DAI
         
         } else if (block.chainid == 4) {
             dexForChain.router  = UniswapV2Router02;

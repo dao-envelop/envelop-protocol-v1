@@ -6,16 +6,13 @@ LOGGER = logging.getLogger(__name__)
 
 
 #0-0x110FA9c41cb43c08ad98391dFb52a9A0713d9613  - leasingPool
-private_key=''
-accounts.add(private_key)
+accounts.load('exo')
 
 #1-0xf315B9006C20913D6D8498BDf657E778d4Ddf2c4 
-private_key=''
-accounts.add(private_key)
+accounts.load('secret1')
 
-#2-0xF8E02D473710506DB5D9210D96725cccbf4137c9 
-private_key=''
-accounts.add(private_key)
+#2-0x5992Fe461F81C8E0aFFA95b831E50e9b3854BA0E 
+accounts.load('secret2')
 
 
 #tech 0x8368f72a85f5b3bc9f41ff9f3a681b09da0fe21f
@@ -30,7 +27,7 @@ def main():
 	origNFT = OrigNFT.at('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578')
 
 	#wnft721
-	in_type = 3
+	'''in_type = 3
 	out_type = 3
 	
 	
@@ -133,15 +130,15 @@ def main():
 	#unwrap by leasingPool
 	wrapper.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[0], "gas_price": price})
 
-	assert origNFT.ownerOf(original_nft_id) == accounts[0]
+	assert origNFT.ownerOf(original_nft_id) == accounts[0]'''
 	
 
-	'''in_type = 4
+	in_type = 4
 	out_type = 4
 	in_nft_amount = 1
 	out_nft_amount = 1 
 	
-	original_nft_id = 7 #increase number +1 to mint new original NFT 
+	original_nft_id = 8 #increase number +1 to mint new original NFT 
 	price = "50 gwei"
 
 	original_nft_contract.mint(accounts[0], original_nft_id, in_nft_amount, {"from": accounts[0], "gas_price": price})
@@ -235,7 +232,7 @@ def main():
 	wrapper.unWrap(out_type, wnft1155.address, wTokenId, {"from": accounts[0], "gas_price": price})
 
 	assert original_nft_contract.balanceOf(accounts[0], original_nft_id) == in_nft_amount
-	assert wnft1155.balanceOf(accounts[1], wTokenId) == 0'''
+	assert wnft1155.balanceOf(accounts[1], wTokenId) == 0
 
 
 

@@ -10,8 +10,8 @@ if  (web3.eth.chainId != 56
 else:
     # Mainnet
     private_key=input('PLease input private key for deployer address..:')
-accounts.clear()    
-accounts.add(private_key)
+    accounts.clear()    
+    accounts.add(private_key)
 
 print('Deployer:{}'.format(accounts[0]))
 print('web3.eth.chain_id={}'.format(web3.eth.chainId))
@@ -24,9 +24,9 @@ ETH_MAIN_ERC20_COLLATERAL_TOKENS = [
 ]
 
 ETH_RINKEBY_ERC20_COLLATERAL_TOKENS = [
-'0x1E991eA872061103560700683991A6cF88BA0028', #NIFTSI ERC20
-'0xc7ad46e0b8a400bb3c915120d284aafba8fc4735',  #DAI
-'0xc778417e063141139fce010982780140aa0cd5ab',  #WETH
+(2,'0x1E991eA872061103560700683991A6cF88BA0028'), #NIFTSI ERC20
+(2,'0xc7ad46e0b8a400bb3c915120d284aafba8fc4735'),  #DAIAlex
+(2,'0xc778417e063141139fce010982780140aa0cd5ab'),  #WETH
 ]
 
 BSC_TESTNET_ERC20_COLLATERAL_TOKENS = [
@@ -76,28 +76,28 @@ if web3.eth.chainId in  [1,4]:
 
 def main():
     print('Deployer account= {}'.format(accounts[0]))
-    #techERC20 = TechTokenV1.deploy(tx_params)
-    techERC20 = TechTokenV1.at('0x5076D59fE7D718a120C3f359648Caed26B81C1e1')
-    #wrapper   = WrapperBaseV1.deploy(techERC20.address,tx_params) 
-    wrapper = WrapperBaseV1.at('0x8368f72a85f5b3bC9f41FF9f3a681b09DA0fE21f')
-    # wnft1155 = EnvelopwNFT1155.deploy(
-    #     'ENVELOP 1155 wNFT Collection', 
-    #     'wNFT', 
-    #     'https://api.envelop.is/metadata/',
-    #     tx_params
-    # )
-    wnft1155 = EnvelopwNFT1155.at('0x4A80d07a1e8C15069c397cF34c407A627dcb8487')
+    techERC20 = TechTokenV1.deploy(tx_params)
+    #techERC20 = TechTokenV1.at('0x5076D59fE7D718a120C3f359648Caed26B81C1e1')
+    wrapper   = WrapperBaseV1.deploy(techERC20.address,tx_params) 
+    #wrapper = WrapperBaseV1.at('0x8368f72a85f5b3bC9f41FF9f3a681b09DA0fE21f')
+    wnft1155 = EnvelopwNFT1155.deploy(
+         'ENVELOP 1155 wNFT Collection', 
+         'wNFT', 
+         'https://api.envelop.is/metadata/',
+         tx_params
+    )
+    #wnft1155 = EnvelopwNFT1155.at('0x4A80d07a1e8C15069c397cF34c407A627dcb8487')
     
-    # wnft721 = EnvelopwNFT721.deploy(
-    #     'ENVELOP 721 wNFT Collection', 
-    #     'wNFT', 
-    #     'https://api.envelop.is/metadata/',
-    #     tx_params
-    # )
-    wnft721 = EnvelopwNFT721.at('0xd3FDE1C83B144d07878CDa57b66B35176A785e61')
+    wnft721 = EnvelopwNFT721.deploy(
+        'ENVELOP 721 wNFT Collection', 
+        'wNFT', 
+        'https://api.envelop.is/metadata/',
+        tx_params
+    )
+    #wnft721 = EnvelopwNFT721.at('0xd3FDE1C83B144d07878CDa57b66B35176A785e61')
 
-    #whitelist = AdvancedWhiteList.deploy(tx_params)
-    whitelist = AdvancedWhiteList.at('0x38E08929a82b2F59037301fa92979eAC90090655')
+    whitelist = AdvancedWhiteList.deploy(tx_params)
+    #whitelist = AdvancedWhiteList.at('0x38E08929a82b2F59037301fa92979eAC90090655')
     #Init
     wnft1155.setMinterStatus(wrapper.address, tx_params)
     wnft721.setMinter(wrapper.address, tx_params)
@@ -131,8 +131,5 @@ def main():
         EnvelopwNFT721.publish_source(wnft721);
         AdvancedWhiteList.publish_source(whitelist);
 
-    if len(CHAIN.get('enabled_erc20', [])) > 0:
-        print('Enabling collateral...')
-        for erc in CHAIN.get('enabled_erc20', []):
-            whitelist.setWLItem(erc, (True, True, True, techERC20) ,tx_params)
+
 

@@ -2,6 +2,7 @@ from brownie import *
 import json
 import time
 
+
 if  web3.eth.chain_id in [4, 97]:
     # Testnets
     #private_key='???'
@@ -32,6 +33,12 @@ ETH_RINKEBY_ERC20_COLLATERAL_TOKENS = [
 '0x1E991eA872061103560700683991A6cF88BA0028', #NIFTSI ERC20
 '0xc7ad46e0b8a400bb3c915120d284aafba8fc4735',  #DAI
 '0xc778417e063141139fce010982780140aa0cd5ab',  #WETH
+]
+
+ETH_ROPSTEN_ERC20_COLLATERAL_TOKENS = [
+(2,'0x376e8EA664c2E770E1C45ED423F62495cB63392D'), #NIFTSI ERC20
+(2,'0xad6d458402f60fd3bd25163575031acdce07538d'),  #DAI
+(2,'0xc778417E063141139Fce010982780140Aa0cD5Ab')  #WETH
 ]
 
 BSC_TESTNET_ERC20_COLLATERAL_TOKENS = [
@@ -65,6 +72,7 @@ TRON_MAIN_ERC20_COLLATERAL_TOKENS = [
 CHAIN = {   
     0:{'explorer_base':'io'},
     1:{'explorer_base':'etherscan.io', 'enabled_erc20': ETH_MAIN_ERC20_COLLATERAL_TOKENS},
+    3:{'explorer_base':'ropsten.etherscan.io','enabled_erc20': ETH_ROPSTEN_ERC20_COLLATERAL_TOKENS},
     4:{'explorer_base':'rinkeby.etherscan.io','enabled_erc20': ETH_RINKEBY_ERC20_COLLATERAL_TOKENS},
     56:{'explorer_base':'bscscan.com', 'enabled_erc20': BSC_MAIN_ERC20_COLLATERAL_TOKENS},
     65:{'explorer_base': 'www.oklink.com/okc-test',},
@@ -78,7 +86,7 @@ CHAIN = {
 }.get(web3.eth.chainId, {'explorer_base':'io'})
 print(CHAIN)
 tx_params = {'from':accounts[0]}
-if web3.eth.chainId in  [1,4]:
+if web3.eth.chainId in  [1,3,4]:
     tx_params={'from':accounts[0], 'priority_fee': chain.priority_fee}
 elif web3.eth.chainId in  [65, 66]:    
     tx_params={'from':accounts[0], 'allow_revert': True}
@@ -94,7 +102,7 @@ def main():
         'UNITBOX & ENVELOP 1155 wNFT Collection', 
         'wNFT', 
         'https://api.envelop.is/metadata/',
-        tx_params
+        tx_params                           
     )
     #time.sleep(5)
     #wnft1155 = EnvelopwNFT1155.at('')
@@ -117,11 +125,6 @@ def main():
     wrapper.setWNFTId(3, wnft721.address, 1, tx_params)
     wrapper.setWNFTId(4, wnft1155.address,1, tx_params)
     wrapper.setWhiteList(whitelist.address, tx_params)
-    
-    
-    
-
-
 
     # Print addresses for quick access from console
     print("----------Deployment artifacts-------------------")
@@ -151,4 +154,19 @@ def main():
         print('Enabling collateral...')
         for erc in CHAIN.get('enabled_erc20', []):
             whitelist.setWLItem(erc, (True, True, True, techERC20) ,tx_params)
+
+#for unitbox
+#ropsten
+#techERC20 = TechTokenV1.at('0x3AEe8a578021E5082cd00634B55af984A0D8D386')
+#wrapper = TrustedWrapperRemovable.at('0x56Ea9ccf5892D3F543FE707735E6b1A10BC91ede')
+#wnft1155 = EnvelopwNFT1155.at('0xDb359A2d2C3B9928e61B03CebB4810d5E36e7cFe')
+#wnft721 = EnvelopwNFT721.at('0xdA9FA61DD368e6FF8011a1e861FD34119e67689d')
+#whitelist = AdvancedWhiteList.at('0x1FF12bC583D6579e4fbe032735E84BEA29532483')
+#unitbox = UnitBoxPlatform.at('0x0db1ebcF530E9ac80fF5C711C8038b3826553D36')
+#https://ropsten.etherscan.io/address/0x3AEe8a578021E5082cd00634B55af984A0D8D386#code
+#https://ropsten.etherscan.io/address/0x56Ea9ccf5892D3F543FE707735E6b1A10BC91ede#code
+#https://ropsten.etherscan.io/address/0xDb359A2d2C3B9928e61B03CebB4810d5E36e7cFe#code
+#https://ropsten.etherscan.io/address/0xdA9FA61DD368e6FF8011a1e861FD34119e67689d#code
+#https://ropsten.etherscan.io/address/0x1FF12bC583D6579e4fbe032735E84BEA29532483#code
+#https://ropsten.etherscan.io/address/0x0db1ebcF530E9ac80fF5C711C8038b3826553D36#code
 
