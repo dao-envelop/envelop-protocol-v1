@@ -1,10 +1,7 @@
 from brownie import *
 import json
 
-#private_key='???'
-#0-0xE71978b1696a972b1a8f724A4eBDB906d9dA0885
-private_key=''
-accounts.add(private_key)
+accounts.load('secret2')
 
 def main():
     print('Deployer account= {}'.format(accounts[0]))
@@ -13,4 +10,6 @@ def main():
     
     print("----------Deployment artifacts-------------------")
     print("originalNFT = OrigNFT.at('{}')".format(originalNFT.address))
+    
+    #ropsten 0x45f75542d555eabd46b03a6995D314704501c7dc
 

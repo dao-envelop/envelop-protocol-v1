@@ -191,6 +191,11 @@ def techERC20ForWrapperRemovable(accounts, TechTokenV1):
     yield erc20 
 
 @pytest.fixture(scope="module")
+def techERC20ForTrustedWrapper(accounts, TechTokenV1):
+    erc20 = accounts[0].deploy(TechTokenV1)
+    yield erc20 
+
+@pytest.fixture(scope="module")
 def wrapperRemovable(accounts, TrustedWrapperRemovable, techERC20ForWrapperRemovable):
     t = accounts[0].deploy(TrustedWrapperRemovable, techERC20ForWrapperRemovable.address)
     #t.setTokenService(tokenService.address, {'from':accounts[0]})
@@ -200,3 +205,9 @@ def wrapperRemovable(accounts, TrustedWrapperRemovable, techERC20ForWrapperRemov
 def unitbox(accounts, wrapperRemovable, UnitBoxPlatform):
     u = accounts[0].deploy(UnitBoxPlatform, wrapperRemovable.address)
     yield u
+
+@pytest.fixture(scope="module")
+def wrapperTrusted(accounts, TrustedWrapper, techERC20ForTrustedWrapper):
+    t = accounts[0].deploy(TrustedWrapper, techERC20ForTrustedWrapper.address)
+    #t.setTokenService(tokenService.address, {'from':accounts[0]})
+    yield t 

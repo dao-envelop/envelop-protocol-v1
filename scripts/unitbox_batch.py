@@ -49,7 +49,7 @@ def main():
     wrapper = TrustedWrapperRemovable.at('0x522aCbA649165FFB287Bd1cdF2dd85429E4dcD49')
     wnft1155 = EnvelopwNFT1155.at('0x03C496376043259284Ca152D91b8d416Fd125b0d')
     wnft721 = EnvelopwNFT721.at('0x3b24709991c7A9D1FCC0743Dc8C607D5fb779e5C')
-    whitelist = AdvancedWhiteList.at('0xa3F83E9Cf253EDc4E26e63F050ceB2D41eb27b26')
+    whitelist = AdvancedWhiteList.at('0x9b0cE975003DBEef2f2fE7860C5362C1dc79A469')
     unitbox = UnitBoxPlatform.at('0x5a2407832A211E6899e279BbfD3060D3d207EFa7')
     erc721mock = OrigNFT.at('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578')
     niftsy20 = Niftsy.at('0x3125B3b583D576d86dBD38431C937F957B94B47d') #swapable token
