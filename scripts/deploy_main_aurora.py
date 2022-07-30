@@ -1,11 +1,11 @@
 from brownie import *
 import json
 
-if  web3.eth.chain_id in [4, 97]:
+if  web3.eth.chain_id in [4, 97, 1313161555]:
     # Testnets
     #private_key='???'
     accounts.load('tzero');
-elif web3.eth.chain_id in [1,56,137]:
+elif web3.eth.chain_id in [1,56,137, 1313161554]:
     accounts.load('envdeployer')
     
     pass
@@ -63,6 +63,15 @@ TRON_MAIN_ERC20_COLLATERAL_TOKENS = [
 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',  #USDT
 ]
 
+AURORA_MAIN_ERC20_TOKENS = [
+'0x4988a896b1227218e4A686fdE5EabdcAbd91571f' #USDT
+]
+
+AURORA_TEST_ERC20_TOKENS = [
+'0x20e30c7c1295FCD1A78528078b83aaf16C5CE032', #NIFTSY MOCK
+'0x9e70345a1b3D2D55FB29be4aDbd2A6E38eE57D83'  #WETH
+]
+
 
 
 CHAIN = {   
@@ -75,12 +84,16 @@ CHAIN = {
     80001:{'explorer_base':'mumbai.polygonscan.com', },  
     43114:{'explorer_base':'cchain.explorer.avax.network', 'enabled_erc20': AVALANCHE_MAIN_ERC20_COLLATERAL_TOKENS},
     43113:{'explorer_base':'cchain.explorer.avax-test.network', },
+    1313161555:{'explorer_base':'testnet.aurorascan.dev', },
+    1313161554:{'explorer_base':'aurorascan.dev', },
 
 }.get(web3.eth.chainId, {'explorer_base':'io'})
 print(CHAIN)
 tx_params = {'from':accounts[0]}
 if web3.eth.chainId in  [1,4, 137]:
     tx_params={'from':accounts[0], 'priority_fee': chain.priority_fee}
+elif web3.eth.chainId in  [1313161555, 1313161554]:    
+    tx_params={'from':accounts[0], 'allow_revert': True, 'gas_limit': 10e6}
 
 def main():
     print('Deployer account= {}'.format(accounts[0]))
