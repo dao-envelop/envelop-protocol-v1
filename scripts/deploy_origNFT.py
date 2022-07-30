@@ -5,7 +5,7 @@ accounts.load('secret2')
 
 def main():
     print('Deployer account= {}'.format(accounts[0]))
-    originalNFT = OrigNFT.deploy("Envelop simple NFT", "ENVELOP", 'https://envelop.is/metadata/', {'from':accounts[0], 'gas_price': '60 gwei'})
+    originalNFT = OrigNFT.deploy("Envelop simple NFT", "ENVELOP", 'https://envelop.is/metadata/', {'from':accounts[0], 'gas_price': '60 gwei', 'gas_limit': 1e8, 'allow_revert': True})
     
     
     print("----------Deployment artifacts-------------------")
