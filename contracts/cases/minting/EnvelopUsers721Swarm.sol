@@ -1,16 +1,22 @@
 // SPDX-License-Identifier: MIT
-// ENVELOP protocol for NFT
+// ENVELOP protocol for NFT. Mintable User NFT Collection
 pragma solidity 0.8.16;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "../../../interfaces/ISubscriptionManager.sol";
 
-//v0.0.1
-contract EnvelopUsers721Swarm is ERC721URIStorage {
 
+contract EnvelopUsers721Swarm is ERC721URIStorage, Ownable {
+    using ECDSA for bytes32;
+
+    
+    address public subscriptionManager;
     string private _baseTokenURI;
+    
+    // Oracle signers status
+    mapping(address => bool) public oracleSigners;
 
     constructor(
         string memory name_,
@@ -21,6 +27,62 @@ contract EnvelopUsers721Swarm is ERC721URIStorage {
     {
         _baseTokenURI = _baseurl;
 
+    }
+
+    function mintWithURI(
+        address _to, 
+        uint256 _tokenId, 
+        string calldata _tokenURI, 
+        bytes calldata _signature
+    ) public {
+        // If signature present - lets checkit
+        if (_signature.length > 0) {
+            bytes32 msgMustWasSigned = keccak256(abi.encode(
+                msg.sender,
+                _tokenId,
+                _tokenURI
+            )).toEthSignedMessageHash();
+
+            // Check signature  author
+            require(oracleSigners[msgMustWasSigned.recover(_signature)], "Unexpected signer");
+
+        // If there is no signature then sender must have valid status
+        } else {
+            require(
+                ISubscriptionManager(subscriptionManager).isValidMinter(address(this), msg.sender),
+                "Has No Subscription"
+            );
+
+        }
+        _mintWithURI(_to, _tokenId, _tokenURI);
+    }
+
+    function mintWithURIBatch(
+        address[] calldata _to, 
+        uint256[] calldata _tokenId, 
+        string[] calldata _tokenURI, 
+        bytes[] calldata _signature
+    ) external {
+        for (uint256 i = 0; i < _to.length; i ++){
+            mintWithURI(_to[i], _tokenId[i], _tokenURI[i], _signature[i]);
+        }
+    }
+
+    //////////////////////////////
+    //  Admin functions        ///
+    //////////////////////////////
+    function setSignerStatus(address _signer, bool _status) external onlyOwner {
+        oracleSigners[_signer] = _status;
+    }
+
+    function setSubscriptionManager(address _manager) external onlyOwner {
+        require(_manager != address(0),'Non zero only');
+        subscriptionManager = _manager;
+    }
+    ///////////////////////////////
+    function _mintWithURI(address _to, uint256 _tokenId, string memory _tokenURI) internal {
+        _mint(_to, _tokenId);
+        _setTokenURI(_tokenId, _tokenURI);
     }
 
     function baseURI() external view  returns (string memory) {
