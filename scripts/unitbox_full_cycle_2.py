@@ -58,6 +58,18 @@ def main():
     usdt = TokenMock.at('0x876F77e05C77A37d6Dd2d46DFC76D8BC54Be293F') #tresury token
     dai = TokenMock.at('0xafB8D77EE821275ff7E12464edafe3C8b6A37725') #unswapable token
 
+    '''rinkeby 
+    techERC20 = TechTokenV1.at('0xf84cb379Cb536732AFc737921B4EF97390db92eD')
+    wrapper = TrustedWrapperRemovable.at('0x522aCbA649165FFB287Bd1cdF2dd85429E4dcD49')
+    wnft1155 = EnvelopwNFT1155.at('0x03C496376043259284Ca152D91b8d416Fd125b0d')
+    wnft721 = EnvelopwNFT721.at('0x3b24709991c7A9D1FCC0743Dc8C607D5fb779e5C')
+    whitelist = AdvancedWhiteList.at('0x9b0cE975003DBEef2f2fE7860C5362C1dc79A469')
+    unitbox = UnitBoxPlatform.at('0x43Ed98d72AbDD15F5374751b68c6C0ea4993AE13')
+    erc721mock = OrigNFT.at('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578')
+    dai2 = TokenMock.at('0xF0783F8628a2eE77Dae3e0D11245d9c1dD60Ebf7') #swapable token
+    usdt = TokenMock.at('0x876F77e05C77A37d6Dd2d46DFC76D8BC54Be293F') #tresury token
+    dai = TokenMock.at('0xafB8D77EE821275ff7E12464edafe3C8b6A37725') #unswapable token'''
+
     #unitbox.settreasury(accounts[3], {"from": accounts[0],  "gas_price": price})
     #unitbox.setTokenDex(dai2.address, (1, unitbox.dexForChain()[0], True), {"from": accounts[0], "gas_price": price})
     #unitbox.setDexForChain((unitbox.UniswapV2Router02(), unitbox.UniswapV2Factory(), '0xc778417E063141139Fce010982780140Aa0cD5Ab', usdt.address), {"from": accounts[0], "gas_price": price} )
