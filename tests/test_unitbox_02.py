@@ -40,6 +40,9 @@ def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721, whiteLis
     #make test data
     makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
 
+    #setup allowed rules for wrapping
+    unitbox.setWrapRule(0x0006, {"from": accounts[0]})
+
     erc721mock.approve(wrapperRemovable.address, ORIGINAL_NFT_IDs[0], {'from':accounts[1]})
     wrapperRemovable.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
     wnft721.setMinter(wrapperRemovable.address, {"from": accounts[0]})
