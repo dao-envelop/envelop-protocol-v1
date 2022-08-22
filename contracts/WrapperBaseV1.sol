@@ -61,7 +61,6 @@ contract WrapperBaseV1 is
         IFeeRoyaltyModel(protocolTechToken).registerModel(); 
     }
 
-    
     function wrap(
         ETypes.INData calldata _inData, 
         ETypes.AssetItem[] calldata _collateral, 

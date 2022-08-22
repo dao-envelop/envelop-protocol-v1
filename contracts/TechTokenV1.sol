@@ -8,7 +8,6 @@ import "./FeeRoyaltyModelV1_00.sol";
 
 
 contract TechTokenV1 is ERC20, MinterRole, FeeRoyaltyModelV1_00 {
-
     constructor()
     ERC20("Virtual Envelop Transfer Fee Token", "vENVLP")
     MinterRole(msg.sender)
@@ -38,14 +37,13 @@ contract TechTokenV1 is ERC20, MinterRole, FeeRoyaltyModelV1_00 {
         address to,
         uint256 amount
     ) internal override {
-        if (msg.sender == wrapper) {
-            // not for mint and burn
+        //if (msg.sender == wrapper) {
+        //    // not for mint and burn
             if (from != address(0) && to != address(0)) {
                 _mint(from, amount);
                 _approve(from, wrapper, amount);
                 
             }
         }
-    }
-
+   // }
 }

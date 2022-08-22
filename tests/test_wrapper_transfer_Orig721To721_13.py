@@ -46,11 +46,10 @@ def test_wrap(accounts, erc721mock, wrapper, wnft721, niftsy20, techERC20, wrapp
 
 	wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 	wTokenId = wrapper.lastWNFTId(out_type)[1]
-
 	wnft721.transferFrom(accounts[3], accounts[4], wTokenId, {"from": accounts[3]} )
 
 	assert techERC20.balanceOf(wrapper.address) == transfer_fee_amount
-	assert wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, techERC20.address)[0] == transfer_fee_amount
+	assert wrapperChecker.getERC20CollateralBalance(wnft721.address, wTokenId, techERC20.address)[0] == transfer_fee_amount'''
 
 
 	
