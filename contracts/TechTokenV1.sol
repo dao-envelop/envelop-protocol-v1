@@ -37,13 +37,43 @@ contract TechTokenV1 is ERC20, MinterRole, FeeRoyaltyModelV1_00 {
         address to,
         uint256 amount
     ) internal override {
-        //if (msg.sender == wrapper) {
-        //    // not for mint and burn
+        if (msg.sender == wrapper) {
+            // not for mint and burn
             if (from != address(0) && to != address(0)) {
                 _mint(from, amount);
-                _approve(from, wrapper, amount);
-                
+                // Next string was commented due overide `transferFrom` (see below)
+                //_approve(from, wrapper, amount);
             }
         }
-   // }
+    }
+
+
+    /**
+     * @dev See {IERC20-transferFrom}.
+     *
+     * Emits an {Approval} event indicating the updated allowance. This is not
+     * required by the EIP. See the note at the beginning of {ERC20}.
+     *
+     * !!!!!!!!!!
+     * ENVELOP NOTE: Does not update the allowance if the sender is wrapper
+     *
+     * Requirements:
+     *
+     * - `from` and `to` cannot be the zero address.
+     * - `from` must have a balance of at least `amount`.
+     * - the caller must have allowance for ``from``'s tokens of at least
+     * `amount`.
+     */
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) public  override returns (bool) {
+        address spender = _msgSender();
+        if (spender != wrapper) {
+            _spendAllowance(from, spender, amount);
+        }
+        _transfer(from, to, amount);
+        return true;
+    }
 }
