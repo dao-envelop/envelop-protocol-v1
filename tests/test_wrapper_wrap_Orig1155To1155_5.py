@@ -67,7 +67,7 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
     collateral_property = (in_type, erc1155mock)
     collateral_data = (collateral_property, 0, in_nft_amount)
 
-    with reverts("ERC1155: caller is not owner nor approved"):
+    with reverts("ERC1155: caller is not token owner nor approved"):
         wrapper.addCollateral(wnft1155.address, wTokenId, [collateral_data], {"from": accounts[3]})
 
     collateral_property = (in_type, erc1155mock)
