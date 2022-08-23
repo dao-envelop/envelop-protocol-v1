@@ -82,11 +82,11 @@ def test_unwrap(accounts, erc721mock, wrapperTrusted, dai, weth, wnft721, niftsy
         wrapperTrusted.wrap(wNFT, [dai_data, weth_data, erc721_data, erc1155_data], accounts[3], {"from": accounts[1], "value": eth_amount})
 
     #add token in whiteList
-    #wl_data = (False, True, False, techERC20ForTrustedWrapper.address)
-    #whiteLists.setWLItem((3, erc721mock1.address), wl_data, {"from": accounts[0]})
-    #whiteLists.setWLItem((4, erc1155mock1.address), wl_data, {"from": accounts[0]})
-    #whiteLists.setWLItem((2, dai.address), wl_data, {"from": accounts[0]})
-    #whiteLists.setWLItem((2, weth.address), wl_data, {"from": accounts[0]})
+    wl_data = (False, True, False, techERC20ForTrustedWrapper.address)
+    whiteLists.setWLItem((3, erc721mock1.address), wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((4, erc1155mock1.address), wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((2, dai.address), wl_data, {"from": accounts[0]})
+    whiteLists.setWLItem((2, weth.address), wl_data, {"from": accounts[0]})
 
     wrapperTrusted.wrapUnsafe(wNFT, [dai_data, weth_data, erc721_data, erc1155_data], accounts[3], {"from": accounts[1], "value": eth_amount})
     wTokenId = wrapperTrusted.lastWNFTId(out_type)[1]

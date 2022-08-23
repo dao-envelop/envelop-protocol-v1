@@ -20,7 +20,7 @@ def test_addColl(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20):
 
 	#with erc20 and native tokens. Not exists allowance
 	dai.transfer(accounts[1], amount, {"from": accounts[0]})
-	with reverts("ERC20: transfer amount exceeds allowance"):
+	with reverts("ERC20: insufficient allowance"):
 		wrapper.addCollateral(wnft721.address, wTokenId, [((2, dai.address), 0, amount)], {'from': accounts[1], "value": "1 ether"})
 
 	#with erc20 and native tokens. Not enough balance

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // ENVELOP(NIFTSY) protocol V1 for NFT. Wrapper - main protocol contract
-pragma solidity 0.8.13;
+pragma solidity 0.8.16;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
@@ -61,7 +61,6 @@ contract WrapperBaseV1 is
         IFeeRoyaltyModel(protocolTechToken).registerModel(); 
     }
 
-    
     function wrap(
         ETypes.INData calldata _inData, 
         ETypes.AssetItem[] calldata _collateral, 

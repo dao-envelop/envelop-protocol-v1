@@ -3,7 +3,7 @@
 
 import "./WrapperBaseV1.sol";
 
-pragma solidity 0.8.13;
+pragma solidity 0.8.16;
 
 contract TrustedWrapper is WrapperBaseV1{
 
@@ -37,7 +37,12 @@ contract TrustedWrapper is WrapperBaseV1{
         returns (ETypes.AssetItem memory) 
     {
         // 1. Take users inAsset
-        _transfer(_inData.inAsset, msg.sender, address(this));
+        if ( _inData.inAsset.asset.assetType != ETypes.AssetType.NATIVE &&
+             _inData.inAsset.asset.assetType != ETypes.AssetType.EMPTY
+        ) 
+        {
+          _transfer(_inData.inAsset, msg.sender, address(this));
+        }
 
         // 2. Mint wNFT
         _mintNFT(

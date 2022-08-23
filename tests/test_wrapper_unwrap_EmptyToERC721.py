@@ -73,13 +73,17 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft721, niftsy20, er
     assert wrapper.balance() == eth_amount
     assert wnft721.ownerOf(wTokenId) == accounts[3]
 
+
+    with reverts("ERC20: insufficient allowance"):
+        wnft721.transferFrom(accounts[3], accounts[2], wTokenId, {"from": accounts[3]})
+
+    niftsy20.approve(wrapper.address, transfer_fee_amount, {"from": accounts[3]})
+
     with reverts("ERC20: transfer amount exceeds balance"):
         wnft721.transferFrom(accounts[3], accounts[2], wTokenId, {"from": accounts[3]})
 
 
     niftsy20.transfer(accounts[3], transfer_fee_amount, {"from": accounts[0]})
-    with reverts("ERC20: transfer amount exceeds allowance"):
-        wnft721.transferFrom(accounts[3], accounts[2], wTokenId, {"from": accounts[3]})
 
     eth_contract_balance = wrapper.balance()
     eth_acc_balance = accounts[3].balance()

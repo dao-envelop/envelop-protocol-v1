@@ -68,11 +68,11 @@ def test_unwrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc
         '0'
         )
 
-    with reverts("ERC20: transfer amount exceeds allowance"):
+    with reverts("ERC20: insufficient allowance"):
         wrapper.wrap(wNFT, [niftsy20_data, dai_data, weth_data, erc721_data, erc1155_data], accounts[3], {"from": accounts[1], "value": eth_amount})
-    with reverts("ERC20: transfer amount exceeds allowance"):
+    with reverts("ERC20: insufficient allowance"):
         wrapper.wrap(wNFT, [ dai_data, weth_data, niftsy20_data, erc721_data, erc1155_data], accounts[3], {"from": accounts[1], "value": eth_amount})
-    with reverts("ERC20: transfer amount exceeds allowance"):
+    with reverts("ERC20: insufficient allowance"):
         wrapper.wrap(wNFT, [ dai_data, weth_data, erc721_data, erc1155_data, niftsy20_data], accounts[3], {"from": accounts[1], "value": eth_amount})
     
 
