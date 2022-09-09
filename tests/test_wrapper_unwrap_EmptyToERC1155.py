@@ -74,13 +74,16 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
     assert wrapper.balance() == eth_amount
     assert wnft1155.balanceOf(accounts[3], wTokenId) == out_nft_amount
 
+    with reverts("ERC20: insufficient allowance"):
+        wnft1155.safeTransferFrom(accounts[3], accounts[2], wTokenId,  out_nft_amount, "", {"from": accounts[3]})
+
+    niftsy20.approve(wrapper.address, transfer_fee_amount, {"from": accounts[3]})
+
     with reverts("ERC20: transfer amount exceeds balance"):
         wnft1155.safeTransferFrom(accounts[3], accounts[2], wTokenId, out_nft_amount, "", {"from": accounts[3]})
 
-
     niftsy20.transfer(accounts[3], transfer_fee_amount, {"from": accounts[0]})
-    with reverts("ERC20: transfer amount exceeds allowance"):
-        wnft1155.safeTransferFrom(accounts[3], accounts[2], wTokenId,  out_nft_amount, "", {"from": accounts[3]})
+    
 
     eth_contract_balance = wrapper.balance()
     eth_acc_balance = accounts[3].balance()
@@ -148,7 +151,6 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
     eth_contract_balance = wrapper.balance()
     eth_acc_balance = accounts[3].balance()
 
-    niftsy20.approve(wrapper.address, transfer_fee_amount, {"from": accounts[3]})
     wnft1155.safeTransferFrom(accounts[3], accounts[4], wTokenId, 1, "", {"from": accounts[3]} )
 
     with reverts("ERC115 unwrap available only for all totalSupply"):

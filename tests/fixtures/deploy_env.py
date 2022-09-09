@@ -211,3 +211,13 @@ def wrapperTrusted(accounts, TrustedWrapper, techERC20ForTrustedWrapper):
     t = accounts[0].deploy(TrustedWrapper, techERC20ForTrustedWrapper.address)
     #t.setTokenService(tokenService.address, {'from':accounts[0]})
     yield t 
+
+@pytest.fixture(scope="module")
+def NFTMinter(accounts, EnvelopUsers721Swarm):
+    NFTMinter = accounts[0].deploy(EnvelopUsers721Swarm,"Envelop NFT", "eNFT", "https://swarm.envelop.is/bzz/")
+    yield NFTMinter
+
+@pytest.fixture(scope="module")
+def MockManager(accounts, MockSubscriptionManager):
+    MockManager = accounts[0].deploy(MockSubscriptionManager)
+    yield MockManager

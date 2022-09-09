@@ -8,7 +8,6 @@ import "./FeeRoyaltyModelV1_00.sol";
 
 
 contract TechTokenV1 is ERC20, MinterRole, FeeRoyaltyModelV1_00 {
-
     constructor()
     ERC20("Virtual Envelop Transfer Fee Token", "vENVLP")
     MinterRole(msg.sender)
@@ -48,6 +47,7 @@ contract TechTokenV1 is ERC20, MinterRole, FeeRoyaltyModelV1_00 {
         }
     }
 
+
     /**
      * @dev See {IERC20-transferFrom}.
      *
@@ -76,5 +76,4 @@ contract TechTokenV1 is ERC20, MinterRole, FeeRoyaltyModelV1_00 {
         _transfer(from, to, amount);
         return true;
     }
-
 }
