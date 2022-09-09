@@ -52,7 +52,7 @@ def main():
     wnft1155 = EnvelopwNFT1155.at('0x03C496376043259284Ca152D91b8d416Fd125b0d')
     wnft721 = EnvelopwNFT721.at('0x3b24709991c7A9D1FCC0743Dc8C607D5fb779e5C')
     whitelist = AdvancedWhiteList.at('0x9b0cE975003DBEef2f2fE7860C5362C1dc79A469')
-    unitbox = UnitBoxPlatform.at('0x43Ed98d72AbDD15F5374751b68c6C0ea4993AE13')
+    unitbox = UnitBoxPlatform.at('0x5a2407832A211E6899e279BbfD3060D3d207EFa7')
     erc721mock = OrigNFT.at('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578')
     dai2 = TokenMock.at('0xF0783F8628a2eE77Dae3e0D11245d9c1dD60Ebf7') #swapable token
     usdt = TokenMock.at('0x876F77e05C77A37d6Dd2d46DFC76D8BC54Be293F') #tresury token
