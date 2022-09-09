@@ -8,39 +8,16 @@ from eth_account.messages import encode_defunct
 
 
 LOGGER = logging.getLogger(__name__)
-ORIGINAL_NFT_IDs = [10000,11111,22222]
-ORIGINAL_NFT_IDs_BATCH = [10,11,12,13]
-zero_address = '0x0000000000000000000000000000000000000000'
-call_amount = 1e18
-eth_amount = "1 ether"
-in_type = 3
-out_type = 3
-secret = 7777777
+
 ORACLE_ADDRESS = '0x8125F522a712F4aD849E6c7312ba8263bEBeEFeD' 
 ORACLE_PRIVATE_KEY = '0x222ead82a51f24a79887aae17052718249295530f8153c73bf1f257a9ca664af'
-coll_amount = 1e18
+zero_address = '0x0000000000000000000000000000000000000000'
 
-
-def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
-    logging.info(
-        '\n=========wNFT=============\nwNFT:{0},{1}\nInAsset: {2}\nCollrecords:\n{3}\nunWrapDestination: {4}'
-        '\nFees: {5} \nLocks: {6} \nRoyalty: {7} \nrules: {8}({9:0>16b}) \n=========================='.format(
-        _wnft721, _wTokenId,
-        _wrapper.getWrappedToken(_wnft721, _wTokenId)[0],
-        _wrapper.getWrappedToken(_wnft721, _wTokenId)[1],
-        _wrapper.getWrappedToken(_wnft721, _wTokenId)[2],
-        _wrapper.getWrappedToken(_wnft721, _wTokenId)[3],
-        _wrapper.getWrappedToken(_wnft721, _wTokenId)[4],
-        _wrapper.getWrappedToken(_wnft721, _wTokenId)[5],
-        _wrapper.getWrappedToken(_wnft721, _wTokenId)[6],
-        Web3.toInt(_wrapper.getWrappedToken(_wnft721, _wTokenId)[6]),
-        
-    ))
 
 def test_mint(accounts, NFTMinter, MockManager):
     
     tokenId = 1
-    tokenUri = 'https://swarm.envelop.is/bzz/'
+    tokenUri = 'b72f05424ee87a65cb7c94b432d3b5b553bbb82f7b0fe34e8a3ad161b1b05ca5/'
     #Message for sign
     encoded_msg = encode_single(
          '(address,uint256,string)',
@@ -87,15 +64,17 @@ def test_mint(accounts, NFTMinter, MockManager):
     #with reverts("Signature check failed"):
     #    NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, signed_message_wrong.signature, {"from": accounts[0]})
 
-    NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, signed_message.signature, {"from": accounts[0]})
+    tx = NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, signed_message.signature, {"from": accounts[0]})
+    logging.info('gas = {}'.format(tx.gas_used))
 
     #use previous data again
     with reverts("ERC721: token already minted"):
         NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, signed_message.signature, {"from": accounts[0]})
+    assert NFTMinter.ownerOf(1) == accounts[1].address
 
 def test_subscription(accounts, NFTMinter, MockManager):
     tokenId = 2
-    tokenUri = 'https://swarm.envelop.is/bzz/'
+    tokenUri = '2'
 
     with reverts("Ownable: caller is not the owner"):
         NFTMinter.setSubscriptionManager(MockManager.address, {"from": accounts[1]})
@@ -110,6 +89,52 @@ def test_subscription(accounts, NFTMinter, MockManager):
 
     MockManager.setMinter(NFTMinter, accounts[0], True)
     NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, Web3.toBytes(text=''), {"from": accounts[0]})    
+    assert NFTMinter.ownerOf(2) == accounts[1].address
+
+    logging.info(NFTMinter.tokenURI(1))
+
+def test_batch(accounts, NFTMinter):
+    #with signature
+    _to = [accounts[1].address, accounts[2].address]
+    _tokenId = [3, 4]
+    _tokenURI = ['3', '4']
+    _signature = []
+
+    for i in range(2):
+        encoded_msg = encode_single(
+            '(address,uint256,string)',
+            ( accounts[0].address, 
+            Web3.toInt(_tokenId[i]) ,
+            _tokenURI[i]
+            )
+        )
+
+        hashed_msg = Web3.solidityKeccak(['bytes32'], [encoded_msg])
+        logging.info('hashed_msg = {}'.format(hashed_msg))
+        # Ether style signature
+        message = encode_defunct(primitive=hashed_msg)
+        logging.info('message = {}'.format(message))
+        signed_message = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
+        
+        logging.info('sign_message is {}'.format(signed_message))
+
+        _signature.append(signed_message.signature)
+           
+    NFTMinter.mintWithURIBatch(_to, _tokenId, _tokenURI, _signature)
+
+    assert NFTMinter.ownerOf(3) == accounts[1].address
+
+    #without signature
+
+    _to = [accounts[3].address, accounts[4].address]
+    _tokenId = [5, 6]
+    _tokenURI = ['5', '6']
+    _signature = [Web3.toBytes(text=''), Web3.toBytes(text='')]
+           
+    NFTMinter.mintWithURIBatch(_to, _tokenId, _tokenURI, _signature)
+
+    assert NFTMinter.ownerOf(5) == accounts[3].address
+
 
 
 

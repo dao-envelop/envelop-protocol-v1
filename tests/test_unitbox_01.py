@@ -246,11 +246,18 @@ def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721, whiteLis
     assert dai.balanceOf(unitbox.address) == 0
     assert dai.balanceOf(accounts[0]) == before_balance0 + before_balanceU
 
+    #check to add collateral to unwapped token
+    niftsy20.approve(wrapperRemovable.address, coll_amount, {"from": accounts[0]})
+    with reverts('wNFT not exists'):
+        wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((2, niftsy20.address), 0, coll_amount )], {"from": accounts[0]})
+
 
     ##try use used nonce
     erc721mock.approve(wrapperRemovable.address, ORIGINAL_NFT_IDs[1], {'from':accounts[0]})
     erc721_property = (in_type, erc721mock.address)
     erc721_data = (erc721_property, ORIGINAL_NFT_IDs[1], 1)
+
+    
 
     inData = (erc721_data,
         accounts[0],
@@ -300,6 +307,7 @@ def test_wrap(accounts, erc721mock, unitbox, wrapperRemovable, wnft721, whiteLis
         unitbox.setWrapRule(0x0006, {"from": accounts[1]})
 
     unitbox.setWrapRule(0x0006, {"from": accounts[0]})
+    logging.info(unitbox.wnftRules())
 
 
 

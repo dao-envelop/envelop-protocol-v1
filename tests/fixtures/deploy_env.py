@@ -214,7 +214,7 @@ def wrapperTrusted(accounts, TrustedWrapper, techERC20ForTrustedWrapper):
 
 @pytest.fixture(scope="module")
 def NFTMinter(accounts, EnvelopUsers721Swarm):
-    NFTMinter = accounts[0].deploy(EnvelopUsers721Swarm,"Envelop NFT", "eNFT", "https://api.envelop.is/metadata/")
+    NFTMinter = accounts[0].deploy(EnvelopUsers721Swarm,"Envelop NFT", "eNFT", "https://swarm.envelop.is/bzz/")
     yield NFTMinter
 
 @pytest.fixture(scope="module")
