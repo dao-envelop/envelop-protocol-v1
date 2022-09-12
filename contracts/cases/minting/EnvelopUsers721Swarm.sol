@@ -79,6 +79,11 @@ contract EnvelopUsers721Swarm is ERC721URIStorage, Ownable {
         require(_manager != address(0),'Non zero only');
         subscriptionManager = _manager;
     }
+
+    function setBaseURI(string memory _newBaseURI) external onlyOwner {
+        _baseTokenURI = _newBaseURI;
+    }
+    
     ///////////////////////////////
     function _mintWithURI(address _to, uint256 _tokenId, string memory _tokenURI) internal {
         _mint(_to, _tokenId);
