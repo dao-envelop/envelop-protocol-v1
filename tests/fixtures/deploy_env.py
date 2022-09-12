@@ -218,6 +218,11 @@ def NFTMinter(accounts, EnvelopUsers721Swarm):
     yield NFTMinter
 
 @pytest.fixture(scope="module")
+def NFTMinter1155(accounts, EnvelopUsers1155Swarm):
+    NFTMinter1155 = accounts[0].deploy(EnvelopUsers1155Swarm,"Envelop NFT", "eNFT", "https://swarm.envelop.is/bzz/")
+    yield NFTMinter1155
+
+@pytest.fixture(scope="module")
 def MockManager(accounts, MockSubscriptionManager):
     MockManager = accounts[0].deploy(MockSubscriptionManager)
     yield MockManager
