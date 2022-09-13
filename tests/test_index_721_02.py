@@ -186,7 +186,7 @@ def test_claim(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
     tx_burn = spawner721mock.burn(spawned_token_id, {'from':accounts[2]})
 
     #check - spawned_token_id is not existed
-    with reverts ("1"):
+    with reverts ("ERC721: invalid token ID"):
         assert spawner721mock.ownerOf(spawned_token_id) == accounts[2]
 
 
@@ -235,7 +235,7 @@ def test_claim(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
 
     tx_unfreez = keeper.unFreeze(
         secret,
-        Web3.toChecksumAddress(spawner721mock), 
+        Web3.toChecksumAddress(spawner721mock.address), 
         Web3.toInt(spawned_token_id),
         #signed_message.messageHash, 
         signed_message.signature,
