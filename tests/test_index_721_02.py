@@ -182,7 +182,7 @@ def test_claim(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
     global signed_message
     global spawned_token_id
    
-    #other user burn your own  NFT key - by acc2
+    #current owner (acc2) burns your own  NFT key 
     tx_burn = spawner721mock.burn(spawned_token_id, {'from':accounts[2]})
 
     #check - spawned_token_id is not existed
