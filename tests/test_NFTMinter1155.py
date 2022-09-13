@@ -86,6 +86,10 @@ def test_subscription(accounts, NFTMinter1155, MockManager):
     tokenUri = '2'
     amount = 3
 
+    with reverts(''):
+        NFTMinter1155.mintWithURI(accounts[1], tokenId, amount, tokenUri, Web3.toBytes(text=''), {"from": accounts[0]})   
+
+
     with reverts("Ownable: caller is not the owner"):
         NFTMinter1155.setSubscriptionManager(MockManager.address, {"from": accounts[1]})
 

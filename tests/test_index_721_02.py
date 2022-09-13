@@ -146,6 +146,7 @@ def test_spawn(accounts, keeper, spawner721mock):
     # Ether style signature
     message = encode_defunct(primitive=hashed_msg)
     
+    #CREATE signed_message
     global signed_message
     signed_message = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
     logging.info('sign_message is {}'.format(signed_message))
@@ -161,6 +162,7 @@ def test_spawn(accounts, keeper, spawner721mock):
             {'from':accounts[1]}
         )
 
+    #mint nft key first time
     spawntx = spawner721mock.mint(
         Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']), 
         #signed_message.messageHash, 
@@ -170,37 +172,44 @@ def test_spawn(accounts, keeper, spawner721mock):
     global spawned_token_id
     assert spawner721mock.ownerOf(tx.events['NewFreeze']['spawnedTokenId']) == accounts[3]
     spawned_token_id = tx.events['NewFreeze']['spawnedTokenId']
-    #transfer nft key to other user
+    
+    #transfer nft key to other user - acc2
     spawner721mock.transferFrom(accounts[3], accounts[2], spawned_token_id, {"from": accounts[3]})
     assert spawner721mock.ownerOf(spawned_token_id) == accounts[2]
 
 def test_claim(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
     tx = chain.get_transaction(freeze_tx)
     global signed_message
+    global spawned_token_id
+   
     #other user burn your own  NFT key - by acc2
     tx_burn = spawner721mock.burn(spawned_token_id, {'from':accounts[2]})
 
+    #check - spawned_token_id is not existed
+    with reverts ("1"):
+        assert spawner721mock.ownerOf(spawned_token_id) == accounts[2]
 
-    #####try to mint nft key for frozen wNFT again - use old signature
+
+    #####try to mint nft key for frozen wNFT again for acc3 - use old signature and old tokenId!!!!!####
 
     logging.info('sign_message is {}'.format(signed_message))
 
     #mint NFT key again
     spawntx = spawner721mock.mint(
-        Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']), 
+        Web3.toInt(spawned_token_id), 
         #signed_message.messageHash, 
         signed_message.signature,
         {'from':accounts[3]}
     )
-
-    assert spawner721mock.ownerOf(tx.events['NewFreeze']['spawnedTokenId']) == accounts[3]
+    #check tokenID of new NFT key
+    assert spawner721mock.ownerOf(spawned_token_id) == accounts[3]
 
     
     #burn nft key again by acc3
     tx_burn2 = spawner721mock.burn(spawned_token_id, {'from':accounts[3]})
 
 
-    # Lets prepare  signed  message - for account 3
+    # Lets prepare  signed  message to unfreeze wNFT - for account 3. Acc3 will take unfrozen WNFT
     encoded_msg = encode_single(
         '(address,address,uint256)',
         ( Web3.toChecksumAddress(accounts[3].address), 
@@ -218,16 +227,16 @@ def test_claim(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
         keeper.getHashed(secret),
         keeper.checkWNFTByProof(
             keeper.getHashed(secret),
-            Web3.toChecksumAddress(tx.events['NewFreeze']['spawnerContract']), 
-            Web3.toInt(tx.events['NewFreeze']['spawnedTokenId'])
+            Web3.toChecksumAddress(spawner721mock.address), 
+            Web3.toInt(spawned_token_id)
         )
         
     ))
 
     tx_unfreez = keeper.unFreeze(
         secret,
-        Web3.toChecksumAddress(tx.events['NewFreeze']['spawnerContract']), 
-        Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']),
+        Web3.toChecksumAddress(spawner721mock), 
+        Web3.toInt(spawned_token_id),
         #signed_message.messageHash, 
         signed_message.signature,
         {'from':accounts[3]}
@@ -235,14 +244,15 @@ def test_claim(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
     )
     logging.info('tx_unfreez events {}'.format(tx_unfreez.events))
     wTokenId = wrapper.lastWNFTId(out_type)[1]
+    #check - wnft is owned by acc3
     assert wnft721.ownerOf(wTokenId) == accounts[3]
 
-    # Lets prepare  signed  message - for account 2 - first owner of NFT key
+    # Lets prepare  signed  message - for account 2 - first owner of NFT key with spawned_token_id
     encoded_msg = encode_single(
         '(address,address,uint256)',
         ( Web3.toChecksumAddress(accounts[2].address), 
-          Web3.toChecksumAddress(tx.events['NewFreeze']['spawnerContract']), 
-          Web3.toInt(tx.events['NewFreeze']['spawnedTokenId'])
+          Web3.toChecksumAddress(spawner721mock.address), 
+          Web3.toInt(spawned_token_id)
         )
     )
     hashed_msg = Web3.solidityKeccak(['bytes32'], [encoded_msg])
@@ -260,7 +270,7 @@ def test_claim(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
         
     ))
 
-    #owner of first NFT key (acc2) try to unfreeze wNFT - will be reverted
+    #owner of first NFT key (acc2) try to unfreeze wNFT - will be reverted cause wnft has already been owned by acc3
     with reverts(""):
         tx_unfreez = keeper.unFreeze(
             secret,
