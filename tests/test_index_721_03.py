@@ -100,15 +100,15 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
 
     chain.sleep(250)
     chain.mine()
-
-    #wrapper.unWrap(3, wnft721, wTokenId, {'from': accounts[3]})
         
-def test_freeze(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
+def test_full(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
     wTokenId = wrapper.lastWNFTId(out_type)[1]
     wnft721.setApprovalForAll(keeper, True, {'from': accounts[3]})
     hashed_secret = keeper.getHashed(secret)
     keeper.setSpawnerContract(web3.eth.chain_id,(spawner721mock, 22),{'from': accounts[0]})
+
     tx = keeper.freeze((wnft721, wTokenId), web3.eth.chain_id, hashed_secret,{'from': accounts[3]})
+    
     logging.info('Freeze event:{}'.format(tx.events['NewFreeze']))
     #logging.info('Debug event:{}'.format(tx.events['Debug']))
     encoded_msg = encode_single(
@@ -121,19 +121,19 @@ def test_freeze(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
         keeper.frozenItems(Web3.toBytes(hashed_msg))
     ))
     logging.info('tx.hash={}'.format(tx.txid))
-    global freeze_tx
-    freeze_tx = tx.txid
+
+    freeze_tx1 = tx.txid
     #assert keeper
     assert wnft721.balanceOf(keeper) == 1
     assert wnft721.ownerOf(wTokenId) == keeper.address
     assert keeper.frozenItems(Web3.toBytes(hashed_msg))[1] == wTokenId
 
-def test_spawn(accounts, keeper, spawner721mock):
+
     # get tx datails from Oracle
-    tx = chain.get_transaction(freeze_tx)
+    tx = chain.get_transaction(freeze_tx1)
     logging.info('\ntx: {} \nsender: {}\n logs:{}'.format(tx.txid, tx.sender, tx.logs))
     logging.info('Freeze event from Oracle:{}'.format(tx.events['NewFreeze']))
-    # Lets prepare  signed  message
+    # Lets prepare  signed  message for mint nft key
     encoded_msg = encode_single(
         '(address,uint256,address,uint256)',
         ( Web3.toChecksumAddress(accounts[3].address), 
@@ -147,72 +147,103 @@ def test_spawn(accounts, keeper, spawner721mock):
     message = encode_defunct(primitive=hashed_msg)
     
     #CREATE signed_message
-    global signed_message
-    signed_message = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
-    logging.info('sign_message is {}'.format(signed_message))
+    signed_message_after_freeze1 = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
+    logging.info('signed_message_after_freeze1 is {}'.format(signed_message_after_freeze1))
 
     spawner721mock.setSignerStatus(ORACLE_ADDRESS, True, {'from':accounts[0]})
 
-    #try to create key nft in target chain not owner of wnft
-    with reverts('Unexpected signer'):
-        spawner721mock.mint(
-            Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']), 
-            #signed_message.messageHash, 
-            signed_message.signature,
-            {'from':accounts[1]}
-        )
-
     #mint nft key first time
-    spawntx = spawner721mock.mint(
+    spawntx1 = spawner721mock.mint(
         Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']), 
         #signed_message.messageHash, 
-        signed_message.signature,
+        signed_message_after_freeze1.signature,
         {'from':accounts[3]}
     )
-    global spawned_token_id
+
     assert spawner721mock.ownerOf(tx.events['NewFreeze']['spawnedTokenId']) == accounts[3]
-    spawned_token_id = tx.events['NewFreeze']['spawnedTokenId']
-    
-    #transfer nft key to other user - acc2
-    spawner721mock.transferFrom(accounts[3], accounts[2], spawned_token_id, {"from": accounts[3]})
-    assert spawner721mock.ownerOf(spawned_token_id) == accounts[2]
+    spawned_token_id1 = tx.events['NewFreeze']['spawnedTokenId']
 
-def test_claim(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
-    tx = chain.get_transaction(freeze_tx)
-    global signed_message
-    global spawned_token_id
+    logging.info('spawned_token_id1 = {}'.format(spawned_token_id1))
+
+
+    #tx = chain.get_transaction(freeze_tx1)
+
    
-    #current owner (acc2) burns your own  NFT key 
-    tx_burn = spawner721mock.burn(spawned_token_id, {'from':accounts[2]})
-
-    #check - spawned_token_id is not existed
-    with reverts ("ERC721: invalid token ID"):
-        assert spawner721mock.ownerOf(spawned_token_id) == accounts[2]
-
-
-    #####try to mint nft key for frozen wNFT again for acc3 - use old signature and old tokenId!!!!!####
-
-    logging.info('sign_message is {}'.format(signed_message))
-
-    #mint NFT key again
-    spawntx = spawner721mock.mint(
-        Web3.toInt(spawned_token_id), 
-        #signed_message.messageHash, 
-        signed_message.signature,
-        {'from':accounts[3]}
-    )
-    #check tokenID of new NFT key
-    assert spawner721mock.ownerOf(spawned_token_id) == accounts[3]
-
-    
-    #burn nft key again by acc3
-    tx_burn2 = spawner721mock.burn(spawned_token_id, {'from':accounts[3]})
-
+    tx_burn1 = spawner721mock.burn(spawned_token_id1, {'from':accounts[3]})
 
     # Lets prepare  signed  message to unfreeze wNFT - for account 3. Acc3 will take unfrozen WNFT
     encoded_msg = encode_single(
         '(address,address,uint256)',
         ( Web3.toChecksumAddress(accounts[3].address), 
+          Web3.toChecksumAddress(spawner721mock.address), 
+          Web3.toInt(spawned_token_id1)
+        )
+    )
+    hashed_msg = Web3.solidityKeccak(['bytes32'], [encoded_msg])
+    # Ether style signature
+    message = encode_defunct(primitive=hashed_msg)
+    signed_message_after_burn1 = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
+    logging.info('signed_message_after_burn1 is {}'.format(signed_message_after_burn1))
+    keeper.setSignerStatus(ORACLE_ADDRESS, True, {'from':accounts[0]})
+    logging.info('Check wnft by proof({}): {}'.format(
+        keeper.getHashed(secret),
+        keeper.checkWNFTByProof(
+            keeper.getHashed(secret),
+            Web3.toChecksumAddress(spawner721mock.address), 
+            Web3.toInt(spawned_token_id1)
+        )
+        
+    ))
+
+    tx_unfreez1 = keeper.unFreeze(
+        secret,
+        Web3.toChecksumAddress(spawner721mock.address), 
+        Web3.toInt(spawned_token_id1),
+        #signed_message.messageHash, 
+        signed_message_after_burn1.signature,
+        {'from':accounts[3]}
+
+    )
+    logging.info('tx_unfreez events {}'.format(tx_unfreez1.events))
+    wTokenId = wrapper.lastWNFTId(out_type)[1]
+    #check - wnft is owned by acc3
+    assert wnft721.ownerOf(wTokenId) == accounts[3]
+
+
+    #freeze same wNFT again
+
+    wnft721.setApprovalForAll(keeper, True, {'from': accounts[3]})
+    hashed_secret = keeper.getHashed(secret)
+
+    tx = keeper.freeze((wnft721, wTokenId), web3.eth.chain_id, hashed_secret,{'from': accounts[3]})
+    logging.info('Freeze event:{}'.format(tx.events['NewFreeze']))
+    #logging.info('Debug event:{}'.format(tx.events['Debug']))
+    encoded_msg = encode_single(
+        '(bytes32,address,uint256)',
+         (hashed_secret, tx.events['NewFreeze']['spawnerContract'], tx.events['NewFreeze']['spawnedTokenId'])
+    )
+    hashed_msg = Web3.solidityKeccak(['bytes32'], [encoded_msg])
+    logging.info('frozenItems[{}] = {}'.format(
+        Web3.toBytes(hashed_msg).hex(), 
+        keeper.frozenItems(Web3.toBytes(hashed_msg))
+    ))
+    logging.info('tx.hash={}'.format(tx.txid))
+    freeze_tx2 = tx.txid
+    #assert keeper
+    assert wnft721.balanceOf(keeper) == 1
+    assert wnft721.ownerOf(wTokenId) == keeper.address
+    assert keeper.frozenItems(Web3.toBytes(hashed_msg))[1] == wTokenId
+
+
+    # get tx datails from Oracle for second frozen transaction
+    tx = chain.get_transaction(freeze_tx2)
+    logging.info('\ntx: {} \nsender: {}\n logs:{}'.format(tx.txid, tx.sender, tx.logs))
+    logging.info('Freeze event from Oracle:{}'.format(tx.events['NewFreeze']))
+    # Lets prepare  signed  message for second minting of the nft key
+    encoded_msg = encode_single(
+        '(address,uint256,address,uint256)',
+        ( Web3.toChecksumAddress(accounts[3].address), 
+          Web3.toInt(web3.eth.chain_id), 
           Web3.toChecksumAddress(tx.events['NewFreeze']['spawnerContract']), 
           Web3.toInt(tx.events['NewFreeze']['spawnedTokenId'])
         )
@@ -220,64 +251,32 @@ def test_claim(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
     hashed_msg = Web3.solidityKeccak(['bytes32'], [encoded_msg])
     # Ether style signature
     message = encode_defunct(primitive=hashed_msg)
-    signed_message = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
-    logging.info('sign_message is {}'.format(signed_message))
-    keeper.setSignerStatus(ORACLE_ADDRESS, True, {'from':accounts[0]})
-    logging.info('Check wnft by proof({}): {}'.format(
-        keeper.getHashed(secret),
-        keeper.checkWNFTByProof(
-            keeper.getHashed(secret),
-            Web3.toChecksumAddress(spawner721mock.address), 
-            Web3.toInt(spawned_token_id)
-        )
-        
-    ))
+    
+    #CREATE signed_message
+    signed_message_after_freeze2 = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
+    logging.info('signed_message_after_freeze2 is {}'.format(signed_message_after_freeze2))
+
+    #mint nft key second time - token is is new!!
+    spawntx2 = spawner721mock.mint(
+        Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']), 
+        #signed_message.messageHash, 
+        signed_message_after_freeze2.signature,
+        {'from':accounts[3]}
+    )
+
+    assert spawner721mock.ownerOf(tx.events['NewFreeze']['spawnedTokenId']) == accounts[3]
+    spawned_token_id2 = tx.events['NewFreeze']['spawnedTokenId']
+    logging.info('spawned_token_id2 = {}'.format(spawned_token_id2))
+
+   
+    tx_burn2 = spawner721mock.burn(spawned_token_id2, {'from':accounts[3]})
 
     tx_unfreez = keeper.unFreeze(
         secret,
         Web3.toChecksumAddress(spawner721mock.address), 
-        Web3.toInt(spawned_token_id),
+        Web3.toInt(spawned_token_id2),
         #signed_message.messageHash, 
-        signed_message.signature,
+        signed_message_after_burn1.signature,
         {'from':accounts[3]}
 
     )
-    logging.info('tx_unfreez events {}'.format(tx_unfreez.events))
-    wTokenId = wrapper.lastWNFTId(out_type)[1]
-    #check - wnft is owned by acc3
-    assert wnft721.ownerOf(wTokenId) == accounts[3]
-
-    # Lets prepare  signed  message - for account 2 - first owner of NFT key with spawned_token_id
-    encoded_msg = encode_single(
-        '(address,address,uint256)',
-        ( Web3.toChecksumAddress(accounts[2].address), 
-          Web3.toChecksumAddress(spawner721mock.address), 
-          Web3.toInt(spawned_token_id)
-        )
-    )
-    hashed_msg = Web3.solidityKeccak(['bytes32'], [encoded_msg])
-    # Ether style signature
-    message = encode_defunct(primitive=hashed_msg)
-    signed_message = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
-    logging.info('sign_message is {}'.format(signed_message))
-    logging.info('Check wnft by proof({}): {}'.format(
-        keeper.getHashed(secret),
-        keeper.checkWNFTByProof(
-            keeper.getHashed(secret),
-            Web3.toChecksumAddress(tx.events['NewFreeze']['spawnerContract']), 
-            Web3.toInt(tx.events['NewFreeze']['spawnedTokenId'])
-        )
-        
-    ))
-
-    #owner of first NFT key (acc2) try to unfreeze wNFT - will be reverted cause wnft has already been owned by acc3
-    with reverts(""):
-        tx_unfreez = keeper.unFreeze(
-            secret,
-            Web3.toChecksumAddress(tx.events['NewFreeze']['spawnerContract']), 
-            Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']),
-            #signed_message.messageHash, 
-            signed_message.signature,
-            {'from':accounts[2]}
-
-        )
