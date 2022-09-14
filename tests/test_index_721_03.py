@@ -256,7 +256,7 @@ def test_full(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
     signed_message_after_freeze2 = web3.eth.account.sign_message(message, private_key=ORACLE_PRIVATE_KEY)
     logging.info('signed_message_after_freeze2 is {}'.format(signed_message_after_freeze2))
 
-    #mint nft key second time - token is is new!!
+    #mint nft key second time - token id is new!!
     spawntx2 = spawner721mock.mint(
         Web3.toInt(tx.events['NewFreeze']['spawnedTokenId']), 
         #signed_message.messageHash, 
@@ -271,12 +271,13 @@ def test_full(accounts, erc721mock, wrapper, wnft721, keeper, spawner721mock):
    
     tx_burn2 = spawner721mock.burn(spawned_token_id2, {'from':accounts[3]})
 
-    tx_unfreez = keeper.unFreeze(
-        secret,
-        Web3.toChecksumAddress(spawner721mock.address), 
-        Web3.toInt(spawned_token_id2),
-        #signed_message.messageHash, 
-        signed_message_after_burn1.signature,
-        {'from':accounts[3]}
-
-    )
+    #try to unfreeze using signature of the previous unfreezing
+    with reverts("Unexpected signer"):
+        tx_unfreez = keeper.unFreeze(
+            secret,
+            Web3.toChecksumAddress(spawner721mock.address), 
+            Web3.toInt(spawned_token_id2),
+            #signed_message.messageHash, 
+            signed_message_after_burn1.signature,
+            {'from':accounts[3]}
+        )
