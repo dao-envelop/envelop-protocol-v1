@@ -5,7 +5,7 @@ import "./WrapperBaseV1.sol";
 
 pragma solidity 0.8.16;
 
-contract TrustedWrapper is WrapperBaseV1{
+contract TrustedWrapper is WrapperBaseV1 {
 
 	address immutable public trustedOperator;
 
