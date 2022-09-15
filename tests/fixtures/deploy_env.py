@@ -226,3 +226,21 @@ def NFTMinter1155(accounts, EnvelopUsers1155Swarm):
 def MockManager(accounts, MockSubscriptionManager):
     MockManager = accounts[0].deploy(MockSubscriptionManager)
     yield MockManager
+
+@pytest.fixture(scope="module")
+def saftV1(accounts, BatchWorker):
+    t = accounts[0].deploy(BatchWorker)
+    #t.setTokenService(tokenService.address, {'from':accounts[0]})
+    yield t 
+
+@pytest.fixture(scope="module")
+def techERC20ForSaftV1(accounts, TechTokenV1):
+    erc20 = accounts[0].deploy(TechTokenV1)
+    yield erc20
+
+
+@pytest.fixture(scope="module")
+def wrapperTrustedV1(accounts, TrustedWrapper, techERC20ForSaftV1, saftV1):
+    t = accounts[0].deploy(TrustedWrapper, techERC20ForSaftV1.address, saftV1.address)
+    #t.setTokenService(tokenService.address, {'from':accounts[0]})
+    yield t 
