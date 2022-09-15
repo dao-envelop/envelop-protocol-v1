@@ -7,21 +7,21 @@ pragma solidity 0.8.16;
 
 contract TrustedWrapper is WrapperBaseV1{
 
-	mapping(address => bool) public trustedOperators;
+	address immutable public trustedOperator;
 
-    constructor (address _erc20)
+    constructor (address _erc20, address _trusted)
     WrapperBaseV1(_erc20) 
     {
-    	trustedOperators[msg.sender] = true;
+    	trustedOperator = _trusted;
     } 
 
 	modifier onlyTrusted() {
-        require (trustedOperators[msg.sender] == true, "Only trusted address");
+        require (trustedOperator == msg.sender, "Only trusted address");
         _;
     }
 
-    function setTrustedAddres(address _operator, bool _status) public onlyOwner {
-        trustedOperators[_operator] = _status;
+    function setMaxCollateralSlots(uint256 _count) public onlyOwner {
+        MAX_COLLATERAL_SLOTS = _count;
     }
 
     function wrapUnsafe(
@@ -37,12 +37,11 @@ contract TrustedWrapper is WrapperBaseV1{
         returns (ETypes.AssetItem memory) 
     {
         // 1. Take users inAsset
-        if ( _inData.inAsset.asset.assetType != ETypes.AssetType.NATIVE &&
-             _inData.inAsset.asset.assetType != ETypes.AssetType.EMPTY
-        ) 
-        {
-          _transfer(_inData.inAsset, msg.sender, address(this));
-        }
+        //////////////////////////////////////////
+        //  !!!! All transfer logic must        // 
+        //  be impemented in caller contract    //   
+        // instead of here                      //
+        //////////////////////////////////////////
 
         // 2. Mint wNFT
         _mintNFT(
@@ -62,11 +61,27 @@ contract TrustedWrapper is WrapperBaseV1{
             _inData
         );
 
-        _addCollateral(
-            lastWNFTId[_inData.outType].contractAddress, 
-            lastWNFTId[_inData.outType].tokenId, 
-            _collateral
-        );
+        //////////////////////////////////////////
+        //  !!!! All add collateral logic must  // 
+        //  be impemented in caller contract    //   
+        // instead of internal _addCollateral   //
+        //////////////////////////////////////////
+        for (uint256 i = 0; i <_collateral.length; i ++) {
+            _updateCollateralInfo(
+                    lastWNFTId[_inData.outType].contractAddress, 
+                    lastWNFTId[_inData.outType].tokenId,
+                    _collateral[i]
+                );  
+            emit CollateralAdded(
+                lastWNFTId[_inData.outType].contractAddress, 
+                lastWNFTId[_inData.outType].tokenId, 
+                uint8(_collateral[i].asset.assetType),
+                _collateral[i].asset.contractAddress,
+                _collateral[i].tokenId,
+                _collateral[i].amount
+            );
+        }
+        //////////////////////////////////////////
 
         emit WrappedV1(
             _inData.inAsset.asset.contractAddress,        // inAssetAddress
@@ -84,23 +99,16 @@ contract TrustedWrapper is WrapperBaseV1{
         );
     }
 
-    function addCollateralUnsafe(
-        address _wNFTAddress, 
-        uint256 _wNFTTokenId, 
-        ETypes.AssetItem[] calldata _collateral
+    function transferIn(
+        ETypes.AssetItem memory _assetItem,
+        address _from,
+        address _to
     ) 
-        public 
-        payable 
-        virtual 
+        external  
         onlyTrusted 
+        nonReentrant 
+    returns (uint256 _transferedValue) 
     {
-
-        _addCollateral(
-            _wNFTAddress, 
-            _wNFTTokenId, 
-            _collateral
-        );
+        _transferSafe(_assetItem, msg.sender, address(this));
     }
-
-
 }
