@@ -32,7 +32,7 @@ contract TrustedWrapper is WrapperBaseV1 {
         public
         virtual 
         payable
-        //onlyTrusted 
+        onlyTrusted 
         nonReentrant 
         returns (ETypes.AssetItem memory) 
     {
