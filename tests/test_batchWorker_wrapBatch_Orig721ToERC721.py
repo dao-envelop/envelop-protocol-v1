@@ -37,7 +37,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
 
     for i in range(3):
         erc721mock.transferFrom(accounts[0], accounts[1], ORIGINAL_NFT_IDs[i+1], {"from": accounts[0]})
-        erc721mock.approve(wrapperTrustedV1.address, ORIGINAL_NFT_IDs[0], {"from": accounts[1]})
+        erc721mock.approve(wrapperTrustedV1.address, ORIGINAL_NFT_IDs[i+1], {"from": accounts[1]})
 
     dai_amount = 0
     weth_amount = 0
