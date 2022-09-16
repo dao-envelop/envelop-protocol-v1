@@ -106,8 +106,8 @@ contract TrustedWrapper is WrapperBaseV1 {
     ) 
         external 
         payable 
-        onlyTrusted 
-        nonReentrant 
+        //onlyTrusted 
+        //nonReentrant 
     returns (uint256 _transferedValue) 
     {
         _transferSafe(_assetItem, _from, address(this));
