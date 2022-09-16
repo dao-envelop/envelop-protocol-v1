@@ -22,7 +22,8 @@ interface ITrustedWrapper is IWrapper  {
         address _from,
         address _to
     ) 
-        external  
+        external
+        payable  
     returns (uint256 _transferedValue);
    
 }

@@ -80,6 +80,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
 
     #set wrapper for batchWorker
     saftV1.setTrustedWrapper(wrapperTrustedV1, {"from": accounts[0]})
+    tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[0], "value": "1 ether"})
     logging.info(inDataS)
     logging.info(collateralS)
     logging.info(receiverS)
