@@ -79,7 +79,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     weth.approve(wrapperTrustedV1.address, weth_amount, {"from": accounts[0]})
 
     #set wrapper for batchWorker
-    saftV1.setTrustedAddress(wrapperTrustedV1, {"from": accounts[0]})
+    saftV1.setTrustedWrapper(wrapperTrustedV1, {"from": accounts[0]})
     saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[0], "value": "1 ether"})
     #wrapperTrustedV1.wrapUnsafe(wNFT, collateralS, accounts[0], {"from": accounts[0], "value": "1 ether"})
 

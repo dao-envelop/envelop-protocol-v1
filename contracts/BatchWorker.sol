@@ -10,37 +10,75 @@ pragma solidity 0.8.16;
 
 contract BatchWorker is Ownable {
 
-	ITrustedWrapper public trustedWrapper;
+    ITrustedWrapper public trustedWrapper;
 
-	function wrapBatch(
-		ETypes.INData[] calldata _inDataS, 
-        ETypes.AssetItem[] calldata _collateral,
-		//address _original721, 
+    function wrapBatch(
+        ETypes.INData[] calldata _inDataS, 
+        ETypes.AssetItem[] calldata _collateralERC20,
         address[] memory _receivers
-        // uint256[] memory _tokenIds, 
-        // ERC20Collateral[] memory _forDistrib,
-        // uint256 _unwrapAfter
-        // bool _needMint
     ) public payable {
-    	// make wNFTs
-    	for (uint256 i = 0; i < _inDataS.length; i++) {
-    		trustedWrapper.wrapUnsafe(
-    			_inDataS[i],
-    			_collateral,
-    			_receivers[i]
-    		);
+        require(_inDataS.length == _receivers.length, "Array params must have equal length");
+        // make wNFTs
+        for (uint256 i = 0; i < _inDataS.length; i++) {
+            // wrap
+            trustedWrapper.wrapUnsafe(
+                _inDataS[i],
+                _collateralERC20,
+                _receivers[i]
+            );
 
-    	}
+            // Tramsfer original NFTs  to wrapper
+            if (_inDataS[i].inAsset.asset.assetType == ETypes.AssetType.ERC721 ||
+                _inDataS[i].inAsset.asset.assetType == ETypes.AssetType.ERC1155 ) 
+            {
+                trustedWrapper.transferIn(
+                    _inDataS[i].inAsset, 
+                    msg.sender, 
+                    address(trustedWrapper)
+                );
+            }
+        }
 
-    	// TODO Transfer originals and collateral
+        // TODO Transfer ERC20 & Native collateral
+        ETypes.AssetItem memory totalERC20Collateral;
+        uint256 totalNativeAmount;
+        for (uint256 i = 0; i < _collateralERC20.length; i ++) {
+
+            if (_inDataS[i].inAsset.asset.assetType == ETypes.AssetType.ERC20 ||
+                _inDataS[i].inAsset.asset.assetType == ETypes.AssetType.NATIVE) 
+            {
+                totalERC20Collateral.asset.assetType = _collateralERC20[i].asset.assetType;
+                totalERC20Collateral.asset.contractAddress = _collateralERC20[i].asset.contractAddress; 
+                totalERC20Collateral.tokenId = _collateralERC20[i].tokenId;
+                // We need construct totalERC20Collateral due make one transfer
+                // instead of maked wNFT counts
+                totalERC20Collateral.amount = _collateralERC20[i].amount * _receivers.length;
+                
+                uint256 amountTransfered = trustedWrapper.transferIn(
+                   totalERC20Collateral, 
+                    msg.sender, 
+                    address(trustedWrapper)
+                );
+                if (_inDataS[i].inAsset.asset.assetType == ETypes.AssetType.NATIVE) {
+                    totalNativeAmount += amountTransfered;    
+                }
+            } 
+        }
+        require(totalNativeAmount <= msg.value, "Not enough native asser in tx");
+        // Check and return the change
+        if  ((msg.value - totalNativeAmount) > 0) {
+                address payable s = payable(msg.sender);
+                s.transfer(msg.value - totalNativeAmount);
+            }
+
 
     }
 
     ////////////////////////////////////////
     //     Admin functions               ///
     ////////////////////////////////////////
-	function setTrustedAddress(address _wrapper) public onlyOwner {
+    function setTrustedWrapper(address _wrapper) public onlyOwner {
         trustedWrapper = ITrustedWrapper(_wrapper);
-		require(trustedWrapper.trustedOperator() == address(this), "Only for exact wrapper");
+        require(trustedWrapper.trustedOperator() == address(this), "Only for exact wrapper");
     }
 }
