@@ -109,6 +109,6 @@ contract TrustedWrapper is WrapperBaseV1 {
         nonReentrant 
     returns (uint256 _transferedValue) 
     {
-        _transferSafe(_assetItem, msg.sender, address(this));
+        _transferSafe(_assetItem, _from, address(this));
     }
 }

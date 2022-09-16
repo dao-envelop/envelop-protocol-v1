@@ -26,7 +26,7 @@ contract BatchWorker is Ownable {
                 _collateralERC20,
                 _receivers[i]
             );
-
+            
             // Tramsfer original NFTs  to wrapper
             if (_inDataS[i].inAsset.asset.assetType == ETypes.AssetType.ERC721 ||
                 _inDataS[i].inAsset.asset.assetType == ETypes.AssetType.ERC1155 ) 
@@ -70,7 +70,7 @@ contract BatchWorker is Ownable {
                 address payable s = payable(msg.sender);
                 s.transfer(msg.value - totalNativeAmount);
             }
-
+        
 
     }
 
