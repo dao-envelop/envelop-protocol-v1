@@ -104,7 +104,8 @@ contract TrustedWrapper is WrapperBaseV1 {
         address _from,
         address _to
     ) 
-        external  
+        external 
+        payable 
         onlyTrusted 
         nonReentrant 
     returns (uint256 _transferedValue) 
