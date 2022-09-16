@@ -99,10 +99,15 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     #assert wrapperTrustedV1.balance() == eth_amount
     assert wnft721.ownerOf(1) == accounts[0]
 
-    #wrapperTrustedV1.transferIn(((1, zero_address), 0, 1e18), accounts[0], wrapperTrustedV1.address, {"from": accounts[0], "value": "1 ether"})
+    tx2 = wrapperTrustedV1.transferIn(
+        ((1, zero_address), 0, 1e18), 
+        accounts[0], 
+        accounts[1], 
+        {"from": accounts[0], "value": "1 ether"}
+    )
     
     logging.info(saftV1.balance())
     logging.info(wrapperTrustedV1.balance())
-    logging.info(accounts[0].balance())
+    logging.info(accounts[1].balance())
 
     
