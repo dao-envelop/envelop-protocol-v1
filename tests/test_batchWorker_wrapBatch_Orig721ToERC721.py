@@ -84,8 +84,8 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     logging.info(inDataS)
     logging.info(collateralS)
     logging.info(receiverS)
-    assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[0]
-    saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[0], "value": "5 ether"})
+    
+    
     #wrapperTrustedV1.wrapUnsafe(wNFT, collateralS, accounts[0], {"from": accounts[0], "value": "1 ether"})
 
     assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == wrapperTrustedV1.address
@@ -99,7 +99,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     #assert wrapperTrustedV1.balance() == eth_amount
     assert wnft721.ownerOf(1) == accounts[0]
 
-    wrapperTrustedV1.transferIn(((1, zero_address), 0, 1e18), accounts[0], wrapperTrustedV1.address, {"from": accounts[0], "value": "1 ether"})
+    #wrapperTrustedV1.transferIn(((1, zero_address), 0, 1e18), accounts[0], wrapperTrustedV1.address, {"from": accounts[0], "value": "1 ether"})
     
     logging.info(saftV1.balance())
     logging.info(wrapperTrustedV1.balance())
