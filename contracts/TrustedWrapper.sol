@@ -102,7 +102,7 @@ contract TrustedWrapper is WrapperBaseV1 {
         address _to
     ) 
         external 
-        payable 
+        //payable 
         onlyTrusted 
         nonReentrant 
     returns (uint256 _transferedValue) 
@@ -110,7 +110,9 @@ contract TrustedWrapper is WrapperBaseV1 {
         _transferSafe(_assetItem, _from, address(this));
     }
 
-    receive() external payable {}
+    receive() external payable {
+        require(msg.sender == trustedOperator);
+    }
 
     function setMaxCollateralSlots(uint256 _count) public onlyOwner {
         MAX_COLLATERAL_SLOTS = _count;
