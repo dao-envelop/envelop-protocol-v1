@@ -46,9 +46,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     for i in range(5):
 
         token_data = (token_property, ORIGINAL_NFT_IDs[i], 0)
-        dai_data = (dai_property, 0, Wei(call_amount))
-        weth_data = (weth_property, 0, Wei(2*call_amount))
-        
+            
         
         fee = [] #[(Web3.toBytes(0x00), transfer_fee_amount, niftsy20.address)]
         lock = [] #[('0x0', chain.time() + 100)]
@@ -65,22 +63,31 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
             )
         inDataS.append(wNFT)
         logging.info(inDataS)
+        logging.info(len(inDataS))
 
-        dai_amount = + Wei(call_amount)
-        weth_amount = + Wei(2*call_amount)
+        dai_amount = dai_amount + Wei(call_amount)
+        weth_amount = weth_amount + Wei(2*call_amount)
 
-        receiverS.append(accounts[i])
+        receiverS.append(accounts[i].address)
         logging.info(receiverS)
 
+    logging.info(dai_amount)
+    logging.info(weth_amount)
 
-    collateralS = [((1, zero_address), 0, 1e18)]
+
+    dai_data = (dai_property, 0, Wei(call_amount))
+    weth_data = (weth_property, 0, Wei(2*call_amount))
+    collateralS = [((1, zero_address), 0, 1e18), dai_data, weth_data]
     #collateralS = [dai_data, weth_data]
     dai.approve(wrapperTrustedV1.address, dai_amount, {"from": accounts[0]})
     weth.approve(wrapperTrustedV1.address, weth_amount, {"from": accounts[0]})
+    dai.approve(saftV1.address, dai_amount, {"from": accounts[0]})
+    weth.approve(saftV1.address, weth_amount, {"from": accounts[0]})
 
     #set wrapper for batchWorker
     saftV1.setTrustedWrapper(wrapperTrustedV1, {"from": accounts[0]})
-    tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[0], "value": "1 ether"})
+    tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[0], "value": "5 ether"})
+    #tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[0]})
     logging.info(inDataS)
     logging.info(collateralS)
     logging.info(receiverS)
@@ -88,7 +95,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     
     #wrapperTrustedV1.wrapUnsafe(wNFT, collateralS, accounts[0], {"from": accounts[0], "value": "1 ether"})
 
-    assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == wrapperTrustedV1.address
+    #assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == wrapperTrustedV1.address
 
     wTokenId = wrapperTrustedV1.lastWNFTId(out_type)[1]
     logging.info(wTokenId)
@@ -100,17 +107,21 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     assert wnft721.ownerOf(1) == accounts[0]
 
 
-    wrapperTrustedV1.transferIn(((1, zero_address), 0, 1e18), accounts[0], wrapperTrustedV1.address, {"from": accounts[0], "value": "1 ether"})
+    #wrapperTrustedV1.transferIn(((1, zero_address), 0, 1e18), accounts[0], wrapperTrustedV1.address, {"from": accounts[0], "value": "1 ether"})
 
-    tx2 = wrapperTrustedV1.transferIn(
-        ((1, zero_address), 0, 1e18), 
-        accounts[0], 
-        accounts[1], 
-        {"from": accounts[0], "value": "1 ether"}
-    )
+    #tx2 = wrapperTrustedV1.transferIn(
+    #    ((1, zero_address), 0, 1e18), 
+    #    accounts[0], 
+    #    accounts[1], 
+    #    {"from": accounts[0], "value": "1 ether"}
+    #)
     
+    #wrapperTrustedV1.addCollateral(wnft721.address, 1, collateralS, {"from": accounts[0]})
+
     logging.info(saftV1.balance())
     logging.info(wrapperTrustedV1.balance())
     logging.info(accounts[1].balance())
+    logging.info(dai.balanceOf(wrapperTrustedV1))
+    logging.info(weth.balanceOf(wrapperTrustedV1))
 
     

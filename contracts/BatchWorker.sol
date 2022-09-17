@@ -12,6 +12,7 @@ contract BatchWorker is Ownable {
 
     ITrustedWrapper public trustedWrapper;
 
+
     function wrapBatch(
         ETypes.INData[] calldata _inDataS, 
         ETypes.AssetItem[] calldata _collateralERC20,
@@ -27,7 +28,7 @@ contract BatchWorker is Ownable {
                 _receivers[i]
             );
             
-            // Tramsfer original NFTs  to wrapper
+            // Transfer original NFTs  to wrapper
             if (_inDataS[i].inAsset.asset.assetType == ETypes.AssetType.ERC721 ||
                 _inDataS[i].inAsset.asset.assetType == ETypes.AssetType.ERC1155 ) 
             {
@@ -44,8 +45,10 @@ contract BatchWorker is Ownable {
         uint256 totalNativeAmount;
         for (uint256 i = 0; i < _collateralERC20.length; i ++) {
 
-            if (_inDataS[i].inAsset.asset.assetType == ETypes.AssetType.ERC20 ||
-                _inDataS[i].inAsset.asset.assetType == ETypes.AssetType.NATIVE) 
+            /*if (_inDataS[i].inAsset.asset.assetType == ETypes.AssetType.ERC20 ||
+                _inDataS[i].inAsset.asset.assetType == ETypes.AssetType.NATIVE) */
+            if (_collateralERC20[i].asset.assetType == ETypes.AssetType.ERC20 ||
+                _collateralERC20[i].asset.assetType == ETypes.AssetType.NATIVE)
             {
                 totalERC20Collateral.asset.assetType = _collateralERC20[i].asset.assetType;
                 totalERC20Collateral.asset.contractAddress = _collateralERC20[i].asset.contractAddress; 
@@ -59,7 +62,7 @@ contract BatchWorker is Ownable {
                     msg.sender, 
                     address(trustedWrapper)
                 );
-                if (_inDataS[i].inAsset.asset.assetType == ETypes.AssetType.NATIVE) {
+                if (_collateralERC20[i].asset.assetType == ETypes.AssetType.NATIVE) {
                     totalNativeAmount += amountTransfered;    
                 }
             } 
