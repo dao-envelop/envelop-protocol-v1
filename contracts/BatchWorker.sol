@@ -45,11 +45,8 @@ contract BatchWorker is Ownable {
         uint256 totalNativeAmount;
         for (uint256 i = 0; i < _collateralERC20.length; i ++) {
 
-            /*if (_inDataS[i].inAsset.asset.assetType == ETypes.AssetType.ERC20 ||
-                _inDataS[i].inAsset.asset.assetType == ETypes.AssetType.NATIVE) */
-            if (_collateralERC20[i].asset.assetType == ETypes.AssetType.ERC20 ||
-                _collateralERC20[i].asset.assetType == ETypes.AssetType.NATIVE)
-            {
+            if (_collateralERC20[i].asset.assetType == ETypes.AssetType.ERC20) {
+            
                 totalERC20Collateral.asset.assetType = _collateralERC20[i].asset.assetType;
                 totalERC20Collateral.asset.contractAddress = _collateralERC20[i].asset.contractAddress; 
                 totalERC20Collateral.tokenId = _collateralERC20[i].tokenId;
@@ -62,19 +59,21 @@ contract BatchWorker is Ownable {
                     msg.sender, 
                     address(trustedWrapper)
                 );
-                if (_collateralERC20[i].asset.assetType == ETypes.AssetType.NATIVE) {
-                    totalNativeAmount += amountTransfered;    
-                }
-            } 
+                
+            }
+
+            if (_collateralERC20[i].asset.assetType == ETypes.AssetType.NATIVE) {
+                    totalNativeAmount += _collateralERC20[i].amount * _receivers.length;    
+                } 
         }
-        require(totalNativeAmount <= msg.value, "Not enough native asser in tx");
+        
+        (bool success, ) = address(trustedWrapper).call{value: totalNativeAmount}("");
+        require(success, "Native transfer failed");
         // Check and return the change
         if  ((msg.value - totalNativeAmount) > 0) {
                 address payable s = payable(msg.sender);
                 s.transfer(msg.value - totalNativeAmount);
             }
-        
-
     }
 
     ////////////////////////////////////////

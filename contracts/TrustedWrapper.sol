@@ -20,9 +20,6 @@ contract TrustedWrapper is WrapperBaseV1 {
         _;
     }
 
-    function setMaxCollateralSlots(uint256 _count) public onlyOwner {
-        MAX_COLLATERAL_SLOTS = _count;
-    }
 
     function wrapUnsafe(
         ETypes.INData calldata _inData, 
@@ -110,6 +107,12 @@ contract TrustedWrapper is WrapperBaseV1 {
         nonReentrant 
     returns (uint256 _transferedValue) 
     {
-        _transferSafe(_assetItem, _from, _to);
+        _transferSafe(_assetItem, _from, address(this));
+    }
+
+    receive() external payable {}
+
+    function setMaxCollateralSlots(uint256 _count) public onlyOwner {
+        MAX_COLLATERAL_SLOTS = _count;
     }
 }
