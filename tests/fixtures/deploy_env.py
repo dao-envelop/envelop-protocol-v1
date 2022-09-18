@@ -244,3 +244,8 @@ def wrapperTrustedV1(accounts, TrustedWrapper, techERC20ForSaftV1, saftV1):
     t = accounts[0].deploy(TrustedWrapper, techERC20ForSaftV1.address, saftV1.address)
     #t.setTokenService(tokenService.address, {'from':accounts[0]})
     yield t 
+
+@pytest.fixture(scope="module")
+def whiteListsForTrustedWrapper(accounts, AdvancedWhiteList):
+    wlT = accounts[0].deploy(AdvancedWhiteList)
+    yield wlT
