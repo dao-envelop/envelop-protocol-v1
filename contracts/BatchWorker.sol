@@ -22,7 +22,7 @@ contract BatchWorker is Ownable {
         // make wNFTs
         for (uint256 i = 0; i < _inDataS.length; i++) {
             // wrap
-            trustedWrapper.wrapUnsafe(
+            trustedWrapper.wrapUnsafe{value :(msg.value / _receivers.length)}(
                 _inDataS[i],
                 _collateralERC20,
                 _receivers[i]
@@ -66,14 +66,8 @@ contract BatchWorker is Ownable {
                     totalNativeAmount += _collateralERC20[i].amount * _receivers.length;    
                 } 
         }
-        
-        (bool success, ) = address(trustedWrapper).call{value: totalNativeAmount}("");
-        require(success, "Native transfer failed");
-        // Check and return the change
-        if  ((msg.value - totalNativeAmount) > 0) {
-                address payable s = payable(msg.sender);
-                s.transfer(msg.value - totalNativeAmount);
-            }
+
+        require(totalNativeAmount == msg.value,  "Native amount check failed");
     }
 
     ////////////////////////////////////////
