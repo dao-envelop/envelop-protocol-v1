@@ -3,6 +3,7 @@
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/ITrustedWrapper.sol";
+import "../interfaces/ISubscriptionManager.sol";
 
 
 
@@ -11,6 +12,7 @@ pragma solidity 0.8.16;
 contract BatchWorker is Ownable {
 
     ITrustedWrapper public trustedWrapper;
+    ISubscriptionManager public subscriptionManager;
 
 
     function wrapBatch(
@@ -22,7 +24,7 @@ contract BatchWorker is Ownable {
         // make wNFTs
         for (uint256 i = 0; i < _inDataS.length; i++) {
             // wrap
-            trustedWrapper.wrapUnsafe{value :(msg.value / _receivers.length)}(
+            trustedWrapper.wrapUnsafe{value: (msg.value / _receivers.length)}(
                 _inDataS[i],
                 _collateralERC20,
                 _receivers[i]
@@ -70,11 +72,34 @@ contract BatchWorker is Ownable {
         require(totalNativeAmount == msg.value,  "Native amount check failed");
     }
 
+
+    function addCollateralBatch(
+        address[] calldata _wNFTAddress, 
+        uint256[] calldata _wNFTTokenId, 
+        ETypes.AssetItem[] calldata _collateral
+    ) public payable {
+        require(_wNFTAddress.length == _wNFTTokenId.length, "Array params must have equal length");
+        for (uint256 i = 0; i < _wNFTAddress.length; i ++){
+            trustedWrapper.addCollateral{value: (msg.value / _wNFTAddress.length)}(
+                _wNFTAddress[i],
+                _wNFTTokenId[i],
+                _collateral
+            );
+
+        }
+
+    }
+
     ////////////////////////////////////////
     //     Admin functions               ///
     ////////////////////////////////////////
     function setTrustedWrapper(address _wrapper) public onlyOwner {
         trustedWrapper = ITrustedWrapper(_wrapper);
         require(trustedWrapper.trustedOperator() == address(this), "Only for exact wrapper");
+    }
+
+    function setSubscriptionManager(address _manager) external onlyOwner {
+        require(_manager != address(0),'Non zero only');
+        subscriptionManager = ISubscriptionManager(_manager);
     }
 }

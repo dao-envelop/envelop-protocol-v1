@@ -110,11 +110,16 @@ contract TrustedWrapper is WrapperBaseV1 {
         _transferSafe(_assetItem, _from, address(this));
     }
 
-    receive() external payable {
-        require(msg.sender == trustedOperator);
-    }
+    // receive() external payable {
+    //     require(msg.sender == trustedOperator);
+    // }
+
+    ////////////////////////////////////////
+    //     Admin functions               ///
+    ////////////////////////////////////////
 
     function setMaxCollateralSlots(uint256 _count) public onlyOwner {
         MAX_COLLATERAL_SLOTS = _count;
     }
+
 }
