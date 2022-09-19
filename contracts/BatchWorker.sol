@@ -85,9 +85,7 @@ contract BatchWorker is Ownable {
                 _wNFTTokenId[i],
                 _collateral
             );
-
         }
-
     }
 
     ////////////////////////////////////////
