@@ -35,7 +35,7 @@ contract Token721Mock is ERC721URIStorage, Ownable {
 
     }
 
-    function _baseURI() internal view  override returns (string memory) {
+    function _baseURI() internal pure  override returns (string memory) {
         return 'https://bugsbunny.com/';
     }
 }

@@ -260,7 +260,7 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
     }
     ///////////////////////////////////////////////////////////////////
 
-    function _checkSign(bytes32 _msg, bytes memory _signature) internal returns (bool) {
+    function _checkSign(bytes32 _msg, bytes memory _signature) internal view returns (bool) {
         // Check signature  author
         if (trustedSigners[_msg.recover(_signature)]) {
             return true;

@@ -19,8 +19,7 @@ interface ITrustedWrapper is IWrapper  {
 
     function transferIn(
         ETypes.AssetItem memory _assetItem,
-        address _from,
-        address _to
+        address _from
     ) 
         external
         payable  

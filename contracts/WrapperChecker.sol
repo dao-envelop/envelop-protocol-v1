@@ -425,7 +425,7 @@ contract WrapperChecker {
         address _wNFTAddress, 
         uint256 _wNFTTokenId, 
         bool _isEmergency
-    ) public view returns (bool) 
+    ) public pure returns (bool) 
     {
         return true;
     }

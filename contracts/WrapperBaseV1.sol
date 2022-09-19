@@ -248,7 +248,7 @@ contract WrapperBaseV1 is
     ) 
         public
         virtual  
-        returns (bool) 
+        returns (bool charged) 
     {
         //TODO  only wNFT contract can  execute  this(=charge fee)
         require(msg.sender == _wNFTAddress || msg.sender == address(this), 
@@ -257,6 +257,7 @@ contract WrapperBaseV1 is
         require(_chargeFees(_wNFTAddress, _wNFTTokenId, _from, _to, _feeType),
             "Fee charge fail"
         );
+        charged = true;
     }
     /////////////////////////////////////////////////////////////////////
     //                    Admin functions                              //
@@ -455,7 +456,7 @@ contract WrapperBaseV1 is
             _newCollateralItem(_wNFTAddress,_wNFTTokenId,collateralItem);
         }  else {
              // length > 0 
-            (uint256 _amnt, uint256 _index) = getCollateralBalanceAndIndex(
+            (, uint256 _index) = getCollateralBalanceAndIndex(
                 _wNFTAddress, 
                 _wNFTTokenId,
                 collateralItem.asset.assetType, 
@@ -517,7 +518,7 @@ contract WrapperBaseV1 is
     ) 
         internal
         virtual  
-        returns (bool) 
+        returns (bool _charged) 
     {
         if (_feeType == 0x00) {// Transfer fee
             for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].fees.length; i ++){
@@ -564,7 +565,7 @@ contract WrapperBaseV1 is
                 }
                 //////////////////////////////////////////
             }
-            return true;
+            _charged = true;
         }
     }
 
@@ -677,7 +678,7 @@ contract WrapperBaseV1 is
         }
     }
      
-    function _checkRule(bytes2 _rule, bytes2 _wNFTrules) internal view returns (bool) {
+    function _checkRule(bytes2 _rule, bytes2 _wNFTrules) internal pure returns (bool) {
         return _rule == (_rule & _wNFTrules);
     }
 

@@ -98,16 +98,14 @@ contract TrustedWrapper is WrapperBaseV1 {
 
     function transferIn(
         ETypes.AssetItem memory _assetItem,
-        address _from,
-        address _to
+        address _from
     ) 
         external 
-        //payable 
         onlyTrusted 
         nonReentrant 
     returns (uint256 _transferedValue) 
     {
-        _transferSafe(_assetItem, _from, address(this));
+        return _transferSafe(_assetItem, _from, address(this));
     }
 
     // receive() external payable {

@@ -34,7 +34,7 @@ contract WrapperRemovable is WrapperBaseV1 {
             );
         }
         // we need know index in collateral array
-        (uint256 _amnt, uint256 _index) = getCollateralBalanceAndIndex(
+        (, uint256 _index) = getCollateralBalanceAndIndex(
                 _wNFTAddress, 
                 _wNFTTokenId,
                 _collateralItem.asset.assetType, 

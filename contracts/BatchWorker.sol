@@ -20,6 +20,17 @@ contract BatchWorker is Ownable {
         ETypes.AssetItem[] calldata _collateralERC20,
         address[] memory _receivers
     ) public payable {
+        _checkAndFixSubscription(msg.sender, 1);
+        if (address(subscriptionManager) != address(0)){
+            require(
+                ISubscriptionManager(subscriptionManager).checkAndFixUserSubscription(
+                    msg.sender,
+                    1  // 1 - simple saftNFT subscription
+                ),
+                "Has No Subscription"
+            );
+        }
+        
         require(_inDataS.length == _receivers.length, "Array params must have equal length");
         // make wNFTs
         for (uint256 i = 0; i < _inDataS.length; i++) {
@@ -36,8 +47,7 @@ contract BatchWorker is Ownable {
             {
                 trustedWrapper.transferIn(
                     _inDataS[i].inAsset, 
-                    msg.sender, 
-                    address(trustedWrapper)
+                    msg.sender
                 );
             }
         }
@@ -58,9 +68,9 @@ contract BatchWorker is Ownable {
                 
                 uint256 amountTransfered = trustedWrapper.transferIn(
                    totalERC20Collateral, 
-                    msg.sender, 
-                    address(trustedWrapper)
+                    msg.sender
                 );
+                require(amountTransfered == totalERC20Collateral.amount, "Check transfer ERC20 amount fail");
                 
             }
 
@@ -78,6 +88,7 @@ contract BatchWorker is Ownable {
         uint256[] calldata _wNFTTokenId, 
         ETypes.AssetItem[] calldata _collateral
     ) public payable {
+        _checkAndFixSubscription(msg.sender, 1);
         require(_wNFTAddress.length == _wNFTTokenId.length, "Array params must have equal length");
         for (uint256 i = 0; i < _wNFTAddress.length; i ++){
             trustedWrapper.addCollateral{value: (msg.value / _wNFTAddress.length)}(
@@ -100,4 +111,18 @@ contract BatchWorker is Ownable {
         require(_manager != address(0),'Non zero only');
         subscriptionManager = ISubscriptionManager(_manager);
     }
+    /////////////////////////////////////////
+
+    // 1 - simple saftNFT subscription
+    function _checkAndFixSubscription(address _user, uint256 _subscriptionType) internal {
+        if (address(subscriptionManager) != address(0)){
+            require(
+                ISubscriptionManager(subscriptionManager).checkAndFixUserSubscription(
+                    _user,
+                    _subscriptionType  
+                ),
+                "Has No Subscription"
+            );
+        }
+    }   
 }

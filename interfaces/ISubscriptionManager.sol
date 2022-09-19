@@ -9,4 +9,14 @@ interface ISubscriptionManager   {
         address _contractAddress, 
         address _minter
     ) external view returns (bool);
+
+    function checkUserSubscription(
+        address _userer, 
+        uint256 _subscriptionId
+    ) external view returns (bool);
+
+    function checkAndFixUserSubscription(
+        address _userer, 
+        uint256 _subscriptionId
+    ) external returns (bool); 
 }
