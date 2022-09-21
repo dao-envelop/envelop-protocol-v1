@@ -94,7 +94,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
         assert tx.events['WrappedV1'][i]['nativeCollateralAmount'] == eth_amount
         assert tx.events['WrappedV1'][i]['rules'] == '0x0000'
 
-    #check WrappedV1 events
+    #check CollateralAdded events
     for i in range(len(tx.events['CollateralAdded'])):
         assert tx.events['CollateralAdded'][i]['wrappedAddress'] == wnft721.address
         assert tx.events['CollateralAdded'][i]['wrappedId'] in [1,2,3,4,5]
@@ -196,12 +196,12 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     #+чек развернуть все
     #+чек включить все комиссии, роялти, локи, проверить, как легли в внфт
 
-    #проверить, как добавляется эфир с включенным белым списком
-    # проверить, если эфира больше передано, чем в массиве обеспечения
-    # проверить, если эфира передано меньше, чем в массиве обеспечения
-    # разрешения на erc20 токены меньше, чем будет списание
-    # баланса erc20 токенов меньше, чем будет списание
-    #не владеем токенами нфт, пытаемся обернуть
-    #передаю 7 вей эфира, а врапаю 3 токена
+    #+проверить, как добавляется эфир с включенным белым списком
+    #+проверить, если эфира больше передано, чем в массиве обеспечения
+    #+проверить, если эфира передано меньше, чем в массиве обеспечения
+    #+разрешения на erc20 токены меньше, чем будет списание
+    #+баланса erc20 токенов меньше, чем будет списание
+    #+не владеем токенами нфт, пытаемся обернуть
+    #+передаю 7 вей эфира, а врапаю 3 токена
 
     
