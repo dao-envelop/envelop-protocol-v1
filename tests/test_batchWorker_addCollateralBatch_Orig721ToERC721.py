@@ -37,14 +37,11 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
 
 
     token_property = (in_type, erc721mock.address)
-    dai_property = (2, dai.address)
-    weth_property = (2, weth.address)
-
+    
     for i in range(len(ORIGINAL_NFT_IDs)):
         erc721mock.approve(wrapperTrustedV1, ORIGINAL_NFT_IDs[i], {"from": accounts[0]})
         
-    dai_amount = 0
-    weth_amount = 0
+    
     inDataS = []
     receiverS = []
     fee = [('0x00', transfer_fee_amount, niftsy20.address)]
@@ -65,36 +62,42 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
             )
         inDataS.append(wNFT)
 
-        dai_amount = dai_amount + Wei(call_amount)
-        weth_amount = weth_amount + Wei(2*call_amount)
-
         receiverS.append(accounts[i].address)
 
-    dai_data = (dai_property, 0, Wei(call_amount))
-    weth_data = (weth_property, 0, Wei(2*call_amount))
-    eth_data = ((1, zero_address), 0, 1e18)
-    collateralS = [eth_data, dai_data, weth_data]
-    #collateralS = [dai_data, weth_data]
-    dai.approve(wrapperTrustedV1.address, dai_amount, {"from": accounts[0]})
-    weth.approve(wrapperTrustedV1.address, weth_amount, {"from": accounts[0]})
 
     #set wrapper for batchWorker
     saftV1.setTrustedWrapper(wrapperTrustedV1, {"from": accounts[0]})
 
-    #wrap batch
-    tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[0], "value": len(ORIGINAL_NFT_IDs)*eth_amount})
-    logging.info(tx.gas_used)
-    
-    #check WrappedV1 events
-    for i in range(len(tx.events['WrappedV1'])):
-        assert tx.events['WrappedV1'][i]['inAssetAddress'] == erc721mock.address
-        assert tx.events['WrappedV1'][i]['outAssetAddress'] == wnft721.address
-        assert tx.events['WrappedV1'][i]['inAssetTokenId'] == ORIGINAL_NFT_IDs[i]
-        assert tx.events['WrappedV1'][i]['outTokenId'] == i+1
-        assert tx.events['WrappedV1'][i]['wnftFirstOwner'] == accounts[i]
-        assert tx.events['WrappedV1'][i]['nativeCollateralAmount'] == eth_amount
-        assert tx.events['WrappedV1'][i]['rules'] == '0x0000'
+    #wrap batch without collateral
+    tx = saftV1.wrapBatch(inDataS, [], receiverS, {"from": accounts[0]})
 
+    #add collateral using batch
+    dai_amount = 0
+    weth_amount = 0
+    dai_property = (2, dai.address)
+    weth_property = (2, weth.address)
+
+    wnftContracts = []
+    wnftIDs = []
+    for i in range(len(ORIGINAL_NFT_IDs)):
+        wnftContracts.append(wnft721.address)
+        wnftIDs.append(wrapperTrustedV1.lastWNFTId(out_type)[1] - i)
+
+        dai_amount = dai_amount + Wei(call_amount)
+        weth_amount = weth_amount + Wei(2*call_amount)
+
+    logging.info(wnftIDs)
+    dai_data = (dai_property, 0, Wei(call_amount))
+    weth_data = (weth_property, 0, Wei(2*call_amount))
+
+    collateralS = [dai_data, weth_data]
+    dai.approve(wrapperTrustedV1.address, dai_amount, {"from": accounts[0]})
+    weth.approve(wrapperTrustedV1.address, weth_amount, {"from": accounts[0]})
+
+
+    tx = saftV1.addCollateralBatch(wnftContracts, wnftIDs, collateralS, {"from": accounts[0], "value": len(ORIGINAL_NFT_IDs)*eth_amount})
+
+    '''
     #check CollateralAdded events
     for i in range(len(tx.events['CollateralAdded'])):
         assert tx.events['CollateralAdded'][i]['wrappedAddress'] == wnft721.address
@@ -118,36 +121,11 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
         assert wnft721.wnftInfo(i+1)[1][1] == dai_data
         assert wnft721.wnftInfo(i+1)[1][2] == weth_data
 
-        #check wnft data
-        assert wnft721.wnftInfo(i+1)[0][0] == token_property
-        assert wnft721.wnftInfo(i+1)[0][1] == ORIGINAL_NFT_IDs[i]
-        assert wnft721.wnftInfo(i+1)[0][2] == 0
-        assert wnft721.wnftInfo(i+1)[2] == zero_address
-        assert wnft721.wnftInfo(i+1)[3] == fee
-        assert wnft721.wnftInfo(i+1)[4] == lock
-        assert wnft721.wnftInfo(i+1)[5] == royalty
-        assert wnft721.wnftInfo(i+1)[6] == '0x0000'
-        
-        #check owner of nft
-        assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[i]) == wrapperTrustedV1.address
-        assert wnft721.ownerOf(i+1) == accounts[i]
-
     assert dai.balanceOf(wrapperTrustedV1.address) == call_amount*len(ORIGINAL_NFT_IDs)
     assert weth.balanceOf(wrapperTrustedV1.address) == 2*call_amount*len(ORIGINAL_NFT_IDs)
     assert wrapperTrustedV1.balance() == eth_amount*len(ORIGINAL_NFT_IDs)
 
-    #make transfer with fee
-    for i in [1,2,3,4]:
-        niftsy20.transfer(accounts[i], transfer_fee_amount, {"from": accounts[0]})
-        niftsy20.approve(wrapperTrustedV1.address, transfer_fee_amount, {"from": accounts[i]})
-        before_balance_acc = niftsy20.balanceOf(accounts[9])
-        before_balance_wrapper = niftsy20.balanceOf(wrapperTrustedV1.address)
-        wnft721.transferFrom(accounts[i], accounts[0], i+1, {"from": accounts[i]})
-        assert niftsy20.balanceOf(accounts[i]) == 0
-        assert niftsy20.balanceOf(wrapperTrustedV1.address) == before_balance_wrapper + transfer_fee_amount*royalty[1][1]/10000
-        assert niftsy20.balanceOf(accounts[9]) == before_balance_acc + transfer_fee_amount*royalty[0][1]/10000
-        wnft721.ownerOf(i+1) == accounts[0]
-
+    
     #try to add collateral (allowed and not allowed tokens)
     with reverts("WL:Some assets are not enabled for collateral"):
         wrapperTrustedV1.addCollateral(wnft721.address, 1, [weth_data], {"from": accounts[0]})
@@ -182,27 +160,4 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     assert accounts[0].balance() == before_balance_acc_eth + eth_amount*len(ORIGINAL_NFT_IDs)
     assert dai.balanceOf(wrapperTrustedV1.address) == 0
     assert weth.balanceOf(wrapperTrustedV1.address) == 0
-    assert wrapperTrustedV1.balance() == 0
-
-
-    
-    #+check в целом внфт
-    #+чек кому принадлежит оригинальное нфт
-    #+чек кому принадлежит обеспечени
-    #+чек событий создания внфт 
-    #+чек событий обеспечения
-    #+чек - добавить один токен обеспечения в белый список и включить его, другой не добавлять, сделать пачечное заворачивание
-    #+добавить токены в обеспечение, которые в вайтлисте и не в вайтлисте
-    #+чек перевести все токены адресу 0.
-    #+чек развернуть все
-    #+чек включить все комиссии, роялти, локи, проверить, как легли в внфт
-
-    #+проверить, как добавляется эфир с включенным белым списком
-    #+проверить, если эфира больше передано, чем в массиве обеспечения
-    #+проверить, если эфира передано меньше, чем в массиве обеспечения
-    #+разрешения на erc20 токены меньше, чем будет списание
-    #+баланса erc20 токенов меньше, чем будет списание
-    #+не владеем токенами нфт, пытаемся обернуть
-    #+передаю 7 вей эфира, а врапаю 3 токена
-
-    
+    assert wrapperTrustedV1.balance() == 0'''
