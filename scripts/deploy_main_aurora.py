@@ -92,8 +92,8 @@ print(CHAIN)
 tx_params = {'from':accounts[0]}
 if web3.eth.chainId in  [1,4, 137]:
     tx_params={'from':accounts[0], 'priority_fee': chain.priority_fee}
-elif web3.eth.chainId in  [1313161555, 1313161554]:    
-    tx_params={'from':accounts[0], 'allow_revert': True, 'gas_limit': 10e6}
+# elif web3.eth.chainId in  [1313161555, 1313161554]:    
+#     tx_params={'from':accounts[0], 'allow_revert': True, 'gas_limit': 10e7}
 
 def main():
     print('Deployer account= {}'.format(accounts[0]))
@@ -144,8 +144,8 @@ def main():
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wnft1155))
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wnft721))
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],whitelist))
-
-    if  web3.eth.chainId in [1,4, 137, 43114]:
+#etherscan, bscscan, polygonscan, ftmscan, arbiscan, snowtrace, aurorascan, moonscan
+    if  web3.eth.chainId in [1,4, 137, 43114,1313161555,1313161554]:
         TechTokenV1.publish_source(techERC20);
         WrapperBaseV1.publish_source(wrapper);
         EnvelopwNFT1155.publish_source(wnft1155);

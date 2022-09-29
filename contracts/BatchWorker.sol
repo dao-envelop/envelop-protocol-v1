@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// ENVELOP(NIFTSY) protocol V1 for NFT. 
+// ENVELOP(NIFTSY) protocol V1 for NFT. Batch Worker 
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/ITrustedWrapper.sol";
