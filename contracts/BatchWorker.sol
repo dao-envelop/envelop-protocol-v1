@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: MIT
 // ENVELOP(NIFTSY) protocol V1 for NFT. Batch Worker 
 
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/ITrustedWrapper.sol";
 import "../interfaces/ISubscriptionManager.sol";
+import "../interfaces/IERC20Extended.sol";
 
 
 
 pragma solidity 0.8.16;
 
 contract BatchWorker is Ownable {
+    using SafeERC20 for IERC20Extended;
 
     ITrustedWrapper public trustedWrapper;
     ISubscriptionManager public subscriptionManager;
@@ -86,15 +89,34 @@ contract BatchWorker is Ownable {
     function addCollateralBatch(
         address[] calldata _wNFTAddress, 
         uint256[] calldata _wNFTTokenId, 
-        ETypes.AssetItem[] calldata _collateral
+        ETypes.AssetItem[] calldata _collateralERC20
     ) public payable {
         _checkAndFixSubscription(msg.sender, 1);
         require(_wNFTAddress.length == _wNFTTokenId.length, "Array params must have equal length");
+        
+        for (uint256 i = 0; i < _collateralERC20.length; i ++) {
+            if (_collateralERC20[i].asset.assetType == ETypes.AssetType.ERC20) {
+                // 1. Transfer all erc20 tokens to BatchWorker        
+                IERC20Extended(_collateralERC20[i].asset.contractAddress).safeTransferFrom(
+                    msg.sender,
+                    address(this),
+                    _collateralERC20[i].amount * _wNFTAddress.length
+                );
+                // 2. approve for spending to wrapper
+                IERC20Extended(_collateralERC20[i].asset.contractAddress).safeIncreaseAllowance(
+                    address(trustedWrapper),
+                    _collateralERC20[i].amount * _wNFTAddress.length
+                );
+            }
+        }
+
+            
+
         for (uint256 i = 0; i < _wNFTAddress.length; i ++){
             trustedWrapper.addCollateral{value: (msg.value / _wNFTAddress.length)}(
                 _wNFTAddress[i],
                 _wNFTTokenId[i],
-                _collateral
+                _collateralERC20
             );
         }
     }

@@ -33,6 +33,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     #add tokens in whiteList (dai and niftsy). Weth is NOT in whiteList
     wl_data = (True, True, False, techERC20ForSaftV1.address)
     whiteListsForTrustedWrapper.setWLItem((2, dai.address), wl_data, {"from": accounts[0]})
+    whiteListsForTrustedWrapper.setWLItem((2, weth.address), wl_data, {"from": accounts[0]})
     whiteListsForTrustedWrapper.setWLItem((2, niftsy20.address), wl_data, {"from": accounts[0]})
 
 
@@ -91,8 +92,11 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     weth_data = (weth_property, 0, Wei(2*call_amount))
 
     collateralS = [dai_data, weth_data]
-    dai.approve(wrapperTrustedV1.address, dai_amount, {"from": accounts[0]})
-    weth.approve(wrapperTrustedV1.address, weth_amount, {"from": accounts[0]})
+    # dai.approve(wrapperTrustedV1.address, dai_amount, {"from": accounts[0]})
+    # weth.approve(wrapperTrustedV1.address, weth_amount, {"from": accounts[0]})
+    
+    dai.approve(saftV1.address, dai_amount, {"from": accounts[0]})
+    weth.approve(saftV1.address, weth_amount, {"from": accounts[0]})
 
 
     tx = saftV1.addCollateralBatch(wnftContracts, wnftIDs, collateralS, {"from": accounts[0], "value": len(ORIGINAL_NFT_IDs)*eth_amount})
