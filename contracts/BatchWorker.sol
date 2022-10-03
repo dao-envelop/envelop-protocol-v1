@@ -24,17 +24,12 @@ contract BatchWorker is Ownable {
         address[] memory _receivers
     ) public payable {
         _checkAndFixSubscription(msg.sender, 1);
-        if (address(subscriptionManager) != address(0)){
-            require(
-                ISubscriptionManager(subscriptionManager).checkAndFixUserSubscription(
-                    msg.sender,
-                    1  // 1 - simple saftNFT subscription
-                ),
-                "Has No Subscription"
-            );
-        }
         
-        require(_inDataS.length == _receivers.length, "Array params must have equal length");
+        
+        require(
+            _inDataS.length == _receivers.length, 
+            "Array params must have equal length"
+        );
         // make wNFTs
         for (uint256 i = 0; i < _inDataS.length; i++) {
             // wrap
