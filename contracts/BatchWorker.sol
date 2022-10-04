@@ -23,7 +23,7 @@ contract BatchWorker is Ownable {
         ETypes.AssetItem[] calldata _collateralERC20,
         address[] memory _receivers
     ) public payable {
-        _checkAndFixSubscription(msg.sender, 1);
+        _checkAndFixSubscription(msg.sender, 0);
         
         
         require(
@@ -130,7 +130,7 @@ contract BatchWorker is Ownable {
     }
     /////////////////////////////////////////
 
-    // 1 - simple saftNFT subscription
+    // 0 - simple saftNFT subscription
     function _checkAndFixSubscription(address _user, uint256 _subscriptionType) internal {
         if (address(subscriptionManager) != address(0)){
             require(

@@ -32,12 +32,17 @@ contract SubscriptionManagerV1 is Ownable {
     struct Ticket {
         uint256 validUntil; // Unixdate, tickets not valid after
         uint256 countsLeft; // for tarif with fixed use counter
-        uint256 tariffId;   // How ticket was bougth 
+        // uint256 tariffId;   // How ticket was bougth 
     }
 
     address public mainWrapper;
     Tariff[] public availableTariffs;
-    mapping(address => Ticket) public userTickets;
+    
+    // mapping from user addres to subscription type and ticket
+    mapping(address => mapping(uint256 => Ticket)) public userTickets;
+
+    // mapping from external contract address to subscription type that enabled;
+    mapping(address => mapping(uint256 => bool)) public agentRegistry;
 
     // function isValidMinter(
     //     address _contractAddress, 
@@ -46,19 +51,6 @@ contract SubscriptionManagerV1 is Ownable {
 
     //}
 
-    function checkUserSubscription(
-        address _userer, 
-        uint256 _subscriptionId
-    ) external view returns (bool){
-
-    }
-
-    function checkAndFixUserSubscription(
-        address _userer, 
-        uint256 _subscriptionId
-    ) external returns (bool){
-
-    }
 
     function buySubscription(
         uint256 _tarifIndex,
@@ -71,14 +63,18 @@ contract SubscriptionManagerV1 is Ownable {
         if (_buyFor != address(0)){
            ticketReceiver = _buyFor;
         }
+
         require(
             availableTariffs[_tarifIndex].subscription.isAvailable,
             'This subscription not available'
         );
+
         require(
             availableTariffs[_tarifIndex].payWith[_payWithIndex].paymentAmount > 0,
             'This Payment option not available'
         );
+
+        require(!_isTicketValid(ticketReceiver, _tarifIndex),'Only one valid ticket at time');
 
         // Lets receive payment tokens FROM sender
         IERC20(
@@ -127,14 +123,58 @@ contract SubscriptionManagerV1 is Ownable {
         );
 
         //lets safe user ticket (only one ticket available in this version)
-        userTickets[ticketReceiver] = Ticket(
+        userTickets[ticketReceiver][_tarifIndex] = Ticket(
             availableTariffs[_tarifIndex].subscription.ticketValidPeriod + block.timestamp,
-            availableTariffs[_tarifIndex].subscription.counter,
-            _tarifIndex
+            availableTariffs[_tarifIndex].subscription.counter
         );
 
     }
 
+    function checkAndFixUserSubscription(
+        address _user, 
+        uint256 _subscriptionId
+    ) external returns (bool){
+        // Check authorization of caller agent
+        require(
+            _agentStatus(msg.sender, _subscriptionId),
+            'Subscription not available for agent'
+        );
+
+        // Check user ticket
+        require(
+            _isTicketValid(_user, _subscriptionId),
+            'Valid ticket not found'
+        );
+
+        // Fix action (for subscription with counter)
+        if (userTickets[_user][_subscriptionId].countsLeft > 0) {
+            -- userTickets[_user][_subscriptionId].countsLeft; 
+        }
+
+    }
+
+    ////////////////////////////////////////////////////////////////
+    
+    function checkUserSubscription(
+        address _user, 
+        uint256 _subscriptionId
+    ) external view returns (bool) {
+        return _isTicketValid(_user, _subscriptionId);
+    }
+
+    function getUserTickets(address _user) public returns(Ticket[] memory) {
+        Ticket[] memory userTicketsList = new Ticket[](availableTariffs.length);
+        for (uint256 i = 0; i < availableTariffs.length; i ++ ) {
+            userTicketsList[i] = userTickets[_user][i];
+        }
+        return userTicketsList;
+    }
+
+    function getAvailableTariffs() external returns (Tariff[] memory) {
+        return availableTariffs;
+    }
+
+    
     ////////////////////////////////////////////////////////////////
     //////////     Admins                                     //////
     ////////////////////////////////////////////////////////////////
@@ -142,6 +182,7 @@ contract SubscriptionManagerV1 is Ownable {
     function setMainWrapper(address _wrapper) external onlyOwner {
         mainWrapper = _wrapper;
     }
+
     function addTarif(Tariff calldata _newTarif) external onlyOwner {
         require (_newTarif.payWith.length > 0, 'No payment method');
         availableTariffs.push(_newTarif);
@@ -153,7 +194,8 @@ contract SubscriptionManagerV1 is Ownable {
         uint256 _ticketValidPeriod,
         uint256 _counter,
         bool _isAvailable
-    ) external onlyOwner {
+    ) external onlyOwner 
+    {
         availableTariffs[_tarifIndex].subscription.timelockPeriod    = _timelockPeriod;
         availableTariffs[_tarifIndex].subscription.ticketValidPeriod = _ticketValidPeriod;
         availableTariffs[_tarifIndex].subscription.counter = _counter;
@@ -165,9 +207,41 @@ contract SubscriptionManagerV1 is Ownable {
         uint256 _payWithIndex, 
         address _paymentToken,
         uint256 _paymentAmount
-    ) external onlyOwner {
+    ) external onlyOwner 
+    {
         availableTariffs[_tarifIndex].payWith[_payWithIndex] 
         = PayOption(_paymentToken, _paymentAmount);    
     }
+
+    function setAgentStatus(address _agent, uint256 _subscriptionType, bool _status)
+        external onlyOwner 
+    {
+        agentRegistry[_agent][_subscriptionType] = _status;
+    }
+    /////////////////////////////////////////////////////////////////////
+
+    function _isTicketValid(address _user, uint256 _tarifIndex) 
+        internal 
+        view 
+        returns (bool) 
+    {
+        return userTickets[_user][_tarifIndex].validUntil > block.timestamp 
+            || userTickets[_user][_tarifIndex].validUntil > 0;
+    }
+
+    function _getUserTicket(address _user, uint256 _tarifIndex) 
+        internal 
+        view 
+        returns (Ticket memory) 
+    {
+        return userTickets[_user][_tarifIndex];
+    }
+
+    function _agentStatus(address _agent, uint256 _subscriptionType) 
+        internal 
+        returns(bool)
+    {
+        return agentRegistry[_agent][_subscriptionType];
+    } 
 
 }
