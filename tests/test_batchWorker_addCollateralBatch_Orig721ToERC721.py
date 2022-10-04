@@ -34,7 +34,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     wl_data = (True, True, False, techERC20ForSaftV1.address)
     whiteListsForTrustedWrapper.setWLItem((2, dai.address), wl_data, {"from": accounts[0]})
     whiteListsForTrustedWrapper.setWLItem((2, weth.address), wl_data, {"from": accounts[0]})
-    whiteListsForTrustedWrapper.setWLItem((2, niftsy20.address), wl_data, {"from": accounts[0]})
+    #whiteListsForTrustedWrapper.setWLItem((2, niftsy20.address), wl_data, {"from": accounts[0]})
 
 
     token_property = (in_type, erc721mock.address)
@@ -90,10 +90,10 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     logging.info(wnftIDs)
     dai_data = (dai_property, 0, Wei(call_amount))
     weth_data = (weth_property, 0, Wei(2*call_amount))
+    eth_data = ((1, zero_address), 0, eth_amount)
+    niftsy_data = ((2, niftsy20.address), 0, Wei(call_amount))
 
     collateralS = [dai_data, weth_data]
-    # dai.approve(wrapperTrustedV1.address, dai_amount, {"from": accounts[0]})
-    # weth.approve(wrapperTrustedV1.address, weth_amount, {"from": accounts[0]})
     
     dai.approve(saftV1.address, dai_amount, {"from": accounts[0]})
     weth.approve(saftV1.address, weth_amount, {"from": accounts[0]})
@@ -101,7 +101,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
 
     tx = saftV1.addCollateralBatch(wnftContracts, wnftIDs, collateralS, {"from": accounts[0], "value": len(ORIGINAL_NFT_IDs)*eth_amount})
 
-    '''
+    
     #check CollateralAdded events
     for i in range(len(tx.events['CollateralAdded'])):
         assert tx.events['CollateralAdded'][i]['wrappedAddress'] == wnft721.address
@@ -131,10 +131,11 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
 
     
     #try to add collateral (allowed and not allowed tokens)
+    niftsy20.approve(saftV1.address, dai_amount, {"from": accounts[0]})
     with reverts("WL:Some assets are not enabled for collateral"):
-        wrapperTrustedV1.addCollateral(wnft721.address, 1, [weth_data], {"from": accounts[0]})
+        tx = saftV1.addCollateralBatch(wnftContracts, wnftIDs, [niftsy_data], {"from": accounts[0]})
 
-    for i in range(len(ORIGINAL_NFT_IDs)):
+    '''for i in range(len(ORIGINAL_NFT_IDs)):
         dai.approve(wrapperTrustedV1.address, call_amount, {"from": accounts[0]})
         wrapperTrustedV1.addCollateral(wnft721.address, i+1, [dai_data], {"from": accounts[0]})
 
