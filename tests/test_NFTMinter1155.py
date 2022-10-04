@@ -66,8 +66,9 @@ def test_mint(accounts, NFTMinter1155, MockManager):
 
     NFTMinter1155.setSignerStatus(ORACLE_ADDRESS, True, {'from':accounts[0]})
 
-    #with reverts("Signature check failed"):
-    #    NFTMinter1155.mintWithURI(accounts[1], tokenId, tokenUri, signed_message_wrong.signature, {"from": accounts[0]})
+    #wrong signature
+    with reverts("Unexpected signer"):
+        NFTMinter1155.mintWithURI(accounts[1], tokenId, amount, tokenUri, signed_message_wrong.signature, {"from": accounts[0]})
 
     tx = NFTMinter1155.mintWithURI(accounts[1], tokenId, amount, tokenUri, signed_message.signature, {"from": accounts[0]})
     logging.info('gas = {}'.format(tx.gas_used))
@@ -75,6 +76,9 @@ def test_mint(accounts, NFTMinter1155, MockManager):
     #use previous data again
     with reverts("This id already minted"):
         NFTMinter1155.mintWithURI(accounts[1], tokenId, amount, tokenUri, signed_message.signature, {"from": accounts[0]})
+
+    with reverts("Unexpected signer"):
+        NFTMinter1155.mintWithURI(accounts[1], tokenId+1, amount, tokenUri, signed_message.signature, {"from": accounts[0]})
     assert NFTMinter1155.totalSupply(tokenId) == amount
     assert NFTMinter1155.balanceOf(accounts[1], tokenId) == amount
 

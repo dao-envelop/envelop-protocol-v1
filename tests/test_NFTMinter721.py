@@ -56,13 +56,14 @@ def test_mint(accounts, NFTMinter, MockManager):
     with reverts("Ownable: caller is not the owner"):
         NFTMinter.setSignerStatus(ORACLE_ADDRESS, True, {'from':accounts[1]})
 
+    #signer is not in trusted signer's list
     with reverts("Unexpected signer"):
         NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, signed_message.signature, {"from": accounts[0]})
 
     NFTMinter.setSignerStatus(ORACLE_ADDRESS, True, {'from':accounts[0]})
 
-    #with reverts("Signature check failed"):
-    #    NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, signed_message_wrong.signature, {"from": accounts[0]})
+    with reverts("Unexpected signer"):
+        NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, signed_message_wrong.signature, {"from": accounts[0]})
 
     tx = NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, signed_message.signature, {"from": accounts[0]})
     logging.info('gas = {}'.format(tx.gas_used))
@@ -72,20 +73,28 @@ def test_mint(accounts, NFTMinter, MockManager):
         NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, signed_message.signature, {"from": accounts[0]})
     assert NFTMinter.ownerOf(1) == accounts[1].address
 
+    #use previous signature, new data
+    with reverts("Unexpected signer"):
+        NFTMinter.mintWithURI(accounts[1], tokenId+1, tokenUri, signed_message.signature, {"from": accounts[0]})
+
 def test_subscription(accounts, NFTMinter, MockManager):
     tokenId = 2
     tokenUri = '2'
 
+    #without using signature, SubscriptionManager is not set
     with reverts(""):
         NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, Web3.toBytes(text=''), {"from": accounts[0]})
 
+    #try to set SubscriptionManager by not owner
     with reverts("Ownable: caller is not the owner"):
         NFTMinter.setSubscriptionManager(MockManager.address, {"from": accounts[1]})
 
     with reverts("Non zero only"):
         NFTMinter.setSubscriptionManager(zero_address, {"from": accounts[0]})
 
+    #set SubscriptionManager
     NFTMinter.setSubscriptionManager(MockManager.address, {"from": accounts[0]})
+
 
     with reverts("Has No Subscription"):
         NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, Web3.toBytes(text=''), {"from": accounts[0]})
@@ -127,12 +136,12 @@ def test_batch(accounts, NFTMinter):
 
     assert NFTMinter.ownerOf(3) == accounts[1].address
 
-    #without signature
+    #without signature - using subscription
 
     _to = [accounts[3].address, accounts[4].address]
     _tokenId = [5, 6]
     _tokenURI = ['5', '6']
-    _signature = [Web3.toBytes(text=''), Web3.toBytes(text='')]
+    _signature = [Web3.toBytes(text=''), Web3.toBytes(text='')] #empty
            
     NFTMinter.mintWithURIBatch(_to, _tokenId, _tokenURI, _signature)
 
