@@ -14,16 +14,20 @@ pragma solidity 0.8.16;
 contract BatchWorker is Ownable {
     using SafeERC20 for IERC20Extended;
 
+    uint256 immutable SERVICE_CODE; 
     ITrustedWrapper public trustedWrapper;
     ISubscriptionManager public subscriptionManager;
-
+    
+    constructor (uint256 _code) {
+        SERVICE_CODE = _code;
+    }
 
     function wrapBatch(
         ETypes.INData[] calldata _inDataS, 
         ETypes.AssetItem[] calldata _collateralERC20,
         address[] memory _receivers
     ) public payable {
-        _checkAndFixSubscription(msg.sender, 0);
+        _checkAndFixSubscription(msg.sender, SERVICE_CODE);
         
         
         require(
@@ -86,7 +90,7 @@ contract BatchWorker is Ownable {
         uint256[] calldata _wNFTTokenId, 
         ETypes.AssetItem[] calldata _collateralERC20
     ) public payable {
-        _checkAndFixSubscription(msg.sender, 1);
+        _checkAndFixSubscription(msg.sender, SERVICE_CODE);
         require(_wNFTAddress.length == _wNFTTokenId.length, "Array params must have equal length");
         
         for (uint256 i = 0; i < _collateralERC20.length; i ++) {
@@ -134,8 +138,9 @@ contract BatchWorker is Ownable {
         subscriptionManager = ISubscriptionManager(_manager);
     }
     /////////////////////////////////////////
-
-    // 0 - simple saftNFT subscription
+    // 0 - simple saftNFT subscription     //
+    //   also we can think about it as     // 
+    //   uniq code of this(saft) service   //
     function _checkAndFixSubscription(address _user, uint256 _subscriptionType) internal {
         if (address(subscriptionManager) != address(0)){
             require(
