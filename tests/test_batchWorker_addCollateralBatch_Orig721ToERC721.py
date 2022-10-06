@@ -138,14 +138,30 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     #try to add collateral when lens of arrays are different
     #delete last value
     wnftIDs.pop()
+    logging.info(wnftIDs)
     with reverts("Array params must have equal length"):
         tx = saftV1.addCollateralBatch(wnftContracts, wnftIDs, [dai_data], {"from": accounts[0]})
 
     #try add only ether in collateral
     #delete last value
     wnftContracts.pop()
-    logging.info(wrapperTrustedV1.balance())
+    before_balance = wrapperTrustedV1.balance()
+    #add collateral with the change. The change is returned
     tx = saftV1.addCollateralBatch(wnftContracts, wnftIDs, [], {"from": accounts[0], "value": "7 wei"})
-    logging.info(wrapperTrustedV1.balance())
-    logging.info(saftV1.balance())
     assert saftV1.balance() == 0
+    assert wrapperTrustedV1.balance() == before_balance + int(7/len(wnftContracts))*len(wnftContracts)
+
+    eth_amount_new = round(1e18)+1
+    for i in range(len(wnftContracts)):
+        #check collateral in every wnft
+        assert wnft721.wnftInfo(i+2)[1][0][2] == eth_amount_new
+
+    #check unwrap
+    chain.sleep(100)
+    chain.mine()
+    for i in range(len(ORIGINAL_NFT_IDs)):
+        wrapperTrustedV1.unWrap(wnft721.address, i+1, {"from": accounts[i]})
+        assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[i]) == accounts[i]
+
+    logging.info(wnft721.wnftInfo(1))
+

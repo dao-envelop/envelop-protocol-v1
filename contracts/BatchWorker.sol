@@ -119,7 +119,7 @@ contract BatchWorker is Ownable {
             );
         }
 
-        if (valuePerWNFT * _wNFTAddress.length > msg.value ){
+        if (valuePerWNFT * _wNFTAddress.length < msg.value ){
             address payable s = payable(msg.sender);
             s.transfer(msg.value - valuePerWNFT * _wNFTAddress.length);
         }
