@@ -95,7 +95,7 @@ contract SubscriptionManagerV1 is Ownable {
 
         // Lets wrap with timelock and appropriate params
         ETypes.INData memory _inData;
-        ETypes.AssetItem[] memory _collateralERC20;
+        ETypes.AssetItem[] memory _collateralERC20 = new ETypes.AssetItem[](1);
         ETypes.Lock[] memory timeLock =  new ETypes.Lock[](1);
         // Only need set timelock for this wNFT
         timeLock[0] = ETypes.Lock(
@@ -116,6 +116,16 @@ contract SubscriptionManagerV1 is Ownable {
             0, // Out Balance
             0x00 // Rules
         );
+
+        _collateralERC20[0] = ETypes.AssetItem(
+            ETypes.Asset(
+                ETypes.AssetType.ERC20,
+                availableTariffs[_tarifIndex].payWith[_payWithIndex].paymentToken
+            ),
+            0,
+            availableTariffs[_tarifIndex].payWith[_payWithIndex].paymentAmount
+        );
+        
         ITrustedWrapper(mainWrapper).wrap(
             _inData,
             _collateralERC20,
