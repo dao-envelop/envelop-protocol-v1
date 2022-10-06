@@ -18,7 +18,7 @@ payAmount = 1e18
 
 
 #send in wrapping time more or less eth than in collateral's array
-def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
     #make wrap NFT with empty
     in_type = 3
     out_type = 3
@@ -57,8 +57,17 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, ni
         subscriptionManager.buySubscription(0,0, accounts[0], {"from": accounts[0]})
 
     with reverts("Ownable: caller is not the owner"):
-        subscriptionManager.setMainWrapper(wrapperTrustedV1.address, {"from": accounts[1]})
-    subscriptionManager.setMainWrapper(wrapperTrustedV1.address, {"from": accounts[0]})
+        subscriptionManager.setMainWrapper(wrapper.address, {"from": accounts[1]})
+    
+    #settings
+    subscriptionManager.setMainWrapper(wrapper, {"from": accounts[0]})
+    #saftV1.setTrustedWrapper(wrapperTrustedV1, {"from": accounts[0]})
+    if (wrapper.lastWNFTId(out_type)[1] == 0):
+        wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
+    wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
     subscriptionManager.buySubscription(0,0, accounts[0], {"from": accounts[0]})
+
+    assert len(subscriptionManager.getUserTickets(accounts[0])) == 1
+    assert niftsy20.balanceOf(wrapper) == payAmount
    
