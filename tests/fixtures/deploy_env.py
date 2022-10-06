@@ -229,7 +229,7 @@ def MockManager(accounts, MockSubscriptionManager):
 
 @pytest.fixture(scope="module")
 def saftV1(accounts, BatchWorker):
-    t = accounts[0].deploy(BatchWorker)
+    t = accounts[0].deploy(BatchWorker, 0)
     #t.setTokenService(tokenService.address, {'from':accounts[0]})
     yield t 
 
