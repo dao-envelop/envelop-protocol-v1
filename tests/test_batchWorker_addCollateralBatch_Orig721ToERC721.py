@@ -120,7 +120,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
         assert tx.events['CollateralAdded'][i]['collateralTokenId'] == 0
     
     for i in range(len(ORIGINAL_NFT_IDs)):
-        #check collateral in wnft
+        #check collateral in every wnft
         assert wnft721.wnftInfo(i+1)[1][0] == eth_data
         assert wnft721.wnftInfo(i+1)[1][1] == dai_data
         assert wnft721.wnftInfo(i+1)[1][2] == weth_data
@@ -130,39 +130,22 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     assert wrapperTrustedV1.balance() == eth_amount*len(ORIGINAL_NFT_IDs)
 
     
-    #try to add collateral (allowed and not allowed tokens)
+    #try to add collateral (not allowed tokens)
     niftsy20.approve(saftV1.address, dai_amount, {"from": accounts[0]})
     with reverts("WL:Some assets are not enabled for collateral"):
         tx = saftV1.addCollateralBatch(wnftContracts, wnftIDs, [niftsy_data], {"from": accounts[0]})
 
-    '''for i in range(len(ORIGINAL_NFT_IDs)):
-        dai.approve(wrapperTrustedV1.address, call_amount, {"from": accounts[0]})
-        wrapperTrustedV1.addCollateral(wnft721.address, i+1, [dai_data], {"from": accounts[0]})
+    #try to add collateral when lens of arrays are different
+    #delete last value
+    wnftIDs.pop()
+    with reverts("Array params must have equal length"):
+        tx = saftV1.addCollateralBatch(wnftContracts, wnftIDs, [dai_data], {"from": accounts[0]})
 
-    assert dai.balanceOf(wrapperTrustedV1.address) == 2*call_amount * len(ORIGINAL_NFT_IDs)        
-
-    #try to unwrap - failed. Timelock
-
-    with reverts("TimeLock error"):
-        wrapperTrustedV1.unWrap(wnft721.address, 1, {"from": accounts[0]})
-
-    chain.sleep(100)
-    chain.mine()
-
-    before_balance_acc_dai = dai.balanceOf(accounts[0])
-    before_balance_acc_weth = weth.balanceOf(accounts[0])
-    before_balance_acc_niftsy = niftsy20.balanceOf(accounts[0])
-    before_balance_acc_eth = accounts[0].balance()
-
-    #check balances after UNWRAP
-    for i in range(len(ORIGINAL_NFT_IDs)):
-        wrapperTrustedV1.unWrap(wnft721.address, i+1, {"from": accounts[0]})
-        assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[i]) == accounts[0]
-
-    assert dai.balanceOf(accounts[0]) == before_balance_acc_dai + 2*call_amount * len(ORIGINAL_NFT_IDs)
-    assert weth.balanceOf(accounts[0]) == before_balance_acc_weth + 2*call_amount * len(ORIGINAL_NFT_IDs)
-    assert niftsy20.balanceOf(accounts[0]) == before_balance_acc_niftsy + (transfer_fee_amount*royalty[1][1]/10000) * (len(ORIGINAL_NFT_IDs)-1)
-    assert accounts[0].balance() == before_balance_acc_eth + eth_amount*len(ORIGINAL_NFT_IDs)
-    assert dai.balanceOf(wrapperTrustedV1.address) == 0
-    assert weth.balanceOf(wrapperTrustedV1.address) == 0
-    assert wrapperTrustedV1.balance() == 0'''
+    #try add only ether in collateral
+    #delete last value
+    wnftContracts.pop()
+    logging.info(wrapperTrustedV1.balance())
+    tx = saftV1.addCollateralBatch(wnftContracts, wnftIDs, [], {"from": accounts[0], "value": "7 wei"})
+    logging.info(wrapperTrustedV1.balance())
+    logging.info(saftV1.balance())
+    assert saftV1.balance() == 0

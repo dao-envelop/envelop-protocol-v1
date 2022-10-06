@@ -104,3 +104,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
 
     with reverts("Native amount check failed"):
         tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[1], "value": '11 wei'})
+
+    collateralS = [((1, zero_address), 0, 11)]
+    tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[1], "value": '55 wei'})
+

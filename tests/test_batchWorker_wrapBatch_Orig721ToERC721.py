@@ -79,6 +79,9 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     weth.approve(wrapperTrustedV1.address, weth_amount, {"from": accounts[0]})
 
     #set wrapper for batchWorker
+    #not owner
+    with reverts("Ownable: caller is not the owner"):
+        saftV1.setTrustedWrapper(wrapperTrustedV1, {"from": accounts[1]})
     saftV1.setTrustedWrapper(wrapperTrustedV1, {"from": accounts[0]})
 
     #wrap batch
