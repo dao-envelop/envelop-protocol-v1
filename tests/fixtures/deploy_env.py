@@ -249,3 +249,8 @@ def wrapperTrustedV1(accounts, TrustedWrapper, techERC20ForSaftV1, saftV1):
 def whiteListsForTrustedWrapper(accounts, AdvancedWhiteList):
     wlT = accounts[0].deploy(AdvancedWhiteList)
     yield wlT
+
+@pytest.fixture(scope="module")
+def subscriptionManager(accounts, SubscriptionManagerV1):
+    sM = accounts[0].deploy(SubscriptionManagerV1)
+    yield sM

@@ -172,7 +172,7 @@ contract SubscriptionManagerV1 is Ownable {
         return _isTicketValid(_user, _subscriptionId);
     }
 
-    function getUserTickets(address _user) public returns(Ticket[] memory) {
+    function getUserTickets(address _user) public view returns(Ticket[] memory) {
         Ticket[] memory userTicketsList = new Ticket[](availableTariffs.length);
         for (uint256 i = 0; i < availableTariffs.length; i ++ ) {
             userTicketsList[i] = userTickets[_user][i];
@@ -180,7 +180,7 @@ contract SubscriptionManagerV1 is Ownable {
         return userTicketsList;
     }
 
-    function getAvailableTariffs() external returns (Tariff[] memory) {
+    function getAvailableTariffs() external view returns (Tariff[] memory) {
         return availableTariffs;
     }
 
