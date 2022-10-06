@@ -37,6 +37,28 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, ni
     #add tariff
     with reverts("Ownable: caller is not the owner"):
         subscriptionManager.addTarif((subscriptionType, payOption), {"from": accounts[1]})
+
+    #without payMethods
+    with reverts("No payment method"):
+        subscriptionManager.addTarif((subscriptionType, []), {"from": accounts[0]})
+
     subscriptionManager.addTarif((subscriptionType, payOption), {"from": accounts[0]})
     assert len(subscriptionManager.getAvailableTariffs()) == 1
+
+    #buy subscription
+
+    #doesn't have mainWrapper
+    with reverts("ERC20: insufficient allowance"):
+        subscriptionManager.buySubscription(0,0, accounts[0], {"from": accounts[0]})
+
+    #create allowance
+    niftsy20.approve(subscriptionManager.address, payAmount, {"from": accounts[0]})
+    with reverts("ERC20: approve to the zero address"):
+        subscriptionManager.buySubscription(0,0, accounts[0], {"from": accounts[0]})
+
+    with reverts("Ownable: caller is not the owner"):
+        subscriptionManager.setMainWrapper(wrapperTrustedV1.address, {"from": accounts[1]})
+    subscriptionManager.setMainWrapper(wrapperTrustedV1.address, {"from": accounts[0]})
+
+    subscriptionManager.buySubscription(0,0, accounts[0], {"from": accounts[0]})
    

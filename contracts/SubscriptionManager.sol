@@ -114,7 +114,7 @@ contract SubscriptionManagerV1 is Ownable {
             new ETypes.Royalty[](0), // Royalties
             ETypes.AssetType.ERC721, // Out type
             0, // Out Balance
-            0x00 // Rules
+            0x0000 // Rules
         );
 
         _collateralERC20[0] = ETypes.AssetItem(
