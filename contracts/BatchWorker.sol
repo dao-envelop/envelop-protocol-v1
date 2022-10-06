@@ -106,13 +106,18 @@ contract BatchWorker is Ownable {
         }
 
             
-
+        uint256 valuePerWNFT = msg.value / _wNFTAddress.length;
         for (uint256 i = 0; i < _wNFTAddress.length; i ++){
-            trustedWrapper.addCollateral{value: (msg.value / _wNFTAddress.length)}(
+            trustedWrapper.addCollateral{value: valuePerWNFT}(
                 _wNFTAddress[i],
                 _wNFTTokenId[i],
                 _collateralERC20
             );
+        }
+
+        if (valuePerWNFT * _wNFTAddress.length > msg.value ){
+            address payable s = payable(msg.sender);
+            s.transfer(msg.value - valuePerWNFT * _wNFTAddress.length);
         }
     }
 
