@@ -28,16 +28,15 @@ contract SubscriptionManagerV1 is Ownable {
     struct Tariff {
         SubscriptionType subscription;
         PayOption[] payWith;
-        uint256[] services;
+        uint256[] services;  // List of service codes available on this tariff
     }
 
     struct Ticket {
         uint256 validUntil; // Unixdate, tickets not valid after
         uint256 countsLeft; // for tarif with fixed use counter
-        // uint256 tariffId;   // How ticket was bougth 
     }
 
-    address public mainWrapper;
+    address  public mainWrapper;
     Tariff[] public availableTariffs;
     
     // mapping from user addres to subscription type and ticket
@@ -68,6 +67,7 @@ contract SubscriptionManagerV1 is Ownable {
             'This Payment option not available'
         );
 
+        
         require(
             !_isTicketValid(ticketReceiver, _tarifIndex),
             'Only one valid ticket at time'
@@ -149,7 +149,7 @@ contract SubscriptionManagerV1 is Ownable {
 
         // Check user ticket
         require(
-            _isTicketValid(_user, _serviceCode),
+            _isTicketValidForService(_user, _serviceCode),
             'Valid ticket not found'
         );
 
@@ -166,7 +166,7 @@ contract SubscriptionManagerV1 is Ownable {
         address _user, 
         uint256 _serviceCode
     ) external view returns (bool) {
-        return _isTicketValid(_user, _serviceCode);
+        return _isTicketValidForService(_user, _serviceCode);
     }
 
     function getUserTickets(address _user) public view returns(Ticket[] memory) {
@@ -259,7 +259,7 @@ contract SubscriptionManagerV1 is Ownable {
     }
     /////////////////////////////////////////////////////////////////////
 
-    function _isTicketValid(address _user, uint256 _serviceCode) 
+    function _isTicketValidForService(address _user, uint256 _serviceCode) 
         internal 
         view 
         returns (bool) 
@@ -270,11 +270,19 @@ contract SubscriptionManagerV1 is Ownable {
             if (_isServiceInTariff(availableTariffs[i], _serviceCode)) {
                 // Check that user have valid ticket 
                 // on this Tariff
-                return userTickets[_user][i].validUntil > block.timestamp 
-                    || userTickets[_user][i].validUntil > 0;
+                return _isTicketValid(_user, i);
             }
         }
         return false;
+    }
+
+    function _isTicketValid(address _user, uint256 _tarifIndex) 
+        internal 
+        view 
+        returns (bool) 
+    {
+        return userTickets[_user][_tarifIndex].validUntil > block.timestamp 
+            || userTickets[_user][_tarifIndex].countsLeft > 0;
     }
 
     function _isServiceInTariff(Tariff memory _tariff, uint256 _serviceCode)internal view returns (bool) {
