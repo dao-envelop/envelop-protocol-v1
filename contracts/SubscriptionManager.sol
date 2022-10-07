@@ -150,8 +150,10 @@ contract SubscriptionManagerV1 is Ownable {
 
         // Check user ticket
         (bool isValid, uint256 tariffIndex) = _isTicketValidForService(_user, _serviceCode);
+        // TODO  Proxy to previos
         require(isValid,'Valid ticket not found');
 
+        
         // Fix action (for subscription with counter)
         if (userTickets[_user][tariffIndex].countsLeft > 0) {
             -- userTickets[_user][tariffIndex].countsLeft; 
@@ -166,6 +168,12 @@ contract SubscriptionManagerV1 is Ownable {
         uint256 _serviceCode
     ) external view returns (bool ok) {
         (ok,)  = _isTicketValidForService(_user, _serviceCode);
+        if (!ok && previousManager != address(0)) {
+            ok = ISubscriptionManager(previousManager).checkUserSubscription(
+                _user, 
+                _serviceCode
+            );
+        }
     }
 
     function getUserTickets(address _user) public view returns(Ticket[] memory) {
