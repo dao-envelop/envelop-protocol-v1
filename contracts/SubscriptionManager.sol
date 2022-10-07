@@ -4,6 +4,7 @@
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../interfaces/ITrustedWrapper.sol";
+import "../interfaces/ISubscriptionManager.sol";
 import "./LibEnvelopTypes.sol";
 
 
@@ -27,6 +28,7 @@ contract SubscriptionManagerV1 is Ownable {
     struct Tariff {
         SubscriptionType subscription;
         PayOption[] payWith;
+        uint256[] services;
     }
 
     struct Ticket {
@@ -42,15 +44,7 @@ contract SubscriptionManagerV1 is Ownable {
     mapping(address => mapping(uint256 => Ticket)) public userTickets;
 
     // mapping from external contract address to subscription type that enabled;
-    mapping(address => mapping(uint256 => bool)) public agentRegistry;
-
-    // function isValidMinter(
-    //     address _contractAddress, 
-    //     address _minter
-    // ) external view returns (bool){
-
-    //}
-
+    mapping(address => bool) public agentRegistry;
 
     function buySubscription(
         uint256 _tarifIndex,
@@ -74,7 +68,10 @@ contract SubscriptionManagerV1 is Ownable {
             'This Payment option not available'
         );
 
-        require(!_isTicketValid(ticketReceiver, _tarifIndex),'Only one valid ticket at time');
+        require(
+            !_isTicketValid(ticketReceiver, _tarifIndex),
+            'Only one valid ticket at time'
+        );
 
         // Lets receive payment tokens FROM sender
         IERC20(
@@ -142,39 +139,40 @@ contract SubscriptionManagerV1 is Ownable {
 
     function checkAndFixUserSubscription(
         address _user, 
-        uint256 _subscriptionId
-    ) external returns (bool){
+        uint256 _serviceCode
+    ) external returns (bool ok){
         // Check authorization of caller agent
         require(
-            _agentStatus(msg.sender, _subscriptionId),
-            'Subscription not available for agent'
+            _agentStatus(msg.sender),
+            'Unknown agent'
         );
 
         // Check user ticket
         require(
-            _isTicketValid(_user, _subscriptionId),
+            _isTicketValid(_user, _serviceCode),
             'Valid ticket not found'
         );
 
         // Fix action (for subscription with counter)
-        if (userTickets[_user][_subscriptionId].countsLeft > 0) {
-            -- userTickets[_user][_subscriptionId].countsLeft; 
+        if (userTickets[_user][_serviceCode].countsLeft > 0) {
+            -- userTickets[_user][_serviceCode].countsLeft; 
         }
-
+        ok = true;
     }
 
     ////////////////////////////////////////////////////////////////
     
     function checkUserSubscription(
         address _user, 
-        uint256 _subscriptionId
+        uint256 _serviceCode
     ) external view returns (bool) {
-        return _isTicketValid(_user, _subscriptionId);
+        return _isTicketValid(_user, _serviceCode);
     }
 
     function getUserTickets(address _user) public view returns(Ticket[] memory) {
         Ticket[] memory userTicketsList = new Ticket[](availableTariffs.length);
         for (uint256 i = 0; i < availableTariffs.length; i ++ ) {
+            // TODO check that user have ticket???
             userTicketsList[i] = userTickets[_user][i];
         }
         return userTicketsList;
@@ -212,6 +210,17 @@ contract SubscriptionManagerV1 is Ownable {
         availableTariffs[_tarifIndex].subscription.isAvailable = _isAvailable;    
     }
    
+    function addTarifPayOption(
+        uint256 _tarifIndex,
+        address _paymentToken,
+        uint256 _paymentAmount
+    ) external onlyOwner 
+    {
+        availableTariffs[_tarifIndex].payWith.push(
+            PayOption(_paymentToken, _paymentAmount)
+        );    
+    }
+
     function editTarifPayOption(
         uint256 _tarifIndex,
         uint256 _payWithIndex, 
@@ -223,20 +232,58 @@ contract SubscriptionManagerV1 is Ownable {
         = PayOption(_paymentToken, _paymentAmount);    
     }
 
-    function setAgentStatus(address _agent, uint256 _subscriptionType, bool _status)
+    function addServiceToTarif(
+        uint256 _tarifIndex,
+        uint256 _serviceCode
+    ) external onlyOwner 
+    {
+        availableTariffs[_tarifIndex].services.push(_serviceCode);
+    }
+
+    function removeServiceFromTarif(
+        uint256 _tarifIndex,
+        uint256 _serviceIndex
+    ) external onlyOwner 
+    {
+        availableTariffs[_tarifIndex].services[_serviceIndex] 
+        = availableTariffs[_tarifIndex].services[
+           availableTariffs[_tarifIndex].services.length - 1
+        ];
+        availableTariffs[_tarifIndex].services.pop();
+    }
+
+    function setAgentStatus(address _agent, bool _status)
         external onlyOwner 
     {
-        agentRegistry[_agent][_subscriptionType] = _status;
+        agentRegistry[_agent] = _status;
     }
     /////////////////////////////////////////////////////////////////////
 
-    function _isTicketValid(address _user, uint256 _tarifIndex) 
+    function _isTicketValid(address _user, uint256 _serviceCode) 
         internal 
         view 
         returns (bool) 
     {
-        return userTickets[_user][_tarifIndex].validUntil > block.timestamp 
-            || userTickets[_user][_tarifIndex].validUntil > 0;
+        // Lets check all available tarifs
+        for (uint256 i = 0; i < availableTariffs.length; i ++ ) {
+            // Check that service exist in tarif
+            if (_isServiceInTariff(availableTariffs[i], _serviceCode)) {
+                // Check that user have valid ticket 
+                // on this Tariff
+                return userTickets[_user][i].validUntil > block.timestamp 
+                    || userTickets[_user][i].validUntil > 0;
+            }
+        }
+        return false;
+    }
+
+    function _isServiceInTariff(Tariff memory _tariff, uint256 _serviceCode)internal view returns (bool) {
+        for (uint256 i = 0; i < _tariff.services.length; i ++){
+            if (_tariff.services[i] == _serviceCode) {
+                return true;
+            }
+        }
+        return false;
     }
 
     function _getUserTicket(address _user, uint256 _tarifIndex) 
@@ -247,11 +294,11 @@ contract SubscriptionManagerV1 is Ownable {
         return userTickets[_user][_tarifIndex];
     }
 
-    function _agentStatus(address _agent, uint256 _subscriptionType) 
+    function _agentStatus(address _agent) 
         internal 
         returns(bool)
     {
-        return agentRegistry[_agent][_subscriptionType];
+        return agentRegistry[_agent];
     } 
 
 }

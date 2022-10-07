@@ -5,18 +5,14 @@ pragma solidity 0.8.16;
 
 interface ISubscriptionManager   {
 
-    function isValidMinter(
-        address _contractAddress, 
-        address _minter
-    ) external view returns (bool);
-
+    
     function checkUserSubscription(
         address _userer, 
-        uint256 _subscriptionId
+        uint256 _serviceCode
     ) external view returns (bool);
 
     function checkAndFixUserSubscription(
         address _userer, 
-        uint256 _subscriptionId
+        uint256 _serviceCode
     ) external returns (bool); 
 }

@@ -141,14 +141,14 @@ contract BatchWorker is Ownable {
     // 0 - simple saftNFT subscription     //
     //   also we can think about it as     // 
     //   uniq code of this(saft) service   //
-    function _checkAndFixSubscription(address _user, uint256 _subscriptionType) internal {
+    function _checkAndFixSubscription(address _user, uint256 _serviceCode) internal {
         if (address(subscriptionManager) != address(0)){
             require(
-                ISubscriptionManager(subscriptionManager).checkAndFixUserSubscription(
+                subscriptionManager.checkAndFixUserSubscription(
                     _user,
-                    _subscriptionType  
+                    _serviceCode  
                 ),
-                "Has No Subscription"
+                "Has No Subscription for service"
             );
         }
     }   
