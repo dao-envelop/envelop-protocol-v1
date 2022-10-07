@@ -201,13 +201,6 @@ def test_wrapBath(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wn
     dai.approve(wrapperTrustedV1.address, dai_amount, {"from": accounts[0]})
     weth.approve(wrapperTrustedV1.address, weth_amount, {"from": accounts[0]})
 
-    logging.info(subscriptionManager.checkUserSubscription(accounts[0], 0))
-    logging.info(subscriptionManager.getUserTickets(accounts[0]))
-    logging.info(chain.time())
-    logging.info(saftV1.subscriptionManager())
-    logging.info(subscriptionManager.address)
-    #logging.info(saftV1.check(accounts[0], 0))
-
-
-    #wrap batch
-    tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[0], "value": len(ORIGINAL_NFT_IDs)*eth_amount})
+    #wrap batch with expired subscription
+    with reverts("Valid ticket not found"):
+        tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[0], "value": len(ORIGINAL_NFT_IDs)*eth_amount})
