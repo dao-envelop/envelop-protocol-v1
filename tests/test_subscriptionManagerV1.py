@@ -57,17 +57,40 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wn
         subscriptionManager.buySubscription(0,0, accounts[0], {"from": accounts[0]})
 
     with reverts("Ownable: caller is not the owner"):
-        subscriptionManager.setMainWrapper(wrapper.address, {"from": accounts[1]})
+        subscriptionManager.setMainWrapper(wrapperTrustedV1.address, {"from": accounts[1]})
     
     #settings
-    subscriptionManager.setMainWrapper(wrapper, {"from": accounts[0]})
+    subscriptionManager.setMainWrapper(wrapperTrustedV1, {"from": accounts[0]})
     #saftV1.setTrustedWrapper(wrapperTrustedV1, {"from": accounts[0]})
     if (wrapper.lastWNFTId(out_type)[1] == 0):
-        wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-    wnft721.setMinter(wrapper.address, {"from": accounts[0]})
+        wrapperTrustedV1.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
+    wnft721.setMinter(wrapperTrustedV1.address, {"from": accounts[0]})
 
-    subscriptionManager.buySubscription(0,0, accounts[0], {"from": accounts[0]})
+    tx = subscriptionManager.buySubscription(0,0, accounts[0], {"from": accounts[0]})
 
     assert len(subscriptionManager.getUserTickets(accounts[0])) == 1
-    assert niftsy20.balanceOf(wrapper) == payAmount
+    assert niftsy20.balanceOf(wrapperTrustedV1) == payAmount
+
+    wTokenId = tx.events['WrappedV1']['outTokenId']
+
+    #check wNFT
+    assert wnft721.ownerOf(wTokenId) == accounts[0]
+    assert wnft721.wnftInfo(wTokenId)[0] == ((0, zero_address), 0, 0) 
+    assert wnft721.wnftInfo(wTokenId)[1][0] == ((2, niftsy20.address), 0, int(payAmount))
+    assert wnft721.wnftInfo(wTokenId)[2] == zero_address
+    assert wnft721.wnftInfo(wTokenId)[3] == []
+    assert wnft721.wnftInfo(wTokenId)[4][0][1] > chain.time()
+    assert wnft721.wnftInfo(wTokenId)[5] == []
+    assert wnft721.wnftInfo(wTokenId)[6] == '0x0000'
+
+    #check Tiket
+    logging.info(subscriptionManager.getUserTickets(accounts[0]))
+    assert subscriptionManager.getUserTickets(accounts[0])[0][0] > chain.time()
+    assert subscriptionManager.getUserTickets(accounts[0])[0][1] == counter
+
+
+
+
+
+
    
