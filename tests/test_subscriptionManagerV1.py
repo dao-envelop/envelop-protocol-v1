@@ -79,12 +79,11 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wn
     assert wnft721.wnftInfo(wTokenId)[1][0] == ((2, niftsy20.address), 0, int(payAmount))
     assert wnft721.wnftInfo(wTokenId)[2] == zero_address
     assert wnft721.wnftInfo(wTokenId)[3] == []
-    assert wnft721.wnftInfo(wTokenId)[4][0][1] > chain.time()
+    assert wnft721.wnftInfo(wTokenId)[4][0][1] > chain.time() + ticketValidPeriod
     assert wnft721.wnftInfo(wTokenId)[5] == []
     assert wnft721.wnftInfo(wTokenId)[6] == '0x0000'
 
     #check Tiket
-    logging.info(subscriptionManager.getUserTickets(accounts[0]))
     assert subscriptionManager.getUserTickets(accounts[0])[0][0] > chain.time()
     assert subscriptionManager.getUserTickets(accounts[0])[0][1] == counter
 
