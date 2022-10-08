@@ -27,7 +27,8 @@ contract CheckerExchange is Ownable, IChecker {
             }
 
         }
-        require(isOk, 'No Time Lock found'); 
+        require(isOk, 'No Time Lock found');
+        isOk = false; 
 
         // 2. Rules: no transfer
         require(
@@ -41,7 +42,8 @@ contract CheckerExchange is Ownable, IChecker {
                 isOk = true;
             }
         }
-
+        require(isOk, 'Trusted multisig not found in royalty');
+        isOk = false;
 
         return true;
     }

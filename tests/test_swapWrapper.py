@@ -57,10 +57,22 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 		[],
 		out_type,
 		0,
-		Web3.toBytes(0x0006)
+		Web3.toBytes(0x0001)
 		)
 	with reverts("NoTransfer rule not set"):
 		swapWrapper.wrap(wNFT, [], accounts[1], {"from": caller})
+
+	wNFT = ( ((0, zero_address), 0,0),
+		accounts[1],
+		[],
+		[('0x00', chain.time() + 100)],
+		[],
+		out_type,
+		0,
+		Web3.toBytes(0x0004)
+		)
+	with reverts("Trusted multisig not found in royalty"):
+		swapWrapper.wrap(wNFT, [], accounts[1], {"from": caller})	
 	
 	#checks
 	'''assert wrapper.balance() == eth_amount
