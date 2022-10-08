@@ -37,6 +37,7 @@ contract SubscriptionManagerV1 is Ownable {
     }
 
     address  public mainWrapper;
+    address  public previousManager;
     Tariff[] public availableTariffs;
     
     // mapping from user addres to subscription type and ticket
@@ -148,14 +149,14 @@ contract SubscriptionManagerV1 is Ownable {
         );
 
         // Check user ticket
-        require(
-            _isTicketValidForService(_user, _serviceCode),
-            'Valid ticket not found'
-        );
+        (bool isValid, uint256 tariffIndex) = _isTicketValidForService(_user, _serviceCode);
+        // TODO  Proxy to previos
+        require(isValid,'Valid ticket not found');
 
+        
         // Fix action (for subscription with counter)
-        if (userTickets[_user][_serviceCode].countsLeft > 0) {
-            -- userTickets[_user][_serviceCode].countsLeft; 
+        if (userTickets[_user][tariffIndex].countsLeft > 0) {
+            -- userTickets[_user][tariffIndex].countsLeft; 
         }
         ok = true;
     }
@@ -165,8 +166,14 @@ contract SubscriptionManagerV1 is Ownable {
     function checkUserSubscription(
         address _user, 
         uint256 _serviceCode
-    ) external view returns (bool) {
-        return _isTicketValidForService(_user, _serviceCode);
+    ) external view returns (bool ok) {
+        (ok,)  = _isTicketValidForService(_user, _serviceCode);
+        if (!ok && previousManager != address(0)) {
+            ok = ISubscriptionManager(previousManager).checkUserSubscription(
+                _user, 
+                _serviceCode
+            );
+        }
     }
 
     function getUserTickets(address _user) public view returns(Ticket[] memory) {
@@ -257,12 +264,30 @@ contract SubscriptionManagerV1 is Ownable {
     {
         agentRegistry[_agent] = _status;
     }
+
+    function setPreviousManager(address _manager) external onlyOwner {
+        previousManager = _manager;
+    }
     /////////////////////////////////////////////////////////////////////
+
+    function _getFirstTarifWithService(uint256 _serviceCode) 
+        internal 
+        view 
+        returns(uint256 tariffIndex)
+    {
+        // Lets check all available tarifs
+        for (uint256 i = 0; i < availableTariffs.length; i ++ ) {
+            if (_isServiceInTariff(availableTariffs[i], _serviceCode)) {
+               tariffIndex = i;
+            }
+        }
+
+    }
 
     function _isTicketValidForService(address _user, uint256 _serviceCode) 
         internal 
         view 
-        returns (bool) 
+        returns (bool, uint256) 
     {
         // Lets check all available tarifs
         for (uint256 i = 0; i < availableTariffs.length; i ++ ) {
@@ -270,10 +295,12 @@ contract SubscriptionManagerV1 is Ownable {
             if (_isServiceInTariff(availableTariffs[i], _serviceCode)) {
                 // Check that user have valid ticket 
                 // on this Tariff
-                return _isTicketValid(_user, i);
+                if (_isTicketValid(_user, i)){
+                    return (true, i);
+                }
             }
         }
-        return false;
+        return (false, type(uint256).max);
     }
 
     function _isTicketValid(address _user, uint256 _tarifIndex) 
@@ -285,7 +312,14 @@ contract SubscriptionManagerV1 is Ownable {
             || userTickets[_user][_tarifIndex].countsLeft > 0;
     }
 
-    function _isServiceInTariff(Tariff memory _tariff, uint256 _serviceCode)internal view returns (bool) {
+    function _isServiceInTariff(
+        Tariff memory _tariff, 
+        uint256 _serviceCode
+    )
+        internal 
+        view 
+        returns (bool) 
+    {
         for (uint256 i = 0; i < _tariff.services.length; i ++){
             if (_tariff.services[i] == _serviceCode) {
                 return true;
