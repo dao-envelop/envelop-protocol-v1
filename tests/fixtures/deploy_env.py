@@ -267,6 +267,7 @@ def swapTechERC20(accounts, TechTokenV1):
     erc20 = accounts[0].deploy(TechTokenV1)
     yield erc20 
 
+@pytest.fixture(scope="module")
 def swapWnft721(accounts, EnvelopwNFT721):
     wnft = accounts[0].deploy(EnvelopwNFT721,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/" )
     yield wnft
@@ -278,7 +279,7 @@ def swapWhiteLists(accounts, AdvancedWhiteList):
 
 @pytest.fixture(scope="module")
 def swapWrapper(accounts, WrapperRemovableAdvanced, swapChecker, swapTechERC20):
-    sw = accounts[0].deploy(CheckerExchange, swapTechERC20.address)
+    sw = accounts[0].deploy(WrapperRemovableAdvanced, swapTechERC20.address)
     sw.setTrustedAddress(accounts[0], True)
     sw.setCheckerAddress(swapChecker)
     yield sw
