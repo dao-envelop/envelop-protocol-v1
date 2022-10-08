@@ -48,8 +48,10 @@ contract WrapperRemovableAdvanced is WrapperBaseV1, IWrapperRemovable {
             _wrappFor
         );
 
-        // 1. take original    
-        _transfer(_inData.inAsset, _inData.unWrapDestination, address(this));
+        // 1. take original if not EMPTY wrap
+        if (_inData.inAsset.asset.assetType != ETypes.AssetType.EMPTY) {  
+            _transfer(_inData.inAsset, _inData.unWrapDestination, address(this));
+        }    
 
         // 2. Mint wNFT
         _mintNFT(

@@ -14,7 +14,7 @@ pragma solidity 0.8.16;
 contract BatchWorker is Ownable {
     using SafeERC20 for IERC20Extended;
 
-    uint256 immutable SERVICE_CODE; 
+    uint256 immutable public SERVICE_CODE; 
     ITrustedWrapper public trustedWrapper;
     ISubscriptionManager public subscriptionManager;
     
