@@ -9,28 +9,41 @@ accounts.load('secret2')
 ORIGINAL_NFT_IDs = []
 zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
-eth_amount = 1e10
+eth_amount = 1e8
 transfer_fee_amount = 100
+timelockPeriod = 3600*24*30 #1 month
+ticketValidPeriod = 100  #100 sec
+counter = 0
+payAmount = 1e18
 
 def main():
     #make wrap NFT with empty
+    #account has subscription
     in_type = 3
     out_type = 3
     in_nft_amount = 3
 
-    saftV1 = BatchWorker.at('0x5a5e87171f7bD5639fe2D52d5D62449c3f606e82')
-    techERC20 = TechTokenV1.at('0xD0e558D267EfF3CD6F1606e31C1a455647C4D69F')
-    wrapperTrustedV1 = TrustedWrapper.at('0x5e6eF1a7cEAf72c73D8673948194d625b787452b')
-    wnft1155 = EnvelopwNFT1155.at('0x1b0CFfc3b108Bb6544708dF3be5ea24709455251')
-    wnft721 = EnvelopwNFT721.at('0xc1d74221320be821a5BBBD684d2F1F7332daAD65')
-    whitelist = AdvancedWhiteList.at('0x6bD6568BB566fFD1d4a32c3AB5c1231621ab4B87')
-    niftsy20 = Niftsy.at('0x3125B3b583D576d86dBD38431C937F957B94B47d')
-    origNFT = OrigNFT.at('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578')
+    niftsy20 = TokenMock.at('0x376e8EA664c2E770E1C45ED423F62495cB63392D')
+    origNFT = OrigNFT.at('0x69e8B95d034fdd102dE3006F3EbE3B619945242B')
+    techERC20 = TechTokenV1.at('0x2b2ca6527aeb9ec416A909Ff9b6938E08eF0a45e')
+    saftV1 = BatchWorker.at('0x8A93e685c6B9dEE32f91A12d7655CA3B921EF14F')
+    subscriptionManager = SubscriptionManagerV1.at('0xAAA599Bf7AAeAEA2F0ef89dd9fE345187e61A650')
+    wrapperTrustedV1 = TrustedWrapper.at('0xD477cB49576DabFA073519EE91cf310319ee958E')
+    wnft1155 = EnvelopwNFT1155.at('0xA35769AeBE8b0F13c653F45c82667dAED078F8db')
+    wnft721 = EnvelopwNFT721.at('0x3B47910b3aAbED960B1773dFE1DE299D51655720')
+    whitelist = AdvancedWhiteList.at('0x37624e622e0931be99E4494F423eAA68F6FB72C1')
 
-    if web3.eth.chainId in  [1,4]:
+
+    if web3.eth.chainId in  [1,4,5]:
         tx_params={'from':accounts[0], 'priority_fee': chain.priority_fee}
 
-    ORIGINAL_NFT_IDs = [266, 267, 268, 269, 270]
+    #ORIGINAL_NFT_IDs = [266, 267, 268, 269, 270]
+
+    #create allowance for subscription
+    niftsy20.approve(subscriptionManager.address, payAmount, {"from": accounts[0]})
+
+    #buy subscription
+    tx = subscriptionManager.buySubscription(0,0, accounts[0], {"from": accounts[0]})
     
     #mint orig nft
     for i in range(5):

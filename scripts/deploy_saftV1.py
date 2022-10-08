@@ -20,6 +20,12 @@ ETH_RINKEBY_ERC20_COLLATERAL_TOKENS = [
 '0xc778417e063141139fce010982780140aa0cd5ab',  #WETH
 ]
 
+ETH_GOERLI_ERC20_COLLATERAL_TOKENS = [
+(2,'0x376e8EA664c2E770E1C45ED423F62495cB63392D'), #NIFTSI ERC20
+(2,'0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844'),  #DAI
+(2,'0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6')  #WETH
+]
+
 BSC_TESTNET_ERC20_COLLATERAL_TOKENS = [
 '0xCEFe82aDEd5e1f8c2610256629d651840601EAa8', #NIFTSI ERC20
 ]
@@ -50,6 +56,7 @@ CHAIN = {
     0:{'explorer_base':'io'},
     1:{'explorer_base':'etherscan.io', 'enabled_erc20': ETH_MAIN_ERC20_COLLATERAL_TOKENS},
     4:{'explorer_base':'rinkeby.etherscan.io','enabled_erc20': ETH_RINKEBY_ERC20_COLLATERAL_TOKENS},
+    5:{'explorer_base':'goerli.etherscan.io','enabled_erc20': ETH_GOERLI_ERC20_COLLATERAL_TOKENS},
     56:{'explorer_base':'bscscan.com', 'enabled_erc20': BSC_MAIN_ERC20_COLLATERAL_TOKENS},
     97:{'explorer_base':'testnet.bscscan.com', 'enabled_erc20': BSC_TESTNET_ERC20_COLLATERAL_TOKENS},
     137:{'explorer_base':'polygonscan.com', 'enabled_erc20': POLYGON_MAIN_ERC20_COLLATERAL_TOKENS},
@@ -61,12 +68,21 @@ CHAIN = {
 print(CHAIN)
 
 tx_params = {'from':accounts[0]}
-if web3.eth.chainId in  [1,4]:
+if web3.eth.chainId in  [1,4,5]:
     tx_params={'from':accounts[0], 'priority_fee': chain.priority_fee}
 
 def main():
 
-    saftV1 = BatchWorker.deploy(tx_params)
+    timelockPeriod = 3600*24*30 #1 month
+    ticketValidPeriod = 10  #10 sec
+    counter = 0
+    payAmount = 1e18
+
+    niftsy20 = TokenMock.at('0x376e8EA664c2E770E1C45ED423F62495cB63392D')
+    dai = TokenMock.at('0x50BddB7911CE4248822a60968A32CDF1D683e7AD')
+
+    saftV1 = BatchWorker.deploy(0, tx_params)
+    subscriptionManager = SubscriptionManagerV1.deploy(tx_params)
     techERC20 = TechTokenV1.deploy(tx_params)
     whitelist = AdvancedWhiteList.deploy(tx_params)
     wrapperTrustedV1 = TrustedWrapper.deploy(techERC20.address, saftV1.address, tx_params)
@@ -92,20 +108,34 @@ def main():
     wrapperTrustedV1.setWNFTId(4, wnft1155.address,1, tx_params)
     wrapperTrustedV1.setWhiteList(whitelist.address, tx_params)
     saftV1.setTrustedWrapper(wrapperTrustedV1.address, tx_params)
+    subscriptionManager.setAgentStatus(saftV1.address, True, {"from": accounts[0]})
+
+    #make settings of subscription
+    subscriptionType = (timelockPeriod, ticketValidPeriod, counter, True)
+    call_amount = 1e18
+    payOption = [(niftsy20.address, payAmount), (dai.address, 2*payAmount)]
+    services = [0]
+    subscriptionManager.addTarif((subscriptionType, payOption, services), {"from": accounts[0]})
+
+    #make settings of manager
+    subscriptionManager.setMainWrapper(wrapperTrustedV1, {"from": accounts[0]})
+    saftV1.setSubscriptionManager(subscriptionManager.address, {"from": accounts[0]})
 
 
-    if  web3.eth.chainId in [1,4, 137, 43114]:
+    if  web3.eth.chainId in [1,4,5, 137, 43114]:
         TechTokenV1.publish_source(techERC20);
         BatchWorker.publish_source(saftV1);
         EnvelopwNFT1155.publish_source(wnft1155);
         EnvelopwNFT721.publish_source(wnft721);
         AdvancedWhiteList.publish_source(whitelist);
         TrustedWrapper.publish_source(wrapperTrustedV1);
+        SubscriptionManagerV1.publish_source(subscriptionManager);
 
     # Print addresses for quick access from console
     print("----------Deployment artifacts-------------------")
     print("techERC20 = TechTokenV1.at('{}')".format(techERC20.address))
     print("saftV1 = BatchWorker.at('{}')".format(saftV1.address))
+    print("subscriptionManager = SubscriptionManagerV1.at('{}')".format(subscriptionManager.address))
     print("wrapperTrustedV1 = TrustedWrapper.at('{}')".format(wrapperTrustedV1.address))
     print("wnft1155 = EnvelopwNFT1155.at('{}')".format(wnft1155.address))
     print("wnft721 = EnvelopwNFT721.at('{}')".format(wnft721.address))
@@ -114,7 +144,7 @@ def main():
     if len(CHAIN.get('enabled_erc20', [])) > 0:
         print('Enabling collateral...')
         for erc in CHAIN.get('enabled_erc20', []):
-            whitelist.setWLItem((2,erc), (True, True, True, techERC20) ,tx_params)
+            whitelist.setWLItem(erc, (True, True, True, techERC20) ,tx_params)
 
 
     #rinkeby 

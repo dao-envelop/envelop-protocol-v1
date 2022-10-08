@@ -3,14 +3,15 @@ import json
 import time
 
 
-if  web3.eth.chain_id in [4, 97]:
+accounts.load('secret2')
+'''if  web3.eth.chain_id in [4, 97]:
     # Testnets
     #private_key='???'
     accounts.load('tzero');
 elif web3.eth.chain_id in [1,56,137]:
     accounts.load('envdeployer')
     
-    pass
+    pass'''
 #else:
     #my local ganache
     # Mainnet
@@ -39,6 +40,12 @@ ETH_ROPSTEN_ERC20_COLLATERAL_TOKENS = [
 (2,'0x376e8EA664c2E770E1C45ED423F62495cB63392D'), #NIFTSI ERC20
 (2,'0xad6d458402f60fd3bd25163575031acdce07538d'),  #DAI
 (2,'0xc778417E063141139Fce010982780140Aa0cD5Ab')  #WETH
+]
+
+ETH_GOERLI_ERC20_COLLATERAL_TOKENS = [
+(2,'0x376e8EA664c2E770E1C45ED423F62495cB63392D'), #NIFTSI ERC20
+(2,'0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844'),  #DAI
+(2,'0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6')  #WETH
 ]
 
 BSC_TESTNET_ERC20_COLLATERAL_TOKENS = [
@@ -74,6 +81,7 @@ CHAIN = {
     1:{'explorer_base':'etherscan.io', 'enabled_erc20': ETH_MAIN_ERC20_COLLATERAL_TOKENS},
     3:{'explorer_base':'ropsten.etherscan.io','enabled_erc20': ETH_ROPSTEN_ERC20_COLLATERAL_TOKENS},
     4:{'explorer_base':'rinkeby.etherscan.io','enabled_erc20': ETH_RINKEBY_ERC20_COLLATERAL_TOKENS},
+    5:{'explorer_base':'goerli.etherscan.io','enabled_erc20': ETH_GOERLI_ERC20_COLLATERAL_TOKENS},
     56:{'explorer_base':'bscscan.com', 'enabled_erc20': BSC_MAIN_ERC20_COLLATERAL_TOKENS},
     65:{'explorer_base': 'www.oklink.com/okc-test',},
     66:{'explorer_base': 'www.oklink.com/okc',},
@@ -86,7 +94,7 @@ CHAIN = {
 }.get(web3.eth.chainId, {'explorer_base':'io'})
 print(CHAIN)
 tx_params = {'from':accounts[0]}
-if web3.eth.chainId in  [1,3,4]:
+if web3.eth.chainId in  [1,3,4,5]:
     tx_params={'from':accounts[0], 'priority_fee': chain.priority_fee}
 elif web3.eth.chainId in  [65, 66]:    
     tx_params={'from':accounts[0], 'allow_revert': True}
@@ -125,6 +133,8 @@ def main():
     wrapper.setWNFTId(3, wnft721.address, 1, tx_params)
     wrapper.setWNFTId(4, wnft1155.address,1, tx_params)
     wrapper.setWhiteList(whitelist.address, tx_params)
+    wrapper.setTrustedAddress(unitbox.address, True, tx_params)
+
 
     # Print addresses for quick access from console
     print("----------Deployment artifacts-------------------")
@@ -142,13 +152,13 @@ def main():
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],whitelist))
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],unitbox))
 
-    if  web3.eth.chainId in [1,4, 137, 43114]:
+    '''if  web3.eth.chainId in [1,4, 137, 43114]:
         TechTokenV1.publish_source(techERC20);
         WrapperBaseV1.publish_source(wrapper);
         EnvelopwNFT1155.publish_source(wnft1155);
         EnvelopwNFT721.publish_source(wnft721);
         AdvancedWhiteList.publish_source(whitelist);
-        UnitBoxPlatform.publish_source(unitbox);
+        UnitBoxPlatform.publish_source(unitbox);'''
 
     if len(CHAIN.get('enabled_erc20', [])) > 0:
         print('Enabling collateral...')
@@ -169,4 +179,7 @@ def main():
 #https://ropsten.etherscan.io/address/0xdA9FA61DD368e6FF8011a1e861FD34119e67689d#code
 #https://ropsten.etherscan.io/address/0x1FF12bC583D6579e4fbe032735E84BEA29532483#code
 #https://ropsten.etherscan.io/address/0x0db1ebcF530E9ac80fF5C711C8038b3826553D36#code
+
+#goerli
+
 

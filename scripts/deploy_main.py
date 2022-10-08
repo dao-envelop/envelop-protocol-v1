@@ -1,7 +1,7 @@
 from brownie import *
 import json
 
-if  (web3.eth.chainId != 56 
+'''if  (web3.eth.chainId != 56 
     and web3.eth.chainId != 1 
     and web3.eth.chainId != 137
     and web3.eth.chainId != 43114):
@@ -11,7 +11,9 @@ else:
     # Mainnet
     private_key=input('PLease input private key for deployer address..:')
 accounts.clear() 
-accounts.add(private_key)
+accounts.add(private_key)'''
+
+accounts.load("secret2")
 
 print('Deployer:{}'.format(accounts[0]))
 print('web3.eth.chain_id={}'.format(web3.eth.chainId))
@@ -27,6 +29,12 @@ ETH_RINKEBY_ERC20_COLLATERAL_TOKENS = [
 '0x1E991eA872061103560700683991A6cF88BA0028', #NIFTSI ERC20
 '0xc7ad46e0b8a400bb3c915120d284aafba8fc4735',  #DAI
 '0xc778417e063141139fce010982780140aa0cd5ab',  #WETH
+]
+
+ETH_GOERLI_ERC20_COLLATERAL_TOKENS = [
+(2,'0x376e8EA664c2E770E1C45ED423F62495cB63392D'), #NIFTSI ERC20
+(2,'0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844'),  #DAI
+(2,'0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6')  #WETH
 ]
 
 BSC_TESTNET_ERC20_COLLATERAL_TOKENS = [
@@ -61,6 +69,7 @@ CHAIN = {
     0:{'explorer_base':'io'},
     1:{'explorer_base':'etherscan.io', 'enabled_erc20': ETH_MAIN_ERC20_COLLATERAL_TOKENS},
     4:{'explorer_base':'rinkeby.etherscan.io','enabled_erc20': ETH_RINKEBY_ERC20_COLLATERAL_TOKENS},
+    5:{'explorer_base':'goerli.etherscan.io','enabled_erc20': ETH_GOERLI_ERC20_COLLATERAL_TOKENS},
     56:{'explorer_base':'bscscan.com', 'enabled_erc20': BSC_MAIN_ERC20_COLLATERAL_TOKENS},
     97:{'explorer_base':'testnet.bscscan.com', 'enabled_erc20': BSC_TESTNET_ERC20_COLLATERAL_TOKENS},
     137:{'explorer_base':'polygonscan.com', 'enabled_erc20': POLYGON_MAIN_ERC20_COLLATERAL_TOKENS},
@@ -71,7 +80,7 @@ CHAIN = {
 }.get(web3.eth.chainId, {'explorer_base':'io'})
 print(CHAIN)
 tx_params = {'from':accounts[0]}
-if web3.eth.chainId in  [1,4]:
+if web3.eth.chainId in  [1,4,5]:
     tx_params={'from':accounts[0], 'priority_fee': chain.priority_fee}
 
 def main():
@@ -123,7 +132,7 @@ def main():
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wnft721))
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],whitelist))
 
-    if  web3.eth.chainId in [1,4, 137, 43114]:
+    if  web3.eth.chainId in [1,4, 5, 137, 43114]:
         TechTokenV1.publish_source(techERC20);
         WrapperBaseV1.publish_source(wrapper);
         EnvelopwNFT1155.publish_source(wnft1155);

@@ -7,6 +7,7 @@ from eth_account.messages import encode_defunct
 
 ###wrap, add Collateral, claim and swap through direct swap pair, unwrap
 
+
 ###before
 # add trustedSigner status for msg.sender for wrap in unitboxPlatform
 # check trustedOperator in TrustedWrapperRemovable == UnitBoxPlatform
@@ -43,20 +44,25 @@ def main():
     ORACLE_PRIVATE_KEY = '0x222ead82a51f24a79887aae17052718249295530f8153c73bf1f257a9ca664af'
     coll_amount = 1e18
     price = "50 gwei"
-    nonce = 21  ##increase nonce!!
+    nonce = 1  ##increase nonce!!
 
-    #rinkeby
-    techERC20 = TechTokenV1.at('0xf84cb379Cb536732AFc737921B4EF97390db92eD')
-    wrapper = TrustedWrapperRemovable.at('0x522aCbA649165FFB287Bd1cdF2dd85429E4dcD49')
-    wnft1155 = EnvelopwNFT1155.at('0x03C496376043259284Ca152D91b8d416Fd125b0d')
-    wnft721 = EnvelopwNFT721.at('0x3b24709991c7A9D1FCC0743Dc8C607D5fb779e5C')
-    whitelist = AdvancedWhiteList.at('0x9b0cE975003DBEef2f2fE7860C5362C1dc79A469')
-    unitbox = UnitBoxPlatform.at('0x43Ed98d72AbDD15F5374751b68c6C0ea4993AE13')
-    erc721mock = OrigNFT.at('0x03D6f1a04ab5Ca96180a44F3bd562132bCB8b578')
-    dai2 = TokenMock.at('0xF0783F8628a2eE77Dae3e0D11245d9c1dD60Ebf7') #swapable token
-    usdt = TokenMock.at('0x876F77e05C77A37d6Dd2d46DFC76D8BC54Be293F') #tresury token
-    dai = TokenMock.at('0xafB8D77EE821275ff7E12464edafe3C8b6A37725') #unswapable token
-    niftsy20 = Niftsy.at('0x3125B3b583D576d86dBD38431C937F957B94B47d') #swapable token
+    #goerli
+    techERC20 = TechTokenV1.at('0x4aCd4B8e758260d2688101b2670fE22B39D6D616')
+    wrapper = TrustedWrapperRemovable.at('0xAd8027f4bB7e585Eb868D47AeB693e12cFEEDC8D')
+    wnft1155 = EnvelopwNFT1155.at('0x227a9c496E1DeC8C88E18C93A63Ca42B988f38d2')
+    wnft721 = EnvelopwNFT721.at('0xA9D984B954fBB83D68d7F3e16fbF02F1999fB4ed')
+    whitelist = AdvancedWhiteList.at('0x3AEe8a578021E5082cd00634B55af984A0D8D386')
+    unitbox = UnitBoxPlatform.at('0x56Ea9ccf5892D3F543FE707735E6b1A10BC91ede')
+    niftsy20 = TokenMock.at('0x376e8EA664c2E770E1C45ED423F62495cB63392D') #swapable token
+    erc721mock = OrigNFT.at('0x69e8B95d034fdd102dE3006F3EbE3B619945242B')
+    dai = TokenMock.at('0x50BddB7911CE4248822a60968A32CDF1D683e7AD') #unswapable token
+    usdt = TokenMock.at('0x384F4cA6BdcCa9B4031Bd85D22276BE3c8bd5fD2') #tresury token
+    dai2 = TokenMock.at('0x45f75542d555eabd46b03a6995D314704501c7dc') #swapable token
+
+    #pair in uniswap Niftsy-usdt 0xced83e0fec830b103a3948c7a2e45dee916626ad (goerli)
+    router = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
+    factory = '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'
+    
 
     #ropsten
     #techERC20 = TechTokenV1.at('0x3AEe8a578021E5082cd00634B55af984A0D8D386')
@@ -66,22 +72,23 @@ def main():
     #whitelist = AdvancedWhiteList.at('0x1FF12bC583D6579e4fbe032735E84BEA29532483')
     #unitbox = UnitBoxPlatform.at('0x0db1ebcF530E9ac80fF5C711C8038b3826553D36')
 
+    #settings for goerli 
     #unitbox.settreasury(accounts[3], {"from": accounts[0],  "gas_price": price})
-    #unitbox.setTokenDex(niftsy20.address, (1, unitbox.dexForChain()[0], True), {"from": accounts[0], "gas_price": price})
-    #unitbox.setDexForChain((unitbox.UniswapV2Router02(), unitbox.UniswapV2Factory(), '0xc778417E063141139Fce010982780140Aa0cD5Ab', usdt.address), {"from": accounts[0], "gas_price": price} )
+    #unitbox.setTokenDex(niftsy20.address, (1, router, True), {"from": accounts[0], "gas_price": price})
+    #unitbox.setDexForChain((router, factory, '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6', usdt.address), {"from": accounts[0], "gas_price": price} )
     #unitbox.setSignerState(ORACLE_ADDRESS, True, {'from':accounts[0], "gas_price": price})
     #unitbox.setWrapRule('0x0006', {"from": accounts[0], "gas_price": price})
 
     #wl_data = (False, True, False, techERC20.address)
-    #whitelist.setWLItem((2, niftsy20), wl_data, {"from": accounts[0], "gas_price": price})
+    #whitelist.setWLItem((2, dai), wl_data, {"from": accounts[0], "gas_price": price})
     #wrapper.setTrustedAddress(unitbox.address, True, {"from": accounts[0], "gas_price": price})
     
     
     #mint original nft erc721
-    #erc721mock.mint(accounts[1], {"from": accounts[1], "gas_price": price})
+    erc721mock.mint(accounts[1], {"from": accounts[1], "gas_price": price})
     erc721mock_nft_id = erc721mock.lastNFTId()
     #make allowance to use original NFT
-    #erc721mock.approve(wrapper.address, erc721mock_nft_id,  {"from": accounts[1], "gas_price": price})
+    erc721mock.approve(wrapper.address, erc721mock_nft_id,  {"from": accounts[1], "gas_price": price})
    
 
     erc721_property = (in_type, erc721mock.address)
@@ -128,7 +135,7 @@ def main():
         print(ve)
     
     #wrap
-    #tx = unitbox.wrapForRent(inData, nonce, signed_message.signature, {"from": accounts[0], "gas_price": price}) 
+    tx = unitbox.wrapForRent(inData, nonce, signed_message.signature, {"from": accounts[0], "gas_price": price})
     wTokenId = wrapper.lastWNFTId(out_type)[1]
     wNFT = wrapper.getWrappedToken(wnft721, wTokenId)   
     print(wTokenId)
@@ -139,19 +146,20 @@ def main():
     assert wnft721.ownerOf(wTokenId) == accounts[2].address # owner of wnft is scholar
 
     #add collateral - niftsy. Niftsy has DEX
-    #niftsy20.approve(wrapper.address, coll_amount, {"from": accounts[0], "gas_price": price})
+    niftsy20.approve(wrapper.address, coll_amount, {"from": accounts[0], "gas_price": price})
 
-    #wrapper.addCollateral(wnft721.address, wTokenId, [((2, niftsy20.address), 0, coll_amount )], {"from": accounts[0], "gas_price": price})
-    #assert wrapper.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == coll_amount
+    wrapper.addCollateral(wnft721.address, wTokenId, [((2, niftsy20.address), 0, coll_amount )], {"from": accounts[0], "gas_price": price})
+    assert wrapper.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == coll_amount
     
     
     #claim And Swap collateral niftsy
-    '''before_niftsy_balance1 = niftsy20.balanceOf(accounts[1])
+    before_niftsy_balance1 = niftsy20.balanceOf(accounts[1])
     before_niftsy_balance2 = niftsy20.balanceOf(accounts[2])
     before_niftsy_balance3 = niftsy20.balanceOf(accounts[3])
     before_usdt_balance3 = usdt.balanceOf(accounts[3])
+    print(before_niftsy_balance1)
     
-    unitbox.claimAndSwap(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1], "gas_price": price}) #by investor
+    #unitbox.claimAndSwap(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1], "gas_price": price}) #by investor
     assert niftsy20.balanceOf(accounts[1]) == before_niftsy_balance1 + coll_amount*wrapper.getWrappedToken(wnft721.address, wTokenId)[5][0][1]/10000
     assert niftsy20.balanceOf(accounts[2]) == before_niftsy_balance2 + coll_amount*wrapper.getWrappedToken(wnft721.address, wTokenId)[5][1][1]/10000
     assert niftsy20.balanceOf(accounts[3]) == before_niftsy_balance3
@@ -162,7 +170,7 @@ def main():
     
     
     #add collateral - dai tokens. DAI does not have DEX
-    dai.approve(wrapper.address, coll_amount, {"from": accounts[0]})
+    dai.approve(wrapper.address, coll_amount, {"from": accounts[0], "gas_price": price})
     wrapper.addCollateral(wnft721.address, wTokenId, [((2, dai.address), 0, coll_amount )], {"from": accounts[0], "gas_price": price})    
 
     assert wrapper.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[0] == coll_amount
@@ -187,6 +195,7 @@ def main():
     assert wrapper.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, dai.address, 0)[1] == 1
     assert dai.balanceOf(wrapper.address) == coll_amount
     print(accounts[2].balance())
+
     #claim And Swap again collateral niftsy
     before_balance0 = niftsy20.balanceOf(accounts[0])
     before_niftsy_balance1 = niftsy20.balanceOf(accounts[1])
@@ -226,13 +235,13 @@ def main():
     except ValueError as ve:
         print(ve)
 
-    '''
+    
     #claim collateral dai
     before_dai_balance1 = dai.balanceOf(accounts[1])
     before_dai_balance2 = dai.balanceOf(accounts[2])
     before_dai_balanceU = dai.balanceOf(unitbox.address)
     wrapper.removeERC20Collateral(wnft721.address, wTokenId, dai.address, {"from": accounts[1], "gas_price": price}) #by investor
-    '''assert dai.balanceOf(accounts[1]) == before_dai_balance1 + coll_amount*wrapper.getWrappedToken(wnft721.address, wTokenId)[5][0][1]/10000
+    assert dai.balanceOf(accounts[1]) == before_dai_balance1 + coll_amount*wrapper.getWrappedToken(wnft721.address, wTokenId)[5][0][1]/10000
     assert dai.balanceOf(accounts[2]) == before_dai_balance2 + coll_amount*wrapper.getWrappedToken(wnft721.address, wTokenId)[5][1][1]/10000
     assert dai.balanceOf(unitbox.address) == before_dai_balanceU + coll_amount*wrapper.getWrappedToken(wnft721.address, wTokenId)[5][2][1]/10000
     assert dai.balanceOf(wrapper.address) == 0
@@ -260,7 +269,7 @@ def main():
 
     #check - owner gets all tokens 
     assert dai.balanceOf(unitbox.address) == 0
-    assert dai.balanceOf(accounts[0]) == before_dai_balance0 + before_dai_balanceU'''
+    assert dai.balanceOf(accounts[0]) == before_dai_balance0 + before_dai_balanceU
 
 
 
