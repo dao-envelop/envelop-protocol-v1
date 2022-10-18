@@ -11,6 +11,7 @@ call_amount = 1e18
 eth_amount = 1e18
 transfer_fee_amount = 100
 
+#
 def test_wrap(accounts, erc721mock, wrapperTrustedV1, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1):
     #make wrap NFT with empty
     in_type = 3
@@ -66,3 +67,5 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, wnft721, niftsy20, saftV1,
     #check WrappedV1 events - eth
     for i in range(len(tx.events['WrappedV1'])):
         assert tx.events['WrappedV1'][i]['nativeCollateralAmount'] == eth_amount
+        assert wrapperTrustedV1.getWrappedToken(tx.events['WrappedV1'][i]['outAssetAddress'], tx.events['WrappedV1'][i]['outTokenId'])[1][0][2] == eth_amount
+    assert wrapperTrustedV1.balance() == len(ORIGINAL_NFT_IDs)*eth_amount

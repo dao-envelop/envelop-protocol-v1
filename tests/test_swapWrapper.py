@@ -24,6 +24,10 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 	swapWrapper.setWNFTId(out_type, swapWnft721.address, 0, {'from':accounts[0]})
 	swapWnft721.setMinter(swapWrapper.address, {"from": accounts[0]})
 
+	#try to set checker by not owner
+	with reverts("Ownable: caller is not the owner"):
+		swapWrapper.setCheckerAddress(accounts[2], {"from": accounts[1]})
+
 	
 	wNFT = ( ((0, zero_address), 0,0),
 		accounts[1],
@@ -74,17 +78,15 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 	with reverts("Trusted multisig not found in royalty"):
 		swapWrapper.wrap(wNFT, [], accounts[1], {"from": caller})
 
-	wNFT = ( ((0, zero_address), 0,0),
-		accounts[1],
-		[],
-		[('0x00', chain.time() + 100)],
-		[(multisig, 10000)],
-		out_type,
+	wNFT = ( ((0, zero_address), 0,0), #empty
+		accounts[1], 
+		[], #fee
+		[('0x00', chain.time() + 100)], #timelock
+		[(multisig, 10000)], #royalty
+		out_type, 
 		0,
-		Web3.toBytes(0x0004)
+		Web3.toBytes(0x0004) #rules (no transferable)
 		)
-	'''with reverts('Only trusted address'):
-		swapWrapper.wrap(wNFT, [], accounts[1], {"from": accounts[1]})'''
 
 	#set whiteList
 	swapWrapper.setWhiteList(swapWhiteLists.address, {"from": accounts[0]})
@@ -97,22 +99,32 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 	#removable token
 	wl_data = (True, True, True, swapTechERC20.address)
 	swapWhiteLists.setWLItem((2, niftsy20), wl_data, {"from": accounts[0]})
+
 	#wrap for acc1 and allowance from acc1 for wrapper
 	niftsy20.approve(swapWrapper.address, call_amount, {"from": accounts[1]})
 	dai.approve(swapWrapper.address, 2*call_amount, {"from": accounts[1]})
 	niftsy20.transfer(accounts[1], call_amount, {"from": accounts[0]})
 	dai.transfer(accounts[1], 2*call_amount, {"from": accounts[0]})
 
-	#msg.sender is trusted address
+	#wrap
 	tx = swapWrapper.wrap(wNFT, [((2, niftsy20.address), 0, call_amount), ((2, dai.address), 0, 2*call_amount)], accounts[1], {"from": accounts[1]})
 
 	wTokenId = tx.events['WrappedV1']['outTokenId']
 	assert swapWnft721.ownerOf(wTokenId) == accounts[1]
 
+	#add collateral (niftsy)
+	niftsy20.approve(swapWrapper.address, call_amount, {"from": accounts[1]})
+	niftsy20.transfer(accounts[1], call_amount, {"from": accounts[0]})
+	tx = swapWrapper.addCollateral(swapWnft721.address, wTokenId, [((2, niftsy20.address), 0, call_amount)], {"from": accounts[1]})
+
+
 	#try to remove irremovable token
 	#msg.sender is not allowed remover
 	with reverts("Sender is not in beneficiary list"):
 		swapWrapper.removeERC20CollateralAmount(swapWnft721.address, wTokenId, dai.address, 1, {"from": accounts[1]})	
+
+	#try to remove irremovable token - have to have revert!!!
+	#swapWrapper.removeERC20CollateralAmount(swapWnft721.address, wTokenId, dai.address, 1, {"from": multisig})
 
 	logging.info(dai.balanceOf(swapWrapper))
 	#try to remove irremuvable token - need check
@@ -127,6 +139,14 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 	assert niftsy20.balanceOf(multisig) == 1
 	assert niftsy20.balanceOf(swapWrapper) == int(before_balance_w) - 1
 	assert swapWrapper.getCollateralBalanceAndIndex(swapWnft721, wTokenId, 2, niftsy20.address, 0)[0] == int(before_balance_w) - 1
+
+	#try to remove tokens which are not in collateral
+	with reverts("Amount exceed balance"):
+		swapWrapper.removeERC20CollateralAmount(swapWnft721.address, wTokenId, weth.address, 1, {"from": multisig})
+
+	#try to remove collateral from nonexist wnft
+	with reverts("Sender is not in beneficiary list"):
+		swapWrapper.removeERC20CollateralAmount(swapWnft721.address, wTokenId+1, niftsy20.address, 1, {"from": multisig})
                 
 
 	#try to unwrap wnft
@@ -135,6 +155,7 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 
 	chain.sleep(100)
 	chain.mine()
+
 	#not owner tries to unwrap
 	with reverts("Only owner can unwrap it"):
 		swapWrapper.unWrap(swapWnft721, wTokenId, {"from": accounts[0]})
@@ -149,3 +170,5 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 	assert dai.balanceOf(swapWrapper) == 0
 	assert dai.balanceOf(accounts[1]) == before_balance_dai1 + mustAddedAmount_dai
 	assert niftsy20.balanceOf(accounts[1]) == before_balance_niftsy1 + mustAddedAmount_niftsy
+
+	#сделать тест с неизвлекаемым токеном

@@ -29,6 +29,7 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wn
     with reverts("Ownable: caller is not the owner"):
         subscriptionManager.setAgentStatus(saftV1.address, True, {"from": accounts[1]})
 
+    #set agent (smart contract for which somebody will buy subscription)
     subscriptionManager.setAgentStatus(saftV1.address, True, {"from": accounts[0]})
 
     subscriptionType = (timelockPeriod, ticketValidPeriod, counter, True)
@@ -66,6 +67,9 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wn
     if (wrapper.lastWNFTId(out_type)[1] == 0):
         wrapperTrustedV1.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
     wnft721.setMinter(wrapperTrustedV1.address, {"from": accounts[0]})
+    
+    with reverts("Ownable: caller is not the owner"):
+        saftV1.setSubscriptionManager(subscriptionManager.address, {"from": accounts[1]})
     saftV1.setSubscriptionManager(subscriptionManager.address, {"from": accounts[0]})
 
     #buy subscription
@@ -204,3 +208,76 @@ def test_wrapBath(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wn
     #wrap batch with expired subscription
     with reverts("Valid ticket not found"):
         tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[0], "value": len(ORIGINAL_NFT_IDs)*eth_amount})
+
+#without subscription (subscription manager is switched off)
+def test_wrap_without_subscription(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+
+    inDataS = []
+    receiverS = []
+    wNFT = ( ((0, zero_address), 0,0),
+            zero_address,
+            [],
+            [],
+            [],
+            out_type,
+            0,
+            Web3.toBytes(0x0000)
+            )
+    receiverS.append(accounts[2])
+    collateralS = []
+    with reverts("Valid ticket not found"):
+        tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[2]})
+
+def test_buySubscription(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+    
+    #try to buy nonexist subscription
+    with reverts("Index out of range"):
+        subscriptionManager.buySubscription(1,0, accounts[0], {"from": accounts[0]})    
+
+    #try to buy paying by nonexist method
+    with reverts("Index out of range"):
+        subscriptionManager.buySubscription(0,2, accounts[0], {"from": accounts[0]})
+
+    with reverts("Ownable: caller is not the owner"):
+        subscriptionManager.editTarif(0, 100, 100, 0, False, {"from": accounts[1]})
+
+    #tariff is switched off. Try to buy subscription
+    subscriptionManager.editTarif(0, 100, 100, 0, False, {"from": accounts[0]})
+    with reverts("This subscription not available"):
+        subscriptionManager.buySubscription(0, 1, accounts[0], {"from": accounts[0]})
+
+    #tariff is switched on. Payment method is with zero amount token
+    subscriptionManager.editTarif(0, 100, 100, 0, True, {"from": accounts[0]})
+    with reverts("Ownable: caller is not the owner"):
+        subscriptionManager.addTarifPayOption(0, weth, 0, {"from": accounts[1]})
+    subscriptionManager.addTarifPayOption(0, weth, 0, {"from": accounts[0]})
+    with reverts("This Payment option not available"):
+        subscriptionManager.buySubscription(0, 2, accounts[0], {"from": accounts[0]})
+    with reverts("Ownable: caller is not the owner"):
+        subscriptionManager.editTarifPayOption(0,2, weth, payAmount, {"from": accounts[1]})
+    
+    #buy subscription by weth
+    subscriptionManager.editTarifPayOption(0,2, weth, payAmount, {"from": accounts[0]})
+    weth.approve(subscriptionManager.address, payAmount, {"from": accounts[0]})
+    wl_data = (True, True, False, techERC20ForSaftV1.address)
+    whiteListsForTrustedWrapper.setWLItem((2, weth.address), wl_data, {"from": accounts[0]})
+    subscriptionManager.buySubscription(0, 2, accounts[0], {"from": accounts[0]})
+
+    #try to buy subscription when there is valid subscription
+    niftsy20.approve(subscriptionManager.address, payAmount, {"from": accounts[0]})
+    with reverts("Only one valid ticket at time"):
+        subscriptionManager.buySubscription(0, 0, accounts[0], {"from": accounts[0]})
+
+    #try to add service to tarif
+    with reverts("Ownable: caller is not the owner"):
+        subscriptionManager.addServiceToTarif(0, 1, {"from": accounts[1]})
+    subscriptionManager.addServiceToTarif(0, 1, {"from": accounts[0]})
+
+    #try to remove service from tarif
+    with reverts("Ownable: caller is not the owner"):
+        subscriptionManager.removeServiceFromTarif(0, 1, {"from": accounts[1]})
+    subscriptionManager.removeServiceFromTarif(0, 1, {"from": accounts[0]})
+    
+
+
+        
