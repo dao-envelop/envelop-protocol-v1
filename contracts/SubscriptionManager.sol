@@ -150,15 +150,44 @@ contract SubscriptionManagerV1 is Ownable {
 
         // Check user ticket
         (bool isValid, uint256 tariffIndex) = _isTicketValidForService(_user, _serviceCode);
-        // TODO  Proxy to previos
+        
+        // Proxy to previos
+        if (!isValid && previousManager != address(0)) {
+            isValid = ISubscriptionManager(previousManager).checkUserSubscription(
+                _user, 
+                _serviceCode
+            );
+            // Case when valid ticket stored in previousManager
+            if (isValid) {
+                ISubscriptionManager(previousManager).fixUserSubscription(
+                    _user, 
+                    tariffIndex
+                );
+                ok = true;
+                return ok;
+            }
+        }
         require(isValid,'Valid ticket not found');
-
         
         // Fix action (for subscription with counter)
-        if (userTickets[_user][tariffIndex].countsLeft > 0) {
-            -- userTickets[_user][tariffIndex].countsLeft; 
-        }
+        fixUserSubscription(_user, tariffIndex);
+        
         ok = true;
+    }
+
+    function fixUserSubscription(
+        address _user, 
+        uint256 _tariffIndex
+    ) public {
+        // Check authorization of caller agent
+        require(
+            _agentStatus(msg.sender),
+            'Unknown agent'
+        );
+        // Fix action (for subscription with counter)
+        if (userTickets[_user][_tariffIndex].countsLeft > 0) {
+            -- userTickets[_user][_tariffIndex].countsLeft; 
+        }
     }
 
     ////////////////////////////////////////////////////////////////
