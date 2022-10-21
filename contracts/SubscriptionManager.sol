@@ -127,7 +127,7 @@ contract SubscriptionManagerV1 is Ownable {
         ITrustedWrapper(mainWrapper).wrap(
             _inData,
             _collateralERC20,
-            ticketReceiver
+            msg.sender
         );
 
         //lets safe user ticket (only one ticket available in this version)
