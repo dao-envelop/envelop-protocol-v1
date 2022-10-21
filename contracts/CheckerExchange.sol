@@ -5,6 +5,7 @@ pragma solidity 0.8.16;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/IWrapper.sol";
 import "../interfaces/IChecker.sol";
+import "../interfaces/IAdvancedWhiteList.sol";
 import "./LibEnvelopTypes.sol";
 
 contract CheckerExchange is Ownable, IChecker {
@@ -65,7 +66,15 @@ contract CheckerExchange is Ownable, IChecker {
             }
         }
         require(isOk, 'Sender is not in beneficiary list');
-
+        
+        
+        // 2. Check whitelist flag
+        isOk = false;
+        isOk = IAdvancedWhiteList(
+            IWrapper(msg.sender).protocolWhiteList()
+        ).enabledRemoveFromCollateral(_collateralAddress);
+        require(isOk, 'Collateral not available for remove');
+        
         return true;
     }
 

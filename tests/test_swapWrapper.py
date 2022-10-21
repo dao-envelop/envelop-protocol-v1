@@ -116,9 +116,11 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 
 	logging.info(dai.balanceOf(swapWrapper))
 	#try to remove irremuvable token - need check
-	#swapWrapper.removeERC20CollateralAmount(swapWnft721.address, wTokenId, dai.address, 1, {"from": multisig})
+	with reverts("Collateral not available for remove"):
+	    swapWrapper.removeERC20CollateralAmount(swapWnft721.address, wTokenId, dai.address, 1, {"from": multisig})
+
 	with reverts("Amount exceed balance"):
-		swapWrapper.removeERC20CollateralAmount(swapWnft721.address, wTokenId, dai.address, int(2*call_amount)+1, {"from": multisig})
+		swapWrapper.removeERC20CollateralAmount(swapWnft721.address, wTokenId, niftsy20.address, int(2*call_amount)+1, {"from": multisig})
 
 	#remove removable token
 	before_balance_w  = niftsy20.balanceOf(swapWrapper)
