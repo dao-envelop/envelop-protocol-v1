@@ -10,7 +10,6 @@ accounts.add('') #accounts for deployment
 zero_address = '0x0000000000000000000000000000000000000000'
 call_amount = 1e18
 eth_amount = "1 ether"
-in_type = 3
 out_type = 3
 call_amount = 1e18
 

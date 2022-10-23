@@ -23,7 +23,7 @@ subscriptionId = 0
 
 
 #send in wrapping time more or less eth than in collateral's array
-def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
     
     #set agent
     with reverts("Ownable: caller is not the owner"):
@@ -64,7 +64,7 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wn
     #make settings
     subscriptionManager.setMainWrapper(wrapperTrustedV1, {"from": accounts[0]})
     saftV1.setTrustedWrapper(wrapperTrustedV1, {"from": accounts[0]})
-    if (wrapper.lastWNFTId(out_type)[1] == 0):
+    if (wrapperTrustedV1.lastWNFTId(out_type)[1] == 0):
         wrapperTrustedV1.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
     wnft721.setMinter(wrapperTrustedV1.address, {"from": accounts[0]})
     
@@ -100,7 +100,7 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wn
     assert subscriptionManager.agentRegistry(saftV1.address) == True
 
     ############################################################ WRAP wNFT by subscription ################################################
-def test_wrapBath(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+def test_wrapBatch(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
     global ORIGINAL_NFT_IDs
     #make 721 token for wrapping
     makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
@@ -277,6 +277,14 @@ def test_buySubscription(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrap
     with reverts("Ownable: caller is not the owner"):
         subscriptionManager.removeServiceFromTarif(0, 1, {"from": accounts[1]})
     subscriptionManager.removeServiceFromTarif(0, 1, {"from": accounts[0]})
+
+    #смена контракта подписки у враппера - со своими тарифами - останется ли билет, будет ли действовать  setPreviousManager
+    #++попытаться купить сначала подписку по времени, а потом подписку по количеству попыток
+    #++попытатьcя завернуть, когда подписку купил на другую услугу
+    #++добавить несколько тарифов, купить разными счетами разные
+    #++одна услуга в нескольких тарифах, купил оба тарифа, пытаюсь завернуть
+    #++для услуги продали тариф, потом выключили услугу в контракте подписок. Пытаемся завернуть
+    #тысяча тарифов заведено. Купили один. Проверить доступные билеты
     
 
 
