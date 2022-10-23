@@ -10,21 +10,12 @@ pragma solidity 0.8.16;
 contract WrapperRemovableAdvanced is WrapperBaseV1, IWrapperRemovable {
 
     IChecker public checker;
-    mapping(address => bool) public trustedOperators;
     error UnSupported();
 
     constructor (address _erc20)
     WrapperBaseV1(_erc20) 
     {
-    	trustedOperators[msg.sender] = true;
     } 
-
-	modifier onlyTrusted() {
-        require (trustedOperators[msg.sender] == true, "Only trusted address");
-        _;
-    }
-
-
 
     function wrap(
         ETypes.INData      calldata _inData, 
@@ -38,8 +29,6 @@ contract WrapperRemovableAdvanced is WrapperBaseV1, IWrapperRemovable {
         nonReentrant 
         returns (ETypes.AssetItem memory) 
     {
-        
-        //require(_inData.unWrapDestination != address(0), "Must define in this implementation");
         
         checker.isWrapEnabled(
             msg.sender,
@@ -171,7 +160,7 @@ contract WrapperRemovableAdvanced is WrapperBaseV1, IWrapperRemovable {
     //                    Admin functions                              //
     ///////////////////////////////////////////////////////////////////// 
     function setTrustedAddress(address _operator, bool _status) public onlyOwner {
-        trustedOperators[_operator] = _status;
+        
     }
     
     function setCheckerAddress(address _checker) public onlyOwner {
