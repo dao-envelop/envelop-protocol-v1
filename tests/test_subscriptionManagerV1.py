@@ -209,7 +209,7 @@ def test_wrapBatch(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, w
     with reverts("Valid ticket not found"):
         tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[0], "value": len(ORIGINAL_NFT_IDs)*eth_amount})
 
-#without subscription (subscription manager is switched off)
+#without subscription (there is not valid ticket of subscription)
 def test_wrap_without_subscription(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
 
     inDataS = []
@@ -263,6 +263,17 @@ def test_buySubscription(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrap
     whiteListsForTrustedWrapper.setWLItem((2, weth.address), wl_data, {"from": accounts[0]})
     subscriptionManager.buySubscription(0, 2, accounts[0], {"from": accounts[0]})
 
+    #try to call checkAndFixUserSubscription и fixUserSubscription from not agent
+    with reverts('Unknown agent'):
+        subscriptionManager.checkAndFixUserSubscription(accounts[0], 0, {"from": accounts[1]})
+    with reverts('Unknown agent'):
+        subscriptionManager.fixUserSubscription(accounts[0], 0, {"from": accounts[1]})
+    #add account in agent list
+    subscriptionManager.setAgentStatus(accounts[1], True, {"from": accounts[0]})
+    subscriptionManager.checkAndFixUserSubscription(accounts[0], 0, {"from": accounts[1]})
+    subscriptionManager.fixUserSubscription(accounts[0], 0, {"from": accounts[1]})
+
+
     #try to buy subscription when there is valid subscription
     niftsy20.approve(subscriptionManager.address, payAmount, {"from": accounts[0]})
     with reverts("Only one valid ticket at time"):
@@ -278,13 +289,30 @@ def test_buySubscription(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrap
         subscriptionManager.removeServiceFromTarif(0, 1, {"from": accounts[1]})
     subscriptionManager.removeServiceFromTarif(0, 1, {"from": accounts[0]})
 
-    #смена контракта подписки у враппера - со своими тарифами - останется ли билет, будет ли действовать  setPreviousManager
+def test_buySubscription_for_other_user(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+    assert wnft721.balanceOf(accounts[9]) == 0
+    #create allowance
+    niftsy20.transfer(accounts[9], payAmount, {"from": accounts[0]})
+    niftsy20.approve(subscriptionManager.address, payAmount, {"from": accounts[9]})
+    #buy subscription
+    tx = subscriptionManager.buySubscription(0,0, accounts[1], {"from": accounts[9]})
+    assert subscriptionManager.getUserTickets(accounts[1])[0][0] > 0
+    assert wnft721.balanceOf(accounts[9]) == 1
+    assert subscriptionManager.getUserTickets(accounts[9])[0][0] == 0
+
+
+
+    #++смена контракта подписки у враппера - со своими тарифами - останется ли билет, будет ли действовать  setPreviousManager - 3 контракта сменить
+    #смена контракта подписки у враппера - со своими тарифами - останется ли билет, будет ли действовать  setPreviousManager - 3 контракта сменить - не было подписок ни в одном контракте!!
     #++попытаться купить сначала подписку по времени, а потом подписку по количеству попыток
     #++попытатьcя завернуть, когда подписку купил на другую услугу
     #++добавить несколько тарифов, купить разными счетами разные
     #++одна услуга в нескольких тарифах, купил оба тарифа, пытаюсь завернуть
     #++для услуги продали тариф, потом выключили услугу в контракте подписок. Пытаемся завернуть
-    #тысяча тарифов заведено. Купили один. Проверить доступные билеты
+    #++тысяча тарифов заведено. Купили один. Проверить доступные билеты
+    #++сделать тест, где билет получает третье лицо - не msg.sender
+    #++попытаться вызвать checkAndFixUserSubscription и fixUserSubscription не из под агента
+
     
 
 

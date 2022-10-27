@@ -33,10 +33,10 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, ni
     services = [0]
 
     #add tariff
-    for i in range(1000):
+    for i in range(10):
         subscriptionManager.addTarif((subscriptionType, payOption, services), {"from": accounts[0]})
         logging.info(i)
-    assert len(subscriptionManager.getAvailableTariffs()) == 1000
+    assert len(subscriptionManager.getAvailableTariffs()) == 10
 
     #buy subscription with ticketValidPeriod
     #create allowance
@@ -51,12 +51,13 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, ni
 
     #call buySubscription
     tx = subscriptionManager.buySubscription(0,0, accounts[0], {"from": accounts[0]})
+    logging.info(tx.gas_used)
     assert wnft721.balanceOf(accounts[0]) == 1
     #check tickets
     logging.info(subscriptionManager.getUserTickets(accounts[0]))
     assert subscriptionManager.getUserTickets(accounts[0])[0][1] == 0
     assert subscriptionManager.getUserTickets(accounts[0])[0][0] > 0
-    assert len(subscriptionManager.getUserTickets(accounts[0])) == 1000
+    assert len(subscriptionManager.getUserTickets(accounts[0])) == 10
 
 def test_wrapBatch(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
     
@@ -86,6 +87,7 @@ def test_wrapBatch(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, w
 
     #wrap batch
     tx = saftV1.wrapBatch(inDataS, [], receiverS, {"from": accounts[0]})
+    logging.info(tx.gas_used)
 
     #check tickets
     assert subscriptionManager.getUserTickets(accounts[0])[0][1] == 0
