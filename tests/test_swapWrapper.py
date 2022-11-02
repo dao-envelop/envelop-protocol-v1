@@ -124,7 +124,8 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 		swapWrapper.removeERC20CollateralAmount(swapWnft721.address, wTokenId, dai.address, 1, {"from": accounts[1]})	
 
 	#try to remove irremovable token - have to have revert!!!
-	#swapWrapper.removeERC20CollateralAmount(swapWnft721.address, wTokenId, dai.address, 1, {"from": multisig})
+	with reverts("Collateral not available for remove"):
+		swapWrapper.removeERC20CollateralAmount(swapWnft721.address, wTokenId, dai.address, 1, {"from": multisig})
 
 	logging.info(dai.balanceOf(swapWrapper))
 	#try to remove irremuvable token - need check
@@ -143,7 +144,7 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 	assert swapWrapper.getCollateralBalanceAndIndex(swapWnft721, wTokenId, 2, niftsy20.address, 0)[0] == int(before_balance_w) - 1
 
 	#try to remove tokens which are not in collateral
-	with reverts("Amount exceed balance"):
+	with reverts("Collateral not available for remove"):
 		swapWrapper.removeERC20CollateralAmount(swapWnft721.address, wTokenId, weth.address, 1, {"from": multisig})
 
 	#try to remove collateral from nonexist wnft
@@ -172,5 +173,3 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 	assert dai.balanceOf(swapWrapper) == 0
 	assert dai.balanceOf(accounts[1]) == before_balance_dai1 + mustAddedAmount_dai
 	assert niftsy20.balanceOf(accounts[1]) == before_balance_niftsy1 + mustAddedAmount_niftsy
-
-	#сделать тест с неизвлекаемым токеном
