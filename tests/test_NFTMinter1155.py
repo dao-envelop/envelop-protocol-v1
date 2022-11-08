@@ -85,7 +85,7 @@ def test_mint(accounts, NFTMinter1155, MockManager):
     logging.info('uri = {}'.format(NFTMinter1155.uri(1)))
     assert NFTMinter1155.uri(1) == baseUrl+tokenUri
 
-def test_subscription(accounts, NFTMinter1155, MockManager):
+'''def test_subscription(accounts, NFTMinter1155, MockManager):
     tokenId = 2
     tokenUri = '2'
     amount = 3
@@ -108,7 +108,7 @@ def test_subscription(accounts, NFTMinter1155, MockManager):
     MockManager.setMinter(NFTMinter1155, accounts[0], True)
     NFTMinter1155.mintWithURI(accounts[1], tokenId, amount, tokenUri, Web3.toBytes(text=''), {"from": accounts[0]})    
     assert NFTMinter1155.totalSupply(tokenId) == amount
-    assert NFTMinter1155.balanceOf(accounts[1], tokenId) == amount
+    assert NFTMinter1155.balanceOf(accounts[1], tokenId) == amount'''
 
 
 def test_batch(accounts, NFTMinter1155):
@@ -147,7 +147,7 @@ def test_batch(accounts, NFTMinter1155):
 
     #without signature
 
-    _to = [accounts[3].address, accounts[4].address]
+    '''_to = [accounts[3].address, accounts[4].address]
     _tokenId = [5, 6]
     _tokenURI = ['5', '6']
     _amount = [4,4]
@@ -157,7 +157,7 @@ def test_batch(accounts, NFTMinter1155):
 
     assert NFTMinter1155.totalSupply(_tokenId[0]) == _amount[0]
     assert NFTMinter1155.balanceOf(_to[0], _tokenId[0]) == _amount[0]
-    assert NFTMinter1155.exists(_tokenId[0]) == True
+    assert NFTMinter1155.exists(_tokenId[0]) == True'''
 
 def test_setBaseURI(accounts, NFTMinter1155):
     with reverts("Ownable: caller is not the owner"):
