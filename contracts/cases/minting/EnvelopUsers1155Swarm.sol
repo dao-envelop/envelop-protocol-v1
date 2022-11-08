@@ -5,16 +5,16 @@ pragma solidity 0.8.16;
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "../../../interfaces/ISubscriptionManager.sol";
+import "../../Subscriber.sol";
 
 
-contract EnvelopUsers1155Swarm is ERC1155URIStorage, Ownable {
+contract EnvelopUsers1155Swarm is ERC1155URIStorage, Ownable, Subscriber {
     using ECDSA for bytes32;
 
     
     string public  name;
     string public  symbol;
-    address public subscriptionManager;
+    //address public subscriptionManager;
     //string private _baseTokenURI;
 
     
@@ -24,9 +24,11 @@ contract EnvelopUsers1155Swarm is ERC1155URIStorage, Ownable {
     constructor(
         string memory name_,
         string memory symbol_,
-        string memory _baseurl
+        string memory _baseurl,
+        uint256 _code
     ) 
-        ERC1155(string(abi.encodePacked(_baseurl, "{id}")))  
+        ERC1155(string(abi.encodePacked(_baseurl, "{id}")))
+        Subscriber(_code)  
     {
         name = name_;
         symbol = symbol_;
@@ -109,7 +111,7 @@ contract EnvelopUsers1155Swarm is ERC1155URIStorage, Ownable {
         // If there is no signature then sender must have valid status
         } else {
             require(
-                ISubscriptionManager(subscriptionManager).isValidMinter(address(this), msg.sender),
+                _checkAndFixSubscription(msg.sender),
                 "Has No Subscription"
             );
 
@@ -137,8 +139,7 @@ contract EnvelopUsers1155Swarm is ERC1155URIStorage, Ownable {
     }
 
     function setSubscriptionManager(address _manager) external onlyOwner {
-        require(_manager != address(0),'Non zero only');
-        subscriptionManager = _manager;
+        _setSubscriptionManager(_manager);
     }
 
     function setBaseURI(string memory _newBaseURI) external onlyOwner {
@@ -157,11 +158,4 @@ contract EnvelopUsers1155Swarm is ERC1155URIStorage, Ownable {
         _setURI(_tokenId, _tokenURI);
     }
 
-    // function baseURI() external view  returns (string memory) {
-    //     return _baseURI();
-    // }
-
-    // function _baseURI() internal view  override returns (string memory) {
-    //     return _uri;
-    // }
 }
