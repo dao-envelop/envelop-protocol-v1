@@ -23,12 +23,13 @@ subscriptionId = 0
 
 
 #send in wrapping time more or less eth than in collateral's array
-def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
     
     #set agent
     with reverts("Ownable: caller is not the owner"):
         subscriptionManager.setAgentStatus(saftV1.address, True, {"from": accounts[1]})
 
+    #set agent (smart contract for which somebody will buy subscription)
     subscriptionManager.setAgentStatus(saftV1.address, True, {"from": accounts[0]})
 
     subscriptionType = (timelockPeriod, ticketValidPeriod, counter, True)
@@ -63,9 +64,12 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wn
     #make settings
     subscriptionManager.setMainWrapper(wrapperTrustedV1, {"from": accounts[0]})
     saftV1.setTrustedWrapper(wrapperTrustedV1, {"from": accounts[0]})
-    if (wrapper.lastWNFTId(out_type)[1] == 0):
+    if (wrapperTrustedV1.lastWNFTId(out_type)[1] == 0):
         wrapperTrustedV1.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
     wnft721.setMinter(wrapperTrustedV1.address, {"from": accounts[0]})
+    
+    with reverts("Ownable: caller is not the owner"):
+        saftV1.setSubscriptionManager(subscriptionManager.address, {"from": accounts[1]})
     saftV1.setSubscriptionManager(subscriptionManager.address, {"from": accounts[0]})
 
     #buy subscription
@@ -96,7 +100,7 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wn
     assert subscriptionManager.agentRegistry(saftV1.address) == True
 
     ############################################################ WRAP wNFT by subscription ################################################
-def test_wrapBath(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+def test_wrapBatch(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
     global ORIGINAL_NFT_IDs
     #make 721 token for wrapping
     makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
@@ -204,3 +208,112 @@ def test_wrapBath(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wn
     #wrap batch with expired subscription
     with reverts("Valid ticket not found"):
         tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[0], "value": len(ORIGINAL_NFT_IDs)*eth_amount})
+
+#without subscription (there is not valid ticket of subscription)
+def test_wrap_without_subscription(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+
+    inDataS = []
+    receiverS = []
+    wNFT = ( ((0, zero_address), 0,0),
+            zero_address,
+            [],
+            [],
+            [],
+            out_type,
+            0,
+            Web3.toBytes(0x0000)
+            )
+    receiverS.append(accounts[2])
+    collateralS = []
+    with reverts("Valid ticket not found"):
+        tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[2]})
+
+def test_buySubscription(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+    
+    #try to buy nonexist subscription
+    with reverts("Index out of range"):
+        subscriptionManager.buySubscription(1,0, accounts[0], {"from": accounts[0]})    
+
+    #try to buy paying by nonexist method
+    with reverts("Index out of range"):
+        subscriptionManager.buySubscription(0,2, accounts[0], {"from": accounts[0]})
+
+    with reverts("Ownable: caller is not the owner"):
+        subscriptionManager.editTarif(0, 100, 100, 0, False, {"from": accounts[1]})
+
+    #tariff is switched off. Try to buy subscription
+    subscriptionManager.editTarif(0, 100, 100, 0, False, {"from": accounts[0]})
+    with reverts("This subscription not available"):
+        subscriptionManager.buySubscription(0, 1, accounts[0], {"from": accounts[0]})
+
+    #tariff is switched on. Payment method is with zero amount token
+    subscriptionManager.editTarif(0, 100, 100, 0, True, {"from": accounts[0]})
+    with reverts("Ownable: caller is not the owner"):
+        subscriptionManager.addTarifPayOption(0, weth, 0, {"from": accounts[1]})
+    subscriptionManager.addTarifPayOption(0, weth, 0, {"from": accounts[0]})
+    with reverts("This Payment option not available"):
+        subscriptionManager.buySubscription(0, 2, accounts[0], {"from": accounts[0]})
+    with reverts("Ownable: caller is not the owner"):
+        subscriptionManager.editTarifPayOption(0,2, weth, payAmount, {"from": accounts[1]})
+    
+    #buy subscription by weth
+    subscriptionManager.editTarifPayOption(0,2, weth, payAmount, {"from": accounts[0]})
+    weth.approve(subscriptionManager.address, payAmount, {"from": accounts[0]})
+    wl_data = (True, True, False, techERC20ForSaftV1.address)
+    whiteListsForTrustedWrapper.setWLItem((2, weth.address), wl_data, {"from": accounts[0]})
+    subscriptionManager.buySubscription(0, 2, accounts[0], {"from": accounts[0]})
+
+    #try to call checkAndFixUserSubscription и fixUserSubscription from not agent
+    with reverts('Unknown agent'):
+        subscriptionManager.checkAndFixUserSubscription(accounts[0], 0, {"from": accounts[1]})
+    with reverts('Unknown agent'):
+        subscriptionManager.fixUserSubscription(accounts[0], 0, {"from": accounts[1]})
+    #add account in agent list
+    subscriptionManager.setAgentStatus(accounts[1], True, {"from": accounts[0]})
+    subscriptionManager.checkAndFixUserSubscription(accounts[0], 0, {"from": accounts[1]})
+    subscriptionManager.fixUserSubscription(accounts[0], 0, {"from": accounts[1]})
+
+
+    #try to buy subscription when there is valid subscription
+    niftsy20.approve(subscriptionManager.address, payAmount, {"from": accounts[0]})
+    with reverts("Only one valid ticket at time"):
+        subscriptionManager.buySubscription(0, 0, accounts[0], {"from": accounts[0]})
+
+    #try to add service to tarif
+    with reverts("Ownable: caller is not the owner"):
+        subscriptionManager.addServiceToTarif(0, 1, {"from": accounts[1]})
+    subscriptionManager.addServiceToTarif(0, 1, {"from": accounts[0]})
+
+    #try to remove service from tarif
+    with reverts("Ownable: caller is not the owner"):
+        subscriptionManager.removeServiceFromTarif(0, 1, {"from": accounts[1]})
+    subscriptionManager.removeServiceFromTarif(0, 1, {"from": accounts[0]})
+
+def test_buySubscription_for_other_user(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+    assert wnft721.balanceOf(accounts[9]) == 0
+    #create allowance
+    niftsy20.transfer(accounts[9], payAmount, {"from": accounts[0]})
+    niftsy20.approve(subscriptionManager.address, payAmount, {"from": accounts[9]})
+    #buy subscription
+    tx = subscriptionManager.buySubscription(0,0, accounts[1], {"from": accounts[9]})
+    assert subscriptionManager.getUserTickets(accounts[1])[0][0] > 0
+    assert wnft721.balanceOf(accounts[9]) == 1
+    assert subscriptionManager.getUserTickets(accounts[9])[0][0] == 0
+
+
+
+    #++смена контракта подписки у враппера - со своими тарифами - останется ли билет, будет ли действовать  setPreviousManager - 3 контракта сменить
+    #++смена контракта подписки у враппера - со своими тарифами - останется ли билет, будет ли действовать  setPreviousManager - 3 контракта сменить - не было подписок ни в одном контракте!!
+    #++попытаться купить сначала подписку по времени, а потом подписку по количеству попыток
+    #++попытатьcя завернуть, когда подписку купил на другую услугу
+    #++добавить несколько тарифов, купить разными счетами разные
+    #++одна услуга в нескольких тарифах, купил оба тарифа, пытаюсь завернуть
+    #++для услуги продали тариф, потом выключили услугу в контракте подписок. Пытаемся завернуть
+    #++тысяча тарифов заведено. Купили один. Проверить доступные билеты
+    #++сделать тест, где билет получает третье лицо - не msg.sender
+    #++попытаться вызвать checkAndFixUserSubscription и fixUserSubscription не из под агента
+
+    
+
+
+        

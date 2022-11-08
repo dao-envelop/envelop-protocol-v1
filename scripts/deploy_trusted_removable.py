@@ -182,4 +182,10 @@ def main():
 
 #goerli
 
+#techERC20 = TechTokenV1.at('0x4aCd4B8e758260d2688101b2670fE22B39D6D616')
+#wrapper = TrustedWrapperRemovable.at('0xAd8027f4bB7e585Eb868D47AeB693e12cFEEDC8D')
+#wnft1155 = EnvelopwNFT1155.at('0x227a9c496E1DeC8C88E18C93A63Ca42B988f38d2')
+#wnft721 = EnvelopwNFT721.at('0xA9D984B954fBB83D68d7F3e16fbF02F1999fB4ed')
+#whitelist = AdvancedWhiteList.at('0x3AEe8a578021E5082cd00634B55af984A0D8D386')
+#unitbox = UnitBoxPlatform.at('0x56Ea9ccf5892D3F543FE707735E6b1A10BC91ede')
 

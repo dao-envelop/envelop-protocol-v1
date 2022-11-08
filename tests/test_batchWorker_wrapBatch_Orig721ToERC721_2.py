@@ -11,7 +11,7 @@ call_amount = 1e18
 eth_amount = 1e18
 transfer_fee_amount = 100
 
-#erc20
+#reverts due to bad collateral data
 def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1):
     #make wrap NFT with empty
     in_type = 3

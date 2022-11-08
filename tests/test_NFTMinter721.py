@@ -77,7 +77,7 @@ def test_mint(accounts, NFTMinter, MockManager):
     with reverts("Unexpected signer"):
         NFTMinter.mintWithURI(accounts[1], tokenId+1, tokenUri, signed_message.signature, {"from": accounts[0]})
 
-def test_subscription(accounts, NFTMinter, MockManager):
+'''def test_subscription(accounts, NFTMinter, MockManager):
     tokenId = 2
     tokenUri = '2'
 
@@ -103,7 +103,7 @@ def test_subscription(accounts, NFTMinter, MockManager):
     NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, Web3.toBytes(text=''), {"from": accounts[0]})    
     assert NFTMinter.ownerOf(2) == accounts[1].address
 
-    logging.info(NFTMinter.tokenURI(1))
+    logging.info(NFTMinter.tokenURI(1))'''
 
 def test_batch(accounts, NFTMinter):
     #with signature
@@ -137,7 +137,7 @@ def test_batch(accounts, NFTMinter):
     assert NFTMinter.ownerOf(3) == accounts[1].address
 
     #without signature - using subscription
-
+    '''
     _to = [accounts[3].address, accounts[4].address]
     _tokenId = [5, 6]
     _tokenURI = ['5', '6']
@@ -145,7 +145,7 @@ def test_batch(accounts, NFTMinter):
            
     NFTMinter.mintWithURIBatch(_to, _tokenId, _tokenURI, _signature)
 
-    assert NFTMinter.ownerOf(5) == accounts[3].address
+    assert NFTMinter.ownerOf(5) == accounts[3].address'''
 
 
 

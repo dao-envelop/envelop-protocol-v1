@@ -8,22 +8,24 @@ def main():
     print('Deployer account= {}'.format(accounts[0]))
 
     #NFTMinter = EnvelopUsers721SwarmEnum.deploy("Envelop simple NFT", "eNFT", 'https://swarm.envelop.is/bzz/', {'from':accounts[0], 'gas_price': '60 gwei'})
-    NFTMinter = EnvelopUsers1155Swarm.deploy("Envelop simple NFT", "eNFT", 'https://swarm.envelop.is/bzz/', {'from':accounts[0], 'gas_price': '60 gwei'})
+    #NFTMinter = EnvelopUsers1155Swarm.deploy("Envelop simple NFT", "eNFT", 'https://swarm.envelop.is/bzz/', {'from':accounts[0], 'gas_price': '60 gwei'})
 
     
     print("----------Deployment artifacts-------------------")
     #print("NFTMinter = EnvelopUsers721SwarmEnum.at('{}')".format(NFTMinter.address))
-    print("NFTMinter = EnvelopUsers1155Swarm.at('{}')".format(NFTMinter.address))
+    #print("NFTMinter = EnvelopUsers1155Swarm.at('{}')".format(NFTMinter.address))
 
     #NFTMinter.setSignerStatus(ORACLE_ADDRESS, True, {'from':accounts[0], 'gas_price': '60 gwei'})
 
-    #EnvelopUsers721SwarmEnum.publish_source(NFTMinter);
-    EnvelopUsers1155Swarm.publish_source(NFTMinter);
+    NFTMinter = EnvelopUsers721SwarmEnum.at('0x4B44874F117e04462bF005779E5F2D021F1688b8')
+
+    EnvelopUsers721SwarmEnum.publish_source(NFTMinter);
+    #EnvelopUsers1155Swarm.publish_source(NFTMinter);
     
     #rinkeby 
     
     #721
-    #NFTMinter =  EnvelopUsers721SwarmEnum.at('0xc0C01d695B03c6A3A87c8cEd8Da0BD18be85eaf6')
+    #NFTMinter = EnvelopUsers721SwarmEnum.at('0x4B44874F117e04462bF005779E5F2D021F1688b8')
 
     #1155
     #NFTMinter = EnvelopUsers1155Swarm.at('0xB3BF6FE7A484625A9E63b9b9FBe49a54cBf4F9c3')

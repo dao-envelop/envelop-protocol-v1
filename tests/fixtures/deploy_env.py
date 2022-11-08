@@ -206,11 +206,11 @@ def unitbox(accounts, wrapperRemovable, UnitBoxPlatform):
     u = accounts[0].deploy(UnitBoxPlatform, wrapperRemovable.address)
     yield u
 
-@pytest.fixture(scope="module")
+'''@pytest.fixture(scope="module")
 def wrapperTrusted(accounts, TrustedWrapper, techERC20ForTrustedWrapper):
-    t = accounts[0].deploy(TrustedWrapper, techERC20ForTrustedWrapper.address)
+    t = accounts[0].deploy(TrustedWrapper, techERC20ForTrustedWrapper.address, accounts[0])
     #t.setTokenService(tokenService.address, {'from':accounts[0]})
-    yield t 
+    yield t'''
 
 @pytest.fixture(scope="module")
 def NFTMinter(accounts, EnvelopUsers721Swarm):

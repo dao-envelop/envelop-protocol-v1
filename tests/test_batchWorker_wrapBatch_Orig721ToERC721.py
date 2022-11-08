@@ -11,6 +11,7 @@ call_amount = 1e18
 eth_amount = 1e18
 transfer_fee_amount = 100
 
+#test without subscription
 def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1):
     #make wrap NFT with empty
     in_type = 3
@@ -155,6 +156,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     with reverts("WL:Some assets are not enabled for collateral"):
         wrapperTrustedV1.addCollateral(wnft721.address, 1, [weth_data], {"from": accounts[0]})
 
+    #add collateral
     for i in range(len(ORIGINAL_NFT_IDs)):
         dai.approve(wrapperTrustedV1.address, call_amount, {"from": accounts[0]})
         wrapperTrustedV1.addCollateral(wnft721.address, i+1, [dai_data], {"from": accounts[0]})
