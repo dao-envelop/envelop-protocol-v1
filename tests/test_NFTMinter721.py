@@ -12,6 +12,14 @@ LOGGER = logging.getLogger(__name__)
 ORACLE_ADDRESS = '0x8125F522a712F4aD849E6c7312ba8263bEBeEFeD' 
 ORACLE_PRIVATE_KEY = '0x222ead82a51f24a79887aae17052718249295530f8153c73bf1f257a9ca664af'
 zero_address = '0x0000000000000000000000000000000000000000'
+timelockPeriod = 3600*24*30*12 #1 year
+ticketValidPeriod = 10  #10 sec
+counter = 0
+payAmount = 1e18
+in_type = 3
+out_type = 3
+in_nft_amount = 3
+
 
 
 def test_mint(accounts, NFTMinter, MockManager):
@@ -77,7 +85,7 @@ def test_mint(accounts, NFTMinter, MockManager):
     with reverts("Unexpected signer"):
         NFTMinter.mintWithURI(accounts[1], tokenId+1, tokenUri, signed_message.signature, {"from": accounts[0]})
 
-'''def test_subscription(accounts, NFTMinter, MockManager):
+def test_subscription(accounts, NFTMinter, MockManager, subscriptionManager, niftsy20, dai, wrapperTrustedV1, wnft721):
     tokenId = 2
     tokenUri = '2'
 
@@ -85,25 +93,58 @@ def test_mint(accounts, NFTMinter, MockManager):
     with reverts(""):
         NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, Web3.toBytes(text=''), {"from": accounts[0]})
 
+
+    #settings
+    subscriptionManager.setAgentStatus(NFTMinter.address, True, {"from": accounts[0]})
+    subscriptionType = (timelockPeriod, ticketValidPeriod, counter, True)
+    payOption = [(niftsy20.address, payAmount), (dai.address, 2*payAmount)]
+    services = [NFTMinter.SERVICE_CODE()]
+    subscriptionManager.addTarif((subscriptionType, payOption, services), {"from": accounts[0]})
+
+    #buy subscription
+    #create allowance
+    niftsy20.approve(subscriptionManager.address, payAmount, {"from": accounts[0]})
+
+    #make settings
+    subscriptionManager.setMainWrapper(wrapperTrustedV1, {"from": accounts[0]})
+
+    if (wrapperTrustedV1.lastWNFTId(out_type)[1] == 0):
+        wrapperTrustedV1.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
+    wnft721.setMinter(wrapperTrustedV1.address, {"from": accounts[0]})
+
     #try to set SubscriptionManager by not owner
     with reverts("Ownable: caller is not the owner"):
-        NFTMinter.setSubscriptionManager(MockManager.address, {"from": accounts[1]})
-
+        NFTMinter.setSubscriptionManager(subscriptionManager.address, {"from": accounts[1]})
     with reverts("Non zero only"):
         NFTMinter.setSubscriptionManager(zero_address, {"from": accounts[0]})
 
-    #set SubscriptionManager
-    NFTMinter.setSubscriptionManager(MockManager.address, {"from": accounts[0]})
+    NFTMinter.setSubscriptionManager(subscriptionManager.address, {"from": accounts[0]})
 
-
+    #try to buy when user does not have subscription
     with reverts("Has No Subscription"):
         NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, Web3.toBytes(text=''), {"from": accounts[0]})
 
-    MockManager.setMinter(NFTMinter, accounts[0], True)
+    #buy subscription
+    tx = subscriptionManager.buySubscription(0,0, accounts[0], {"from": accounts[0]})
+
+    #check subscription
+    assert len(subscriptionManager.getUserTickets(accounts[0])) == 1
+    assert niftsy20.balanceOf(wrapperTrustedV1) == payAmount
+
+    #check Tiket
+    assert subscriptionManager.getUserTickets(accounts[0])[0][0] > chain.time()
+    assert subscriptionManager.getUserTickets(accounts[0])[0][1] == counter
+
+    #check subsctription
+    assert subscriptionManager.checkUserSubscription(accounts[0], NFTMinter.SERVICE_CODE()) == True
+    #check agentStatus
+    assert subscriptionManager.agentRegistry(NFTMinter.address) == True
+
+    #try to use subscription
     NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, Web3.toBytes(text=''), {"from": accounts[0]})    
     assert NFTMinter.ownerOf(2) == accounts[1].address
 
-    logging.info(NFTMinter.tokenURI(1))'''
+    logging.info(NFTMinter.tokenURI(1))
 
 def test_batch(accounts, NFTMinter):
     #with signature
