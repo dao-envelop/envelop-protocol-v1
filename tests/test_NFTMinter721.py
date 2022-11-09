@@ -85,12 +85,12 @@ def test_mint(accounts, NFTMinter, MockManager):
     with reverts("Unexpected signer"):
         NFTMinter.mintWithURI(accounts[1], tokenId+1, tokenUri, signed_message.signature, {"from": accounts[0]})
 
-def test_subscription(accounts, NFTMinter, MockManager, subscriptionManager, niftsy20, dai, wrapperTrustedV1, wnft721):
+def test_subscription(accounts, NFTMinter, subscriptionManager, niftsy20, dai, wrapperTrustedV1, wnft721):
     tokenId = 2
     tokenUri = '2'
 
     #without using signature, SubscriptionManager is not set
-    with reverts(""):
+    with reverts("Has No Subscription"):
         NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, Web3.toBytes(text=''), {"from": accounts[0]})
 
 
@@ -118,10 +118,11 @@ def test_subscription(accounts, NFTMinter, MockManager, subscriptionManager, nif
     with reverts("Non zero only"):
         NFTMinter.setSubscriptionManager(zero_address, {"from": accounts[0]})
 
+    #set subscription manager
     NFTMinter.setSubscriptionManager(subscriptionManager.address, {"from": accounts[0]})
 
     #try to buy when user does not have subscription
-    with reverts("Has No Subscription"):
+    with reverts("Valid ticket not found"):
         NFTMinter.mintWithURI(accounts[1], tokenId, tokenUri, Web3.toBytes(text=''), {"from": accounts[0]})
 
     #buy subscription
@@ -178,7 +179,7 @@ def test_batch(accounts, NFTMinter):
     assert NFTMinter.ownerOf(3) == accounts[1].address
 
     #without signature - using subscription
-    '''
+    
     _to = [accounts[3].address, accounts[4].address]
     _tokenId = [5, 6]
     _tokenURI = ['5', '6']
@@ -186,7 +187,7 @@ def test_batch(accounts, NFTMinter):
            
     NFTMinter.mintWithURIBatch(_to, _tokenId, _tokenURI, _signature)
 
-    assert NFTMinter.ownerOf(5) == accounts[3].address'''
+    assert NFTMinter.ownerOf(5) == accounts[3].address
 
 
 
