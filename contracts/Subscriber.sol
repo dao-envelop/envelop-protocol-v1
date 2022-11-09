@@ -42,7 +42,6 @@ abstract contract Subscriber {
             );
             return ok;
         }
-        ok = true;
     }
 
     function _fixUserSubscription(
@@ -69,6 +68,5 @@ abstract contract Subscriber {
             );
             return ok;
         }
-        ok = true;
     }
 }
