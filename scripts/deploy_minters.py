@@ -98,11 +98,13 @@ def main():
     mint1155 = EnvelopUsers1155Swarm.deploy(
         "Envelop Users NFT 1155", 
         "eNFT", 'https://swarm.envelop.is/bzz/', 
+        100,
         tx_params
     )
     mint721 = EnvelopUsers721SwarmEnum.deploy(
         "Envelop Users NFT 721", 
-        "eNFT", 'https://swarm.envelop.is/bzz/', 
+        "eNFT", 'https://swarm.envelop.is/bzz/',
+        100, 
         tx_params
     )
 
