@@ -110,7 +110,7 @@ def main():
     saftV1.setTrustedWrapper(wrapperTrustedV1.address, tx_params)
     subscriptionManager.setAgentStatus(saftV1.address, True, {"from": accounts[0]})
 
-    #make settings of subscription
+    #make settings of subscription -- add tarif
     subscriptionType = (timelockPeriod, ticketValidPeriod, counter, True)
     call_amount = 1e18
     payOption = [(niftsy20.address, payAmount), (dai.address, 2*payAmount)]
