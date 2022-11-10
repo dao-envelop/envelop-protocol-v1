@@ -4,7 +4,6 @@
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/ITrustedWrapper.sol";
-//import "../interfaces/ISubscriptionManager.sol";
 import "../interfaces/IERC20Extended.sol";
 import "./Subscriber.sol";
 
@@ -132,19 +131,5 @@ contract BatchWorker is Ownable, Subscriber {
     function setSubscriptionManager(address _manager) external onlyOwner {
         _setSubscriptionManager(_manager);
     }
-    /////////////////////////////////////////
-    // 0 - simple saftNFT subscription     //
-    //   also we can think about it as     // 
-    //   uniq code of this(saft) service   //
-    // function _checkAndFixSubscription(address _user, uint256 _serviceCode) internal {
-    //     if (address(subscriptionManager) != address(0)){
-    //         require(
-    //             subscriptionManager.checkAndFixUserSubscription(
-    //                 _user,
-    //                 _serviceCode  
-    //             ),
-    //             "Has No Subscription for service"
-    //         );
-    //     }
-    // }   
+    
 }
