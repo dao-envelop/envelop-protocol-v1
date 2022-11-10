@@ -14,7 +14,6 @@ contract EnvelopUsers721SwarmEnum is ERC721Enumerable, Ownable, Subscriber {
     using Strings for uint256;
 
     
-    //address public subscriptionManager;
     string private _baseTokenURI;
     
     // Oracle signers status

@@ -4,32 +4,28 @@
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/ITrustedWrapper.sol";
-import "../interfaces/ISubscriptionManager.sol";
 import "../interfaces/IERC20Extended.sol";
+import "./Subscriber.sol";
 
 
 
 pragma solidity 0.8.16;
 
-contract BatchWorker is Ownable {
+contract BatchWorker is Ownable, Subscriber {
     using SafeERC20 for IERC20Extended;
 
-    uint256 immutable public SERVICE_CODE; 
     ITrustedWrapper public trustedWrapper;
-    ISubscriptionManager public subscriptionManager;
     
-    constructor (uint256 _code) {
-        SERVICE_CODE = _code;
-    }
+    constructor (uint256 _code) 
+        Subscriber(_code)
+    {}
 
     function wrapBatch(
         ETypes.INData[] calldata _inDataS, 
         ETypes.AssetItem[] calldata _collateralERC20,
         address[] memory _receivers
     ) public payable {
-        _checkAndFixSubscription(msg.sender, SERVICE_CODE);
-        
-        
+        _checkAndFixSubscription(msg.sender);
         require(
             _inDataS.length == _receivers.length, 
             "Array params must have equal length"
@@ -54,7 +50,6 @@ contract BatchWorker is Ownable {
             }
         }
 
-        // TODO Transfer ERC20 & Native collateral
         ETypes.AssetItem memory totalERC20Collateral;
         uint256 totalNativeAmount;
         for (uint256 i = 0; i < _collateralERC20.length; i ++) {
@@ -90,7 +85,7 @@ contract BatchWorker is Ownable {
         uint256[] calldata _wNFTTokenId, 
         ETypes.AssetItem[] calldata _collateralERC20
     ) public payable {
-        _checkAndFixSubscription(msg.sender, SERVICE_CODE);
+        _checkAndFixSubscription(msg.sender);
         require(_wNFTAddress.length == _wNFTTokenId.length, "Array params must have equal length");
         
         for (uint256 i = 0; i < _collateralERC20.length; i ++) {
@@ -134,22 +129,7 @@ contract BatchWorker is Ownable {
     }
 
     function setSubscriptionManager(address _manager) external onlyOwner {
-        require(_manager != address(0),'Non zero only');
-        subscriptionManager = ISubscriptionManager(_manager);
+        _setSubscriptionManager(_manager);
     }
-    /////////////////////////////////////////
-    // 0 - simple saftNFT subscription     //
-    //   also we can think about it as     // 
-    //   uniq code of this(saft) service   //
-    function _checkAndFixSubscription(address _user, uint256 _serviceCode) internal {
-        if (address(subscriptionManager) != address(0)){
-            require(
-                subscriptionManager.checkAndFixUserSubscription(
-                    _user,
-                    _serviceCode  
-                ),
-                "Has No Subscription for service"
-            );
-        }
-    }   
+    
 }
