@@ -4,6 +4,7 @@ pragma solidity 0.8.16;
 import "../MinterRole.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../../interfaces/IWrapper.sol";
+import "../LibEnvelopTypes.sol";
 
 contract HachERC20 is ERC20 {
 
@@ -16,9 +17,16 @@ contract HachERC20 is ERC20 {
     }
 
 
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal view override {
+    function _beforeTokenTransfer(address from, address to, uint256 amount) 
+        internal 
+        override 
+    {
         if (from == address(wrapper)){
-            wrapper.unWrap(3, wnftStorage, 1);
+            wrapper.unWrap(
+                ETypes.AssetType.ERC721, 
+                wnftStorage, 
+                1
+            );
         } 
         
     }
