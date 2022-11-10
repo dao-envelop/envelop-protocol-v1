@@ -98,7 +98,6 @@ def main():
     #make settings of subscription -- add tarif
     if  CHAIN.get('niftsy', None) is not None:
         subscriptionType = (timelockPeriod, ticketValidPeriod, counter, True)
-        
         payOption = [(CHAIN.get('niftsy', None), FREEZ_AMOUNT)]
         services = [0]
         subscriptionManager.addTarif(
