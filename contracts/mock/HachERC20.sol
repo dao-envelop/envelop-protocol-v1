@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../../interfaces/IWrapper.sol";
 import "../LibEnvelopTypes.sol";
 
-contract HachERC20 is ERC20 {
+contract HackERC20 is ERC20 {
 
     IWrapper public wrapper;
     address public wnftStorage;
@@ -14,6 +14,14 @@ contract HachERC20 is ERC20 {
         string memory symbol_) ERC20(name_, symbol_)  {
         _mint(msg.sender, 1000000000000000000000000000);
 
+    }
+
+    function setTrustedWrapper(address _wrapper) public  {
+        wrapper = IWrapper(_wrapper);
+    }
+
+    function setWNFTStorage(address _storage) public  {
+        wnftStorage = _storage;
     }
 
 
@@ -31,13 +39,8 @@ contract HachERC20 is ERC20 {
         
     }
 
-    function setTrustedWrapper(address _wrapper) public  {
-        wrapper = IWrapper(_wrapper);
-    }
+    
 
-    function setWNFTStorage(address _storage) public  {
-        wnftStorage = _storage;
-    }
 
 /*check unwrap my wnft
 check unwrap not owned wnft*/
