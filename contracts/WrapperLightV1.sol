@@ -561,18 +561,7 @@ contract WrapperLightV1 is
             // dont pop due in some case it c can be very costly
             // https://docs.soliditylang.org/en/v0.8.9/types.html#array-members  
 
-            // For safe exit in case of low gaslimit
-            // this strange part of code can prevent only case 
-            // when when some collateral tokens spent unexpected gas limit
-            if (
-                gasleft() <= 1_000 &&
-                    i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length - 1
-                ) 
-            {
-                emit PartialUnWrapp(_wNFTAddress, _wNFTTokenId, i);
-                //allReturned = false;
-                return false;
-            }
+            
         }
 
         // 5. Return Original
