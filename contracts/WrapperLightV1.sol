@@ -11,23 +11,7 @@ import "../interfaces/IWrapper.sol";
 //import "../interfaces/IAdvancedWhiteList.sol";
 import "./TokenService.sol";
 
-// #### Envelop ProtocolV1 Rules
-// 15   14   13   12   11   10   9   8   7   6   5   4   3   2   1   0  <= Bit number(dec)
-// ------------------------------------------------------------------------------------  
-//  1    1    1    1    1    1   1   1   1   1   1   1   1   1   1   1
-//  |    |    |    |    |    |   |   |   |   |   |   |   |   |   |   |
-//  |    |    |    |    |    |   |   |   |   |   |   |   |   |   |   +-No_Unwrap
-//  |    |    |    |    |    |   |   |   |   |   |   |   |   |   +-No_Wrap 
-//  |    |    |    |    |    |   |   |   |   |   |   |   |   +-No_Transfer
-//  |    |    |    |    |    |   |   |   |   |   |   |   +-No_Collateral
-//  |    |    |    |    |    |   |   |   |   |   |   +-reserved_core
-//  |    |    |    |    |    |   |   |   |   |   +-reserved_core
-//  |    |    |    |    |    |   |   |   |   +-reserved_core  
-//  |    |    |    |    |    |   |   |   +-reserved_core
-//  |    |    |    |    |    |   |   |
-//  |    |    |    |    |    |   |   |
-//  +----+----+----+----+----+---+---+
-//      for use in extendings
+
 /**
  * @title Non-Fungible Token Wrapper
  * @dev Make  wraping for existing ERC721 & ERC1155 and empty 
@@ -111,18 +95,6 @@ contract WrapperLightV1 is
             _collateral
         ); 
          
-        // Charge Fee Hook 
-        // There is No Any Fees in Protocol
-        // So this hook can be used in b2b extensions of Envelop Protocol 
-        // 0x02 - feeType for WrapFee
-        _chargeFees(
-            lastWNFTId[_inData.outType].contractAddress, 
-            lastWNFTId[_inData.outType].tokenId, 
-            msg.sender, 
-            address(this), 
-            0x02
-        );
-        
 
         emit WrappedV1(
             _inData.inAsset.asset.contractAddress,        // inAssetAddress
@@ -191,13 +163,6 @@ contract WrapperLightV1 is
             _checkLocks(_wNFTAddress, _wNFTTokenId)
         );
 
-        // 3. Charge Fee Hook 
-        // There is No Any Fees in Protocol
-        // So this hook can be used in b2b extensions of Envelop Protocol 
-        // 0x03 - feeType for UnWrapFee
-        // 
-        _chargeFees(_wNFTAddress, _wNFTTokenId, msg.sender, address(this), 0x03);
-        
         (uint256 nativeCollateralAmount, ) = getCollateralBalanceAndIndex(
             _wNFTAddress, 
             _wNFTTokenId,
@@ -252,6 +217,7 @@ contract WrapperLightV1 is
         require(_chargeFees(_wNFTAddress, _wNFTTokenId, _from, _to, _feeType),
             "Fee charge fail"
         );
+        // For Light edition
         charged = true;
     }
     /////////////////////////////////////////////////////////////////////
@@ -602,9 +568,9 @@ contract WrapperLightV1 is
         }
     }
      
-    function _checkRule(bytes2 _rule, bytes2 _wNFTrules) internal pure returns (bool) {
-        return _rule == (_rule & _wNFTrules);
-    }
+    // function _checkRule(bytes2 _rule, bytes2 _wNFTrules) internal pure returns (bool) {
+    //     return _rule == (_rule & _wNFTrules);
+    // }
 
     // 0x00 - TimeLock
     // 0x01 - TransferFeeLock -  NOT used in Ligth
@@ -633,11 +599,12 @@ contract WrapperLightV1 is
     {
         // Lets check that inAsset 
         // 0x0002 - this rule disable wrap already wrappednFT (NO matryoshka)
-        enabled = !_checkRule(0x0002, getWrappedToken(
-            _inData.inAsset.asset.contractAddress, 
-            _inData.inAsset.tokenId).rules
-            ) 
-            && _wrappFor != address(this);
+        // enabled = !_checkRule(0x0002, getWrappedToken(
+        //     _inData.inAsset.asset.contractAddress, 
+        //     _inData.inAsset.tokenId).rules
+        //     ) 
+        //     && _wrappFor != address(this);
+        enabled = true;
     }
     
     function _checkAddCollateral(
@@ -661,7 +628,8 @@ contract WrapperLightV1 is
         }
         // Lets check wNFT rules 
         // 0x0008 - this rule disable add collateral
-        enabled = !_checkRule(0x0008, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
+        // enabled = !_checkRule(0x0008, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
+        enabled = true;
     }
 
     function _checkCoreUnwrap(
@@ -676,10 +644,10 @@ contract WrapperLightV1 is
     {
         
         // Lets wNFT rules 
-        // 0x0001 - this rule disable unwrap wrappednFT 
-        require(!_checkRule(0x0001, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules),
-            "UnWrapp forbidden by author"
-        );
+        // 0x0001 - this rule disable unwrap wrappednFT   -not in Light
+        // require(!_checkRule(0x0001, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules),
+        //     "UnWrapp forbidden by author"
+        // );
 
         if (_wNFTType == ETypes.AssetType.ERC721) {
             // Only token owner can UnWrap
