@@ -6,9 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-//import "../interfaces/IFeeRoyaltyModel.sol";
 import "../interfaces/IWrapper.sol";
-//import "../interfaces/IAdvancedWhiteList.sol";
 import "./TokenService.sol";
 
 
@@ -233,9 +231,6 @@ contract WrapperLightV1 is
         wnftTypes[_wnftContract] =  _assetOutType;
     }
 
-    // function setWhiteList(address _wlAddress) external onlyOwner {
-    //     protocolWhiteList = _wlAddress;
-    // }
     /////////////////////////////////////////////////////////////////////
 
 
