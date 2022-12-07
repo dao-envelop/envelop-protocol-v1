@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../interfaces/IWrapper.sol";
 
-//v0.0.1
 contract EnvelopwNFT721Trustless is ERC721Enumerable {
     using Strings for uint256;
     using Strings for uint160;
@@ -53,10 +52,6 @@ contract EnvelopwNFT721Trustless is ERC721Enumerable {
         //require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721Burnable: caller is not owner nor approved");
         _burn(tokenId);
     }
-
-    // function setMinter(address _minter) external onlyOwner {
-    //     wrapperMinter = _minter;
-    // }
 
     /**
      * @dev See {ERC721-_beforeTokenTransfer}.
