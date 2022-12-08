@@ -2,11 +2,6 @@
 // ENVELOP(NIFTSY) protocol V1 for NFT. Wrapper - main protocol contract
 pragma solidity 0.8.16;
 
-// import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-// import "../interfaces/IERC20Extended.sol";
-// import "./LibEnvelopTypes.sol";
-// import "../interfaces/IERC721Mintable.sol";
-// import "../interfaces/IERC1155Mintable.sol";
 import "./TokenService.sol";
 
 abstract contract TokenServiceExtended is TokenService {
