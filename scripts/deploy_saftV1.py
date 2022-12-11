@@ -86,6 +86,23 @@ def main():
         tx_params
     )
 
+     # Print addresses for quick access from console
+    print("----------Deployment artifacts-------------------")
+    print("techERC20 = TechTokenV1.at('{}')".format(techERC20.address))
+    print("saftV1 = BatchWorker.at('{}')".format(saftV1.address))
+    print("subscriptionManager = SubscriptionManagerV1.at('{}')".format(subscriptionManager.address))
+    print("wrapperTrustedV1 = TrustedWrapper.at('{}')".format(wrapperTrustedV1.address))
+    print("wnft1155 = EnvelopwNFT1155.at('{}')".format(wnft1155.address))
+    print("wnft721 = EnvelopwNFT721.at('{}')".format(wnft721.address))
+
+    print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],techERC20.address))
+    print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],saftV1.address))
+    print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],subscriptionManager.address))
+    print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wrapperTrustedV1.address))
+    print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wnft1155.address))
+    print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wnft721.address))
+
+
     #make settings of contracts
     wnft1155.setMinterStatus(wrapperTrustedV1.address, tx_params)
     wnft721.setMinter(wrapperTrustedV1.address, tx_params)
@@ -93,7 +110,7 @@ def main():
     wrapperTrustedV1.setWNFTId(4, wnft1155.address,1, tx_params)
     #wrapperTrustedV1.setWhiteList(whitelist.address, tx_params)
     saftV1.setTrustedWrapper(wrapperTrustedV1.address, tx_params)
-    subscriptionManager.setAgentStatus(saftV1.address, True, {"from": accounts[0]})
+    subscriptionManager.setAgentStatus(saftV1.address, True, tx_params)
 
     #make settings of subscription -- add tarif
     if  CHAIN.get('niftsy', None) is not None:
@@ -110,22 +127,6 @@ def main():
     saftV1.setSubscriptionManager(subscriptionManager.address, tx_params)
 
 
-
-    # Print addresses for quick access from console
-    print("----------Deployment artifacts-------------------")
-    print("techERC20 = TechTokenV1.at('{}')".format(techERC20.address))
-    print("saftV1 = BatchWorker.at('{}')".format(saftV1.address))
-    print("subscriptionManager = SubscriptionManagerV1.at('{}')".format(subscriptionManager.address))
-    print("wrapperTrustedV1 = TrustedWrapper.at('{}')".format(wrapperTrustedV1.address))
-    print("wnft1155 = EnvelopwNFT1155.at('{}')".format(wnft1155.address))
-    print("wnft721 = EnvelopwNFT721.at('{}')".format(wnft721.address))
-
-    print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],techERC20.address))
-    print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],saftV1.address))
-    print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],subscriptionManager.address))
-    print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wrapperTrustedV1.address))
-    print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wnft1155.address))
-    print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wnft721.address))
 
 
     if  web3.eth.chainId in [1,4,5, 137, 43114]:
