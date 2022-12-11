@@ -171,9 +171,7 @@ def mockHacker1155_1(accounts, MaliciousMockERC1155_1):
 
 @pytest.fixture(scope="module")
 def hackERC20(accounts, HackERC20, wrapper, wnft721):
-    h = accounts[0].deploy(HackERC20,"Hacker Reentrancy Token", "HRT")
-    h.setTrustedWrapper(wrapper.address)
-    h.setWNFTStorage(wnft721.address)
+    h = accounts[0].deploy(HackERC20,"Hacker Reentrancy Token", "HRT", wrapper.address, wnft721.address)
     yield h
 
 ###################################################################

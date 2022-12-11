@@ -63,7 +63,10 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
 	dai.transfer(wrapper.address, call_amount, {"from": accounts[0]})
 	weth.transfer(wrapper.address, 2*call_amount, {"from": accounts[0]})
 	hackERC20.transfer(wrapper.address, 3*call_amount, {"from": accounts[0]})
-	#accounts[0].transfer(wrapper.address, eth_amount)
+
+	#try to attack
+	with reverts("Only owner can unwrap it"):
+		wrapper.unWrap(3, wnft721.address, tx.events['WrappedV1']['outTokenId'], {"from": accounts[3]})
 
 
 
