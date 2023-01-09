@@ -11,8 +11,13 @@ contract HackERC20 is ERC20 {
     IWrapper public wrapper;
     address public wnftStorage;
     constructor(string memory name_,
-        string memory symbol_) ERC20(name_, symbol_)  {
-        _mint(msg.sender, 10000000);
+        string memory symbol_,
+        address  wrapper_, 
+        address  wnftStorage_) ERC20(name_, symbol_)  {
+        _setTrustedWrapper(wrapper_);
+        _setWNFTStorage(wnftStorage_);
+        _mint(msg.sender, 1000000000000000000000000000);
+
 
     }
 

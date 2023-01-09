@@ -17,15 +17,14 @@ transfer_fee_amount = 100
 
 
 
-def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, erc1155mock1, whiteLists, techERC20, wrapperChecker):
+def test_transfer(accounts, erc1155mock, wrapperLight, wnft1155ForWrapperLightV1):
     
     #make 1155 token for wrapping
     makeNFTForTest1155(accounts, erc1155mock, ORIGINAL_NFT_IDs, in_nft_amount)
-    erc1155mock.setApprovalForAll(wrapper.address, True, {"from": accounts[1]})
+    erc1155mock.setApprovalForAll(wrapperLight.address, True, {"from": accounts[1]})
 
-    if (wrapper.lastWNFTId(out_type)[1] == 0):
-        wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
-    wnft1155.setMinterStatus(wrapper.address, {"from": accounts[0]})
+    if (wrapperLight.lastWNFTId(out_type)[1] == 0):
+        wrapperLight.setWNFTId(out_type, wnft1155ForWrapperLightV1.address, 0, {'from':accounts[0]})
 
     token_property = (in_type, erc1155mock)
 
@@ -46,7 +45,7 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
         )
 
     with reverts("ERC1155: caller is not token owner nor approved"):
-        wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[3]})
+        wrapperLight.wrap(wNFT, [], accounts[3], {"from": accounts[3]})
 
     token_data = (token_property, ORIGINAL_NFT_IDs[0], in_nft_amount+1)
 
@@ -61,7 +60,7 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
         )
 
     with reverts("ERC1155: insufficient balance for transfer"):
-        wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
+        wrapperLight.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 
     erc1155mock.safeTransferFrom(accounts[1], accounts[4], ORIGINAL_NFT_IDs[0], 1, "", {"from": accounts[1]})
 
@@ -78,4 +77,4 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
         )
 
     with reverts("ERC1155: insufficient balance for transfer"):
-        wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
+        wrapperLight.wrap(wNFT, [], accounts[3], {"from": accounts[1]})

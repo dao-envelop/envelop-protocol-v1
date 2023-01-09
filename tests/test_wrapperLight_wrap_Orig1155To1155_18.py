@@ -17,21 +17,20 @@ transfer_fee_amount = 1
 
 
 #transfer with fee without royalty
-def test_transfer(accounts, erc1155mock, wrapper, wnft1155, whiteLists, techERC20, erc721mock):
+def test_transfer(accounts, erc1155mock, wrapperLight, wnft1155ForWrapperLightV1, erc721mock):
 
     #make 1155 token for wrapping
     makeNFTForTest1155(accounts, erc1155mock, ORIGINAL_NFT_IDs, in_nft_amount)
-    erc1155mock.setApprovalForAll(wrapper.address,True,  {"from": accounts[1]})
+    erc1155mock.setApprovalForAll(wrapperLight.address,True,  {"from": accounts[1]})
 
     #make 721 token for transfer fee
     makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
     erc721mock.transferFrom(accounts[0], accounts[3], ORIGINAL_NFT_IDs[1], {"from": accounts[0]})
-    erc721mock.approve(wrapper.address, ORIGINAL_NFT_IDs[1], {"from": accounts[3]})
+    erc721mock.approve(wrapperLight.address, ORIGINAL_NFT_IDs[1], {"from": accounts[3]})
 
 
-    if (wrapper.lastWNFTId(out_type)[1] == 0):
-        wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
-    wnft1155.setMinterStatus(wrapper.address, {"from": accounts[0]})
+    if (wrapperLight.lastWNFTId(out_type)[1] == 0):
+        wrapperLight.setWNFTId(out_type, wnft1155ForWrapperLightV1.address, 0, {'from':accounts[0]})
 
     token_property = (in_type, erc1155mock)
 
@@ -39,7 +38,7 @@ def test_transfer(accounts, erc1155mock, wrapper, wnft1155, whiteLists, techERC2
     
     fee = [(Web3.toBytes(0x00), transfer_fee_amount, erc721mock.address)]
     lock = []
-    royalty = [(wrapper.address, 10000)]
+    royalty = [(wrapperLight.address, 10000)]
 
     wNFT = ( token_data,
         accounts[2],
@@ -52,20 +51,14 @@ def test_transfer(accounts, erc1155mock, wrapper, wnft1155, whiteLists, techERC2
         )
 
 
-    #switch on white list
-    wrapper.setWhiteList(whiteLists.address, {"from": accounts[0]})
+    tx = wrapperLight.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 
-    #transferFee flag is switched on
-    wl_data = (True, False, False, techERC20.address)
-    whiteLists.setWLItem((3, erc721mock.address), wl_data, {"from": accounts[0]})
+    assert erc1155mock.balanceOf(wrapperLight.address, ORIGINAL_NFT_IDs[0]) == in_nft_amount
 
-    tx = wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
-
-    assert erc1155mock.balanceOf(wrapper.address, ORIGINAL_NFT_IDs[0]) == in_nft_amount
-
-    wTokenId = wrapper.lastWNFTId(out_type)[1]
+    wTokenId = wrapperLight.lastWNFTId(out_type)[1]
 
 
     #fee is erc721 token. It is absurd, but we check the case
-    with reverts("ERC721: invalid token ID"):
-        wnft1155.safeTransferFrom(accounts[3], accounts[2], wTokenId, out_nft_amount, "",  {"from": accounts[3]})
+    wnft1155ForWrapperLightV1.safeTransferFrom(accounts[3], accounts[2], wTokenId, out_nft_amount, "",  {"from": accounts[3]})
+
+    assert wnft1155ForWrapperLightV1.balanceOf(accounts[2], wTokenId) == out_nft_amount

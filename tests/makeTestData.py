@@ -402,3 +402,161 @@ def makeFromERC1155ToERC721WithoutCollateral(accounts, erc1155mock, wrapper, wnf
         assert wNFT[6] == '0x0' 
 
     return wrapper.lastWNFTId(out_type)[1]
+
+################################## make wNFT WITHOUT COLLATERAL - for Light protocol version ##################################
+def makeFromERC1155ToERC1155WithoutCollateralLight(accounts, erc1155mock, wrapper, wnft1155, niftsy20, ORIGINAL_NFT_ID, in_nft_amount, out_nft_amount, wrappFor):
+    in_type = 4
+    out_type = 4
+
+    erc1155mock.setApprovalForAll(wrapper.address,True, {'from':accounts[1]})
+
+    if (wrapper.lastWNFTId(out_type)[1] == 0):
+        wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
+
+    erc1155_property = (in_type, erc1155mock.address)
+
+    erc1155_data = (erc1155_property, ORIGINAL_NFT_ID, in_nft_amount)
+    
+    fee = []
+    lock = []
+    royalty = []
+
+    wNFT = ( erc1155_data,
+        accounts[2],
+        fee,
+        lock,
+        royalty,
+        out_type,
+        out_nft_amount,
+        '0'
+        )
+
+    wrapper.wrap(wNFT, [], wrappFor, {"from": accounts[1]})
+    return wrapper.lastWNFTId(out_type)[1]
+
+################################## make wNFT WITH COLLATERAL - for Light protocol version ##################################
+def makeFromERC1155ToERC1155Light(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, ORIGINAL_NFT_ID, in_nft_amount, out_nft_amount, wrappFor):
+    #make wrap NFT with determined collateral
+    in_type = 4
+    out_type = 4
+
+    erc1155mock.setApprovalForAll(wrapper.address,True, {'from':accounts[1]})
+    dai.transfer(accounts[1], call_amount, {"from": accounts[0]})
+    weth.transfer(accounts[1], 2*call_amount, {"from": accounts[0]})
+
+    dai.approve(wrapper.address, call_amount, {'from':accounts[1]})
+    weth.approve(wrapper.address, 2*call_amount, {'from':accounts[1]})
+
+    if (wrapper.lastWNFTId(out_type)[1] == 0):
+        wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
+
+    erc1155_property = (in_type, erc1155mock.address)
+    dai_property = (2, dai.address)
+    weth_property = (2, weth.address)
+    eth_property = (1, zero_address)
+
+    erc1155_data = (erc1155_property, ORIGINAL_NFT_ID, in_nft_amount)
+    dai_data = (dai_property, 0, Wei(call_amount))
+    weth_data = (weth_property, 0, Wei(2*call_amount))
+    eth_data = (eth_property, 0, Wei(eth_amount))
+
+    fee = []
+    lock = []
+    royalty = []
+
+    wNFT = ( erc1155_data,
+        accounts[2],
+        fee,
+        lock,
+        royalty,
+        out_type,
+        out_nft_amount,
+        '0'
+        )
+
+    wrapper.wrap(wNFT, [dai_data, weth_data, eth_data], wrappFor, {"from": accounts[1], "value": eth_amount})
+    return wrapper.lastWNFTId(out_type)[1]
+
+################################## make wNFT WITHOUT COLLATERAL - for Light protocol version ##################################
+def makeFromERC721ToERC721WithoutCollateralLight(accounts, erc721mock, wrapper, wnft721, niftsy20, ORIGINAL_NFT_ID, wrappFor):
+    in_type = 3
+    out_type = 3
+
+    erc721mock.setApprovalForAll(wrapper.address, True, {'from':accounts[1]})
+    
+    if (wrapper.lastWNFTId(out_type)[1] == 0):
+        wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
+
+    erc721_property = (in_type, erc721mock.address)
+    
+    erc721_data = (erc721_property, ORIGINAL_NFT_ID, 1)
+
+    fee = []
+    lock = []
+    royalty = []
+
+    wNFT = ( erc721_data,
+        accounts[2],
+        fee,
+        lock,
+        royalty,
+        out_type,
+        0,
+        '0'
+        )
+
+    assert erc721mock.ownerOf(ORIGINAL_NFT_ID) == accounts[1]
+    assert erc721mock.isApprovedForAll(accounts[1], wrapper.address) == True
+
+
+    wrapper.wrap(wNFT, [], wrappFor, {"from": accounts[1]})
+    return wrapper.lastWNFTId(out_type)[1]
+
+################################## make wNFT WITH COLLATERAL - for Light protocol version ##################################
+def makeFromERC721ToERC721Light(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, ORIGINAL_NFT_ID, wrappFor):
+    #make wrap NFT with determined collateral
+    in_type = 3
+    out_type = 3
+
+    erc721mock.setApprovalForAll(wrapper.address, True, {'from':accounts[1]})
+    dai.transfer(accounts[1], call_amount, {"from": accounts[0]})
+    weth.transfer(accounts[1], 2*call_amount, {"from": accounts[0]})
+
+    dai.approve(wrapper.address, call_amount, {'from':accounts[1]})
+    weth.approve(wrapper.address, 2*call_amount, {'from':accounts[1]})
+
+    if (wrapper.lastWNFTId(out_type)[1] == 0):
+        wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
+
+    erc721_property = (in_type, erc721mock.address)
+    dai_property = (2, dai.address)
+    weth_property = (2, weth.address)
+    eth_property = (1, zero_address)
+
+    erc721_data = (erc721_property, ORIGINAL_NFT_ID, 1)
+    dai_data = (dai_property, 0, Wei(call_amount))
+    weth_data = (weth_property, 0, Wei(2*call_amount))
+    eth_data = (eth_property, 0, Wei(eth_amount))
+
+    fee = []
+    lock = []
+    royalty = []
+
+    wNFT = ( erc721_data,
+        accounts[2],
+        fee,
+        lock,
+        royalty,
+        out_type,
+        0,
+        '0'
+        )
+
+    assert erc721mock.ownerOf(ORIGINAL_NFT_ID) == accounts[1]
+    assert erc721mock.isApprovedForAll(accounts[1], wrapper.address) == True
+
+
+    wrapper.wrap(wNFT, [dai_data, weth_data, eth_data], wrappFor, {"from": accounts[1], "value": eth_amount})
+    return wrapper.lastWNFTId(out_type)[1]
+
+

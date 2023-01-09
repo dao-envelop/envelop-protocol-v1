@@ -288,3 +288,34 @@ def swapWrapper(accounts, WrapperRemovableAdvanced, swapChecker, swapTechERC20):
     sw.setTrustedAddress(accounts[0], True)
     sw.setCheckerAddress(swapChecker)
     yield sw
+
+#######################light version of protocol########################3
+@pytest.fixture(scope="module")
+def wrapperLight(accounts, WrapperLightV1):
+    w = accounts[0].deploy(WrapperLightV1)
+    yield w
+
+@pytest.fixture(scope="module")
+def wnft721ForWrapperLightV1(accounts, EnvelopwNFT721Trustless, wrapperLight):
+    wnft = accounts[0].deploy(EnvelopwNFT721Trustless,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", wrapperLight.address )
+    yield wnft
+
+@pytest.fixture(scope="module")
+def wnft1155ForWrapperLightV1(accounts, EnvelopwNFT1155Trustless, wrapperLight):
+    wnft = accounts[0].deploy(EnvelopwNFT1155Trustless,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", wrapperLight.address)
+    yield wnft
+
+@pytest.fixture(scope="module")
+def wrapperCheckerLightV1(accounts, WrapperChecker, wrapperLight):
+    t = accounts[0].deploy(WrapperChecker, wrapperLight.address)
+    yield t  
+
+@pytest.fixture(scope="module")
+def wnft1155ForWrapperLightV1_1(accounts, EnvelopwNFT1155Trustless, wrapperLight):
+    wnft = accounts[0].deploy(EnvelopwNFT1155Trustless,"Envelop wNFT_1", "eNFT1", "https://api.envelop.is/metadata/", wrapperLight.address)
+    yield wnft
+
+@pytest.fixture(scope="module")
+def hackERC20LightV1(accounts, HackERC20, wrapperLight, wnft721ForWrapperLightV1):
+    h = accounts[0].deploy(HackERC20,"Hacker Reentrancy Token", "HRT", wrapperLight.address, wnft721ForWrapperLightV1.address)
+    yield h

@@ -61,5 +61,6 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
 
     erc1155mock.setApprovalForAll(wrapper.address, True, {"from": accounts[3]})
     erc1155mock.safeTransferFrom(accounts[0], accounts[3], ORIGINAL_NFT_IDs[1], 1, "",  {"from": accounts[0]} )
+    #fee is erc1155 token. It is absurd but we ckeck the case
     with reverts(""):
         wnft1155.safeTransferFrom(accounts[3], accounts[2], wTokenId, out_nft_amount, "",  {"from": accounts[3]})

@@ -45,12 +45,6 @@ def test_transfer(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, e
         )
 
 
-    #switch on white list
-    wrapper.setWhiteList(whiteLists.address, {"from": accounts[0]})
-    
-    wl_data = (True, True, False, techERC20.address)
-    whiteLists.setWLItem((2, niftsy20.address), wl_data, {"from": accounts[0]})
-
     wrapper.wrap(wNFT, [], accounts[2], {"from": accounts[1]})
 
     niftsy20.approve(wrapper.address, transfer_fee_amount, {"from": accounts[2]})
