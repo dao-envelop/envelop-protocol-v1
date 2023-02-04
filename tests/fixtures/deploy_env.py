@@ -228,6 +228,16 @@ def NFTMinter1155(accounts, EnvelopUsers1155Swarm):
     yield NFTMinter1155
 
 @pytest.fixture(scope="module")
+def NFTMinterUni(accounts, EnvelopUsers721UniStorageEnum):
+    NFTMinter = accounts[0].deploy(EnvelopUsers721UniStorageEnum,"Envelop NFT Uni Storage", "eNFT", "https://api.envelop.is/metadata/", 100)
+    yield NFTMinter    
+
+@pytest.fixture(scope="module")
+def NFTMinter1155Uni(accounts, EnvelopUsers1155UniStorage):
+    NFTMinter1155 = accounts[0].deploy(EnvelopUsers1155UniStorage,"Envelop NFT Uni Storage", "eNFT", "https://api.envelop.is/metadata/", 200)
+    yield NFTMinter1155
+
+@pytest.fixture(scope="module")
 def MockManager(accounts, MockSubscriptionManager):
     MockManager = accounts[0].deploy(MockSubscriptionManager)
     yield MockManager
