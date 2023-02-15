@@ -26,7 +26,7 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 		accounts[1], 
 		[], #fee
 		[('0x00', chain.time() + 100)], #timelock
-		[(accounts[1], 10000),(multisig, 0)], #royalty --!! special case
+		[(accounts[1], 10000), (multisig, 0)], #royalty --!! special case
 		out_type, 
 		0,
 		Web3.toBytes(0x0004) #rules (no transferable)
@@ -51,7 +51,35 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 	dai.transfer(accounts[1], 2*call_amount, {"from": accounts[0]})
 
 	#wrap
+	with reverts("Trusted multisig not found in royalty"):
+		tx = swapWrapper.wrap(wNFT, [((2, niftsy20.address), 0, call_amount), ((2, dai.address), 0, 2*call_amount)], accounts[1], {"from": accounts[1]})
+
+	wNFT = ( ((0, zero_address), 0,0), #empty
+		accounts[1], 
+		[], #fee
+		[('0x00', chain.time() + 100)], #timelock
+		[(multisig, 0), (accounts[1], 10000)], #royalty --!! special case
+		out_type, 
+		0,
+		Web3.toBytes(0x0004) #rules (no transferable)
+	)
+
+	#wrap
+	with reverts("Trusted multisig not found in royalty"):
+		tx = swapWrapper.wrap(wNFT, [((2, niftsy20.address), 0, call_amount), ((2, dai.address), 0, 2*call_amount)], accounts[1], {"from": accounts[1]})
+
+	wNFT = ( ((0, zero_address), 0,0), #empty
+		accounts[1], 
+		[], #fee
+		[('0x00', chain.time() + 100)], #timelock
+		[(multisig, 0)], #royalty --!! special case
+		out_type, 
+		0,
+		Web3.toBytes(0x0004) #rules (no transferable)
+	)
+
 	tx = swapWrapper.wrap(wNFT, [((2, niftsy20.address), 0, call_amount), ((2, dai.address), 0, 2*call_amount)], accounts[1], {"from": accounts[1]})
+
 
 	wTokenId = tx.events['WrappedV1']['outTokenId']
 	assert swapWnft721.ownerOf(wTokenId) == accounts[1]
@@ -64,11 +92,13 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 
 	#remove removable token - NOT MULTISIG REMOVES!!!!!!!
 	before_balance_w  = niftsy20.balanceOf(swapWrapper)
-	before_balance_acc  = niftsy20.balanceOf(accounts[1])
-	swapWrapper.removeERC20CollateralAmount(swapWnft721.address, wTokenId, niftsy20.address, 1, {"from": accounts[1]})
+	before_balance_m  = niftsy20.balanceOf(multisig)
+	with reverts("Sender is not in beneficiary list"):
+		swapWrapper.removeERC20CollateralAmount(swapWnft721.address, wTokenId, niftsy20.address, 1, {"from": accounts[1]})
+
+	swapWrapper.removeERC20CollateralAmount(swapWnft721.address, wTokenId, niftsy20.address, 1, {"from": multisig})
 
 	assert niftsy20.balanceOf(swapWrapper) == before_balance_w - 1
-	assert niftsy20.balanceOf(accounts[1]) == before_balance_acc + 1
-	assert accounts[1].address != multisig.address
+	assert niftsy20.balanceOf(multisig) == before_balance_m + 1
 
 	
