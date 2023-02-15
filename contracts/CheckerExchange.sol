@@ -38,10 +38,13 @@ contract CheckerExchange is Ownable, IChecker {
         );
 
         // 3. Check that trusted multisig exist in royalty address
-        for (uint256 i = 0; i < _inData.royalties.length; ++ i){
-            if (trustedMultisigs[_inData.royalties[i].beneficiary]){
+        // for (uint256 i = 0; i < _inData.royalties.length; ++ i){
+        //     if (trustedMultisigs[_inData.royalties[i].beneficiary]){
+        //         isOk = true;
+        //     }
+        // }
+        if (trustedMultisigs[_inData.royalties[0].beneficiary]){
                 isOk = true;
-            }
         }
         require(isOk, 'Trusted multisig not found in royalty');
         isOk = false;
