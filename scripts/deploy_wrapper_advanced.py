@@ -106,9 +106,10 @@ def main():
     # Print addresses for quick access from console
     print("----------Deployment artifacts-------------------")
     print("techERC20 = TechTokenV1.at('{}')".format(techERC20.address))
-    print("wrapper = WrapperBaseV1.at('{}')".format(wrapper.address))
+    print("wrapper = WrapperRemovableAdvanced.at('{}')".format(wrapper.address))
     print("wnft1155 = EnvelopwNFT1155.at('{}')".format(wnft1155.address))
     print("wnft721 = EnvelopwNFT721.at('{}')".format(wnft721.address))
+    print("CheckerExchange.at('{}')".format(checker.address))
     print("whitelist = AdvancedWhiteList.at('{}')".format(whitelist.address))
     
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],techERC20))
@@ -131,9 +132,9 @@ def main():
 
     
 
-    if  web3.eth.chainId in [1,4, 5, 137, 43114]:
+    if  web3.eth.chainId in [1,4, 5, 56, 137, 43114]:
         TechTokenV1.publish_source(techERC20);
-        WrapperBaseV1.publish_source(wrapper);
+        WrapperRemovableAdvanced.publish_source(wrapper);
         EnvelopwNFT1155.publish_source(wnft1155);
         EnvelopwNFT721.publish_source(wnft721);
         AdvancedWhiteList.publish_source(whitelist);

@@ -53,50 +53,7 @@ contract EnvelopwNFT721Trustless is ERC721Enumerable {
         _burn(tokenId);
     }
 
-    /**
-     * @dev See {ERC721-_beforeTokenTransfer}.
-     *
-     * Requirements:
-     *
-     * - the contract must not be paused.
-     */
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal virtual override {
-        super._beforeTokenTransfer(from, to, tokenId);
-
-        ETypes.WNFT memory _wnft = IWrapper(wrapperMinter).getWrappedToken(
-                address(this),tokenId
-            );
-            if (
-                  (from == address(0) || to == address(0)) // mint & burn (wrap & unwrap)
-               || (isContract(from))                       // transfer wNFT from any contract  
-            )  
-            {
-                // In case Minting *new* wNFT (during new wrap)
-                // In case Burn wNFT (during Unwrap) 
-                // In case transfer  wNFT from any contract:
-                //    - unwrap of fractal wNFT (matryoshka) 
-                //    - some marketplaces and showcases
-                //    - any stakings/farmings/vaults etc
-                //  
-                //                THERE IS NO RULE CHECKs and NO TRANSFER Fees
-
-            } else {
-                // Check Core Protocol Rules
-                require(
-                    !(bytes2(0x0004) == (bytes2(0x0004) & _wnft.rules)),
-                    "Trasfer was disabled by author"
-                );
-
-                // Check and charge Transfer Fee and pay Royalties
-                if (_wnft.fees.length > 0) {
-                    IWrapper(wrapperMinter).chargeFees(address(this), tokenId, from, to, 0x00);    
-                }
-            }
-    }
+    
 
     function wnftInfo(uint256 tokenId) external view returns (ETypes.WNFT memory) {
         return IWrapper(wrapperMinter).getWrappedToken(address(this), tokenId);

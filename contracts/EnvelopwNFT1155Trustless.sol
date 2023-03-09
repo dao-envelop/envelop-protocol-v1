@@ -60,46 +60,7 @@ contract EnvelopwNFT1155Trustless is ERC1155Supply {
         _burn(_from, _tokenId, _amount);
     }
 
-    function _beforeTokenTransfer(
-        address operator,
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal  override {
-        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
-        for (uint256 i = 0; i < ids.length; ++i) {
-            ETypes.WNFT memory _wnft = IWrapper(wrapper).getWrappedToken(
-                address(this),ids[i]
-            );
-            if (
-                  (from == address(0) || to == address(0)) // mint & burn (wrap & unwrap)
-               || (isContract(from))                       // transfer wNFT from any contract  
-            )  
-            {
-                // In case Minting *new* wNFT (during new wrap)
-                // In case Burn wNFT (during Unwrap) 
-                // In case transfer  wNFT from any contract:
-                //    - unwrap of fractal wNFT (matryoshka) 
-                //    - some marketplaces and showcases
-                //    - any stakings/farmings/vaults etc
-                //  
-                //                THERE IS NO RULE CHECKs and NO TRANSFER Fees
-            } else {
-                // Check Core Protocol Rules
-                require(
-                    !(bytes2(0x0004) == (bytes2(0x0004) & _wnft.rules)),
-                    "Trasfer was disabled by author"
-                );
 
-                // Check and charge Transfer Fee and pay Royalties
-                if (_wnft.fees.length > 0) {
-                    IWrapper(wrapper).chargeFees(address(this), ids[i], from, to, 0x00);    
-                }
-            }
-        }
-    }
     
     function wnftInfo(uint256 tokenId) external view returns (ETypes.WNFT memory) {
         return IWrapper(wrapper).getWrappedToken(address(this), tokenId);

@@ -98,5 +98,5 @@ def test_wrap(accounts, erc721mock, wrapperLight, wnft721ForWrapperLightV1, nift
 
     wrapperLight.unWrap(wnft721ForWrapperLightV1, wTokenId, {"from": accounts[5]})
 
-    assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[5]
+    assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[1]) == accounts[5]
     assert niftsy20.balanceOf(accounts[5]) == 1e18
