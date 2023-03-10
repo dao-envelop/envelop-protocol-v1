@@ -85,6 +85,6 @@ def test_wrapBatch(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, w
         receiverS.append(accounts[0].address)
 
     #wrap batch
-    #with reverts("Unknown agent"):
-    tx = saftV1.wrapBatch(inDataS, [], receiverS, {"from": accounts[0]})
+    with reverts("Unknown agent"):
+        tx = saftV1.wrapBatch(inDataS, [], receiverS, {"from": accounts[0]})
 
