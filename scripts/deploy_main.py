@@ -1,21 +1,16 @@
 from brownie import *
 import json
 
-'''if  (web3.eth.chainId != 56 
-    and web3.eth.chainId != 1 
-    and web3.eth.chainId != 137
-    and web3.eth.chainId != 43114):
+if  web3.eth.chain_id in [4, 5, 97]:
     # Testnets
-    private_key='???'
-else:
-    # Mainnet
-    private_key=input('PLease input private key for deployer address..:')
-accounts.clear() 
-accounts.add(private_key)'''
+    #private_key='???'
+    accounts.load('tone');
+elif web3.eth.chain_id in [1,56,137, 42161]:
+    accounts.load('envdeployer')
 
-accounts.load("secret2")
 
-print('Deployer:{}'.format(accounts[0]))
+
+print('Deployer:{}, balance: {} eth'.format(accounts[0],Wei(accounts[0].balance()).to('ether') ))
 print('web3.eth.chain_id={}'.format(web3.eth.chainId))
 
 ETH_MAIN_ERC20_COLLATERAL_TOKENS = [
@@ -62,6 +57,12 @@ AVALANCHE_MAIN_ERC20_COLLATERAL_TOKENS = [
 TRON_MAIN_ERC20_COLLATERAL_TOKENS = [
 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',  #USDT
 ]
+ARBITRUM_ONE_MAIN_ERC20_COLLATERAL_TOKENS = [
+
+'0x120e49d7ab1EDc0bFBF509Fa8566ca5b5dCAAd40',  #NIFTSY
+'0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',  #USDT
+]
+
 
 
 
@@ -73,6 +74,7 @@ CHAIN = {
     56:{'explorer_base':'bscscan.com', 'enabled_erc20': BSC_MAIN_ERC20_COLLATERAL_TOKENS},
     97:{'explorer_base':'testnet.bscscan.com', 'enabled_erc20': BSC_TESTNET_ERC20_COLLATERAL_TOKENS},
     137:{'explorer_base':'polygonscan.com', 'enabled_erc20': POLYGON_MAIN_ERC20_COLLATERAL_TOKENS},
+    42161:{'explorer_base':'arbiscan.io', 'enabled_erc20': ARBITRUM_ONE_MAIN_ERC20_COLLATERAL_TOKENS},
     80001:{'explorer_base':'mumbai.polygonscan.com', },  
     43114:{'explorer_base':'cchain.explorer.avax.network', 'enabled_erc20': AVALANCHE_MAIN_ERC20_COLLATERAL_TOKENS},
     43113:{'explorer_base':'cchain.explorer.avax-test.network', },
@@ -84,7 +86,6 @@ if web3.eth.chainId in  [1,4,5]:
     tx_params={'from':accounts[0], 'priority_fee': chain.priority_fee}
 
 def main():
-    print('Deployer account= {}'.format(accounts[0]))
     techERC20 = TechTokenV1.deploy(tx_params)
     #techERC20 = TechTokenV1.at('0x7e4Be057C70657C71dEc4716A2fD23BEad0Ad4Eb')
     wrapper   = WrapperBaseV1.deploy(techERC20.address,tx_params) 
@@ -105,19 +106,6 @@ def main():
 
     whitelist = AdvancedWhiteList.deploy(tx_params)
     #wnft1155 = EnvelopwNFT1155.at('0xf294ab4B27f27cC619E2EfF2db5077A7D995A1FC')
-    #Init
-    #techERC20.addMinter(wrapper.address, {'from': accounts[0]})
-    wnft1155.setMinterStatus(wrapper.address, tx_params)
-    wnft721.setMinter(wrapper.address, tx_params)
-    wrapper.setWNFTId(3, wnft721.address, 1, tx_params)
-    wrapper.setWNFTId(4, wnft1155.address,1, tx_params)
-    wrapper.setWhiteList(whitelist.address, tx_params)
-    
-    
-    
-
-
-
     # Print addresses for quick access from console
     print("----------Deployment artifacts-------------------")
     print("techERC20 = TechTokenV1.at('{}')".format(techERC20.address))
@@ -131,8 +119,22 @@ def main():
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wnft1155))
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wnft721))
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],whitelist))
+    #Init
+    #techERC20.addMinter(wrapper.address, {'from': accounts[0]})
+    wnft1155.setMinterStatus(wrapper.address, tx_params)
+    wnft721.setMinter(wrapper.address, tx_params)
+    wrapper.setWNFTId(3, wnft721.address, 1, tx_params)
+    wrapper.setWNFTId(4, wnft1155.address,1, tx_params)
+    wrapper.setWhiteList(whitelist.address, tx_params)
+    
+    
+    
 
-    if  web3.eth.chainId in [1,4, 5, 137, 43114]:
+
+
+    
+
+    if  web3.eth.chainId in [1,4, 5, 137, 42161, 43114]:
         TechTokenV1.publish_source(techERC20);
         WrapperBaseV1.publish_source(wrapper);
         EnvelopwNFT1155.publish_source(wnft1155);
@@ -142,5 +144,5 @@ def main():
     if len(CHAIN.get('enabled_erc20', [])) > 0:
         print('Enabling collateral...')
         for erc in CHAIN.get('enabled_erc20', []):
-            whitelist.setWLItem(erc, (True, True, True, techERC20) ,tx_params)
+            whitelist.setWLItem((2,erc), (True, True, True, techERC20) ,tx_params)
 
