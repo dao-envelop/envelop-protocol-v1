@@ -53,7 +53,9 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
             dexForChain.assetForTreasury = 0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735; //DAI
 
         } else if (block.chainid == 56) {
-            //dexForChain.nativeAsset = ; //  ???
+            dexForChain.router  = 0x10ED43C718714eb63d5aA57B78B54704E256024E;
+            dexForChain.factory = 0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73;
+            dexForChain.nativeAsset      = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c ; // WBNB
             dexForChain.assetForTreasury =  0x55d398326f99059fF775485246999027B3197955; //USDT BSC
 
         }
@@ -79,10 +81,10 @@ contract UnitBoxPlatform is Ownable, IUnitBox{
         }
     }
 
-    /// @notice Just for wrap batch of nfts in one transaction
+    /// @notice Just for wrap nft
     /// @dev You can use `prepareMessage` function from  this contract
     /// before make sign
-    /// @param _inData array of ETypes.INData
+    /// @param _inData encoded ETypes.INData
     /// @param _nonce just uniq identifier against any kind of double spend
     /// @param _signature subj
     function wrapForRent(

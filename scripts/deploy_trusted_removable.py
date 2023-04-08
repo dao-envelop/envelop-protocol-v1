@@ -3,24 +3,15 @@ import json
 import time
 
 
-accounts.load('secret2')
-'''if  web3.eth.chain_id in [4, 97]:
+if  web3.eth.chain_id in [4, 5, 97]:
     # Testnets
     #private_key='???'
-    accounts.load('tzero');
-elif web3.eth.chain_id in [1,56,137]:
-    accounts.load('envdeployer')
-    
-    pass'''
-#else:
-    #my local ganache
-    # Mainnet
-    #private_key=input('PLease input private key for deployer address..:')
-#accounts.clear()    
-#accounts.add(private_key)
+    accounts.load('ttwo');
+elif web3.eth.chain_id in [1,56,137, 42161]:
+    accounts.load('env_unitbox')
 
 
-print('Deployer:{}'.format(accounts[0]))
+print('Deployer:{}, balance: {} eth'.format(accounts[0],Wei(accounts[0].balance()).to('ether') ))
 print('web3.eth.chain_id={}'.format(web3.eth.chainId))
 
 ETH_MAIN_ERC20_COLLATERAL_TOKENS = [
@@ -53,9 +44,11 @@ BSC_TESTNET_ERC20_COLLATERAL_TOKENS = [
 ]
 
 BSC_MAIN_ERC20_COLLATERAL_TOKENS = [
+'0x7728cd70b3dD86210e2bd321437F448231B81733', #NIFTSI ERC20
 '0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3',  #DAI
 '0x55d398326f99059fF775485246999027B3197955',  #USDT
 '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',  #USDC
+'0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c'
 ]
 
 POLYGON_MAIN_ERC20_COLLATERAL_TOKENS = [
@@ -127,15 +120,6 @@ def main():
     whitelist = AdvancedWhiteList.deploy(tx_params)
     #whitelist = AdvancedWhiteList.at('')
     unitbox = UnitBoxPlatform.deploy(wrapper, tx_params);
-    #Init
-    wnft1155.setMinterStatus(wrapper.address, tx_params)
-    wnft721.setMinter(wrapper.address, tx_params)
-    wrapper.setWNFTId(3, wnft721.address, 1, tx_params)
-    wrapper.setWNFTId(4, wnft1155.address,1, tx_params)
-    wrapper.setWhiteList(whitelist.address, tx_params)
-    wrapper.setTrustedAddress(unitbox.address, True, tx_params)
-
-
     # Print addresses for quick access from console
     print("----------Deployment artifacts-------------------")
     print("techERC20 = TechTokenV1.at('{}')".format(techERC20.address))
@@ -152,19 +136,31 @@ def main():
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],whitelist))
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],unitbox))
 
-    '''if  web3.eth.chainId in [1,4, 137, 43114]:
+    #Init
+    wnft1155.setMinterStatus(wrapper.address, tx_params)
+    wnft721.setMinter(wrapper.address, tx_params)
+    wrapper.setWNFTId(3, wnft721.address, 1, tx_params)
+    wrapper.setWNFTId(4, wnft1155.address,1, tx_params)
+    wrapper.setWhiteList(whitelist.address, tx_params)
+    wrapper.setTrustedAddress(unitbox.address, True, tx_params)
+
+
+    
+
+    if  web3.eth.chainId in [1,5, 56, 137, 43114]:
         TechTokenV1.publish_source(techERC20);
-        WrapperBaseV1.publish_source(wrapper);
+        TrustedWrapperRemovable.publish_source(wrapper);
         EnvelopwNFT1155.publish_source(wnft1155);
         EnvelopwNFT721.publish_source(wnft721);
         AdvancedWhiteList.publish_source(whitelist);
-        UnitBoxPlatform.publish_source(unitbox);'''
+        UnitBoxPlatform.publish_source(unitbox);
 
-    if len(CHAIN.get('enabled_erc20', [])) > 0:
-        print('Enabling collateral...')
-        for erc in CHAIN.get('enabled_erc20', []):
-            whitelist.setWLItem(erc, (True, True, True, techERC20) ,tx_params)
-
+    #if len(CHAIN.get('enabled_erc20', [])) > 0:
+    print('Enabling collateral...')
+    for erc in CHAIN.get('enabled_erc20', []):
+        whitelist.setWLItem((2, erc), (True, True, True, techERC20) ,tx_params)
+    
+    #TODO set tresure and collateral status
 #for unitbox
 #ropsten
 #techERC20 = TechTokenV1.at('0x3AEe8a578021E5082cd00634B55af984A0D8D386')
