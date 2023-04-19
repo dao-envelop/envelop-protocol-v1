@@ -44,25 +44,24 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
     }
 
     function removeWLItem(ETypes.Asset calldata _asset) external onlyOwner {
-        uint256 deletedIndex;
         for (uint256 i = 0; i < whiteListedArray.length; i ++) {
             if (whiteListedArray[i].contractAddress == _asset.contractAddress){
-                deletedIndex = i;
+                // Check that deleting item is not last array member
+                // because in solidity we can remove only last item from array
+                if (i != whiteListedArray.length - 1) {
+                    // just replace deleted item with last item
+                    whiteListedArray[i] = whiteListedArray[whiteListedArray.length - 1];
+                } 
+                whiteListedArray.pop();
+                delete whiteList[_asset.contractAddress];
+                emit WhiteListItemChanged(
+                    _asset.contractAddress, 
+                    false, false, false, address(0)
+                );
                 break;
             }
         }
-        // Check that deleting item is not last array member
-        // because in solidity we can remove only last item from array
-        if (deletedIndex != whiteListedArray.length - 1) {
-            // just replace deleted item with last item
-            whiteListedArray[deletedIndex] = whiteListedArray[whiteListedArray.length - 1];
-        } 
-        whiteListedArray.pop();
-        delete whiteList[_asset.contractAddress];
-        emit WhiteListItemChanged(
-            _asset.contractAddress, 
-            false, false, false, address(0)
-        );
+        
     }
 
     function setBLItem(ETypes.Asset calldata _asset, bool _isBlackListed) external onlyOwner {
@@ -76,22 +75,19 @@ contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
             // There is no this address in array so  just add it
             blackListedArray.push(_asset);
         } else {
-            uint256 deletedIndex;
             for (uint256 i = 0; i < blackListedArray.length; i ++){
                 if (blackListedArray[i].contractAddress == _asset.contractAddress) {
-                    deletedIndex = i;
+                    // Check that deleting item is not last array member
+                    // because in solidity we can remove only last item from array
+                    if (i != blackListedArray.length - 1) {
+                        // just replace deleted item with last item
+                        blackListedArray[i] = blackListedArray[blackListedArray.length - 1];
+                    } 
+                    blackListedArray.pop();
+                    delete blackList[_asset.contractAddress];
                     break;
                 }
             }
-            // Check that deleting item is not last array member
-            // because in solidity we can remove only last item from array
-            if (deletedIndex != blackListedArray.length - 1) {
-                // just replace deleted item with last item
-                blackListedArray[deletedIndex] = blackListedArray[blackListedArray.length - 1];
-            } 
-            blackListedArray.pop();
-            delete blackList[_asset.contractAddress];
-
         }
         emit BlackListItemChanged(_asset.contractAddress, _isBlackListed);
     }

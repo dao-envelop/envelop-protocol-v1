@@ -28,6 +28,13 @@ abstract contract TokenService {
             IERC721Mintable(_contract).mint(_mintFor, _tokenId);
         } else if (_mint_type == ETypes.AssetType.ERC1155) {
             IERC1155Mintable(_contract).mint(_mintFor, _tokenId, _outBalance);
+        }else {
+            revert UnSupportedAsset(
+                ETypes.AssetItem(
+                    ETypes.Asset(_mint_type, _contract),
+                    _tokenId, _outBalance
+                )
+            );
         }
     }
 
