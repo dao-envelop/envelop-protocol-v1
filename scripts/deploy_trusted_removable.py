@@ -147,7 +147,7 @@ def main():
 
     
 
-    if  web3.eth.chainId in [1,5, 56, 137, 43114]:
+    if  web3.eth.chainId in [1,5, 56,97, 137, 43114]:
         TechTokenV1.publish_source(techERC20);
         TrustedWrapperRemovable.publish_source(wrapper);
         EnvelopwNFT1155.publish_source(wnft1155);
