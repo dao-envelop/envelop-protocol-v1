@@ -27,7 +27,8 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc11
         wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
     wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
-    token_property = (in_type, erc721mock)
+    #prepare data
+    token_property = (10, erc721mock)  #bad asset type!!
     dai_property = (2, dai.address)
 
     token_data = (token_property, ORIGINAL_NFT_IDs[0], 0)
@@ -46,7 +47,21 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc11
         0,
         '0'
         )
+    with reverts(""):
+        wrapper.wrap(wNFT, [dai_data], accounts[3], {"from": accounts[1], "value": eth_amount})
 
+    #prepare data
+    token_property = (in_type, erc721mock) #allowed asset type
+    token_data = (token_property, ORIGINAL_NFT_IDs[0], 0)
+    wNFT = ( token_data,
+        accounts[2],
+        fee,
+        lock,
+        royalty,
+        out_type,
+        0,
+        '0'
+        )
 
     #switch on white list
     wrapper.setWhiteList(whiteLists.address, {"from": accounts[0]})
@@ -91,6 +106,11 @@ def test_wrap1(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc1
         whiteLists.removeWLItem((2, dai.address), {"from": accounts[1]})
 
     whiteLists.removeWLItem((2, dai.address), {"from": accounts[0]})
+    #try to remove token from white list which is not added in it
+    assert whiteLists.getWLItemCount() == 3
+    whiteLists.removeWLItem((2, dai.address), {"from": accounts[0]})
+    assert whiteLists.getWLItemCount() == 3
+
     dai.transfer(accounts[1], call_amount+1, {"from": accounts[0]})
     dai.approve(wrapper.address, call_amount+1, {'from':accounts[1]})
     wTokenId = wrapper.lastWNFTId(out_type)[1]
