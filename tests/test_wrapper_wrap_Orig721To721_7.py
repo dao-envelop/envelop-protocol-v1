@@ -58,7 +58,20 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc11
         fee,
         lock,
         royalty,
-        out_type,
+        10,  #bad asset type!!
+        0,
+        '0'
+        )
+    with reverts(""):
+        wrapper.wrap(wNFT, [dai_data], accounts[3], {"from": accounts[1], "value": eth_amount})
+
+    #prepare data
+    wNFT = ( token_data,
+        accounts[2],
+        fee,
+        lock,
+        royalty,
+        out_type, 
         0,
         '0'
         )
