@@ -95,7 +95,8 @@ CHAIN = {
         'enabled_erc20': POLYGON_MAIN_ERC20_COLLATERAL_TOKENS,
         'uswp_router': '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff',
         'uswp_factory': '0x5757371414417b8C6CAad45bAeF941aBc7d3Ab32',
-        'in_asset_address':   '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', # usdc
+        #'in_asset_address':   '0x2791bca1f2de4661ed88a30c99a7a9449aa84174', # usdc
+        'in_asset_address':   '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', # usdt
         'niftsy_address': '0x432cdbC749FD96AA35e1dC27765b23fDCc8F5cf1'
     },
     80001:{'explorer_base':'mumbai.polygonscan.com', },  
