@@ -96,18 +96,18 @@ def wrapper(accounts, WrapperBaseV1, techERC20):
     yield t 
 
 @pytest.fixture(scope="module")
-def wnft721(accounts, EnvelopwNFT721):
-    wnft = accounts[0].deploy(EnvelopwNFT721,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/" )
+def wnft721(accounts, EnvelopwNFT721, wrapper):
+    wnft = accounts[0].deploy(EnvelopwNFT721,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", wrapper.address )
     yield wnft
 
 @pytest.fixture(scope="module")
-def wnft1155(accounts, EnvelopwNFT1155):
-    wnft = accounts[0].deploy(EnvelopwNFT1155,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/")
+def wnft1155(accounts, EnvelopwNFT1155, wrapper):
+    wnft = accounts[0].deploy(EnvelopwNFT1155,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", wrapper.address)
     yield wnft
 
 @pytest.fixture(scope="module")
-def wnft1155_1(accounts, EnvelopwNFT1155):
-    wnft = accounts[0].deploy(EnvelopwNFT1155,"Envelop wNFT_1", "eNFT1", "https://api.envelop.is/metadata/")
+def wnft1155_1(accounts, EnvelopwNFT1155, wrapper):
+    wnft = accounts[0].deploy(EnvelopwNFT1155,"Envelop wNFT_1", "eNFT1", "https://api.envelop.is/metadata/", wrapper.address)
     yield wnft
 
 @pytest.fixture(scope="module")

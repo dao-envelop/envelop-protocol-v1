@@ -2,13 +2,12 @@
 // ENVELOP protocol for NFT
 pragma solidity 0.8.19;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../interfaces/IWrapper.sol";
 
 //v0.0.1
-contract EnvelopwNFT721 is ERC721Enumerable, Ownable {
+contract EnvelopwNFT721 is ERC721Enumerable {
     using Strings for uint256;
     using Strings for uint160;
     
@@ -18,7 +17,8 @@ contract EnvelopwNFT721 is ERC721Enumerable, Ownable {
     constructor(
         string memory name_,
         string memory symbol_,
-        string memory _baseurl
+        string memory _baseurl,
+        address _wrapper
     ) 
         ERC721(name_, symbol_)  
     {
@@ -54,10 +54,7 @@ contract EnvelopwNFT721 is ERC721Enumerable, Ownable {
         _burn(tokenId);
     }
 
-    function setMinter(address _minter) external onlyOwner {
-        wrapperMinter = _minter;
-    }
-
+    
     /**
      * @dev See {ERC721-_beforeTokenTransfer}.
      *

@@ -2,13 +2,12 @@
 // ENVELOP protocol for NFT
 pragma solidity 0.8.19;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../interfaces/IWrapper.sol";
 
-contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
+contract EnvelopwNFT1155 is ERC1155Supply {
     using Strings for uint256;
     using Strings for uint160;
     
@@ -23,7 +22,8 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
     constructor(
         string memory name_,
         string memory symbol_,
-        string memory _baseurl
+        string memory _baseurl,
+        address _wrapper
     ) 
         ERC1155(_baseurl)  
     {
@@ -56,12 +56,6 @@ contract EnvelopwNFT1155 is ERC1155Supply, Ownable {
     function burn(address _from, uint256 _tokenId, uint256 _amount) public virtual {
         require(wrapper == msg.sender, "Trusted address only");
         _burn(_from, _tokenId, _amount);
-    }
-
-    function setMinterStatus(address _minter) external onlyOwner {
-        wrapper = _minter;
-        //tokenService = IWrapper(wrapper).tokenService();
-        // TODO  renownce ownership
     }
 
     function _beforeTokenTransfer(

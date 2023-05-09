@@ -26,6 +26,7 @@ ETH_RINKEBY_ERC20_COLLATERAL_TOKENS = [
 '0xc778417e063141139fce010982780140aa0cd5ab',  #WETH
 ]
 
+##!!!!!!!!!!!!!Check last strings `  whitelist.setWLItem((2,erc),`
 ETH_GOERLI_ERC20_COLLATERAL_TOKENS = [
 (2,'0x376e8EA664c2E770E1C45ED423F62495cB63392D'), #NIFTSI ERC20
 (2,'0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844'),  #DAI
@@ -95,6 +96,7 @@ def main():
         'ENVELOP 1155 wNFT Collection', 
         'wNFT', 
         'https://api.envelop.is/metadata/',
+        wrapper.address,
         tx_params
     )
     
@@ -102,6 +104,7 @@ def main():
         'ENVELOP 721 wNFT Collection', 
         'wNFT', 
         'https://api.envelop.is/metadata/',
+        wrapper.address,
         tx_params
     )
 
@@ -122,8 +125,8 @@ def main():
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],whitelist))
     #Init
     #techERC20.addMinter(wrapper.address, {'from': accounts[0]})
-    wnft1155.setMinterStatus(wrapper.address, tx_params)
-    wnft721.setMinter(wrapper.address, tx_params)
+    #wnft1155.setMinterStatus(wrapper.address, tx_params)
+    #wnft721.setMinter(wrapper.address, tx_params)
     wrapper.setWNFTId(3, wnft721.address, 1, tx_params)
     wrapper.setWNFTId(4, wnft1155.address,1, tx_params)
     wrapper.setWhiteList(whitelist.address, tx_params)
