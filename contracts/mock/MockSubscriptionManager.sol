@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // ENVELOP protocol for NFT. Mintable User NFT Collection
-pragma solidity 0.8.16;
+pragma solidity 0.8.19;
 
 contract MockSubscriptionManager {
 

@@ -9,7 +9,7 @@ import "./Subscriber.sol";
 
 
 
-pragma solidity 0.8.16;
+pragma solidity 0.8.19;
 
 contract BatchWorker is Ownable, Subscriber {
     using SafeERC20 for IERC20Extended;

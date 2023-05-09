@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // ENVELOP(NIFTSY) protocol V1 for NFT. 
-pragma solidity 0.8.16;
+pragma solidity 0.8.19;
 
 library ETypes {
 

@@ -12,7 +12,7 @@
 ///     100 - mint service                      
 /// also we can think about _serviceCode as uniq code of  service (saft, mint etc)
 /// !!! use Ownable pattern for `setSubscriptionManager`
-pragma solidity 0.8.16;
+pragma solidity 0.8.19;
 
 import "../interfaces/ISubscriptionManager.sol";
 

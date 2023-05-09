@@ -8,7 +8,7 @@ import "../interfaces/ISubscriptionManager.sol";
 import "./LibEnvelopTypes.sol";
 
 
-pragma solidity 0.8.16;
+pragma solidity 0.8.19;
 
 contract SubscriptionManagerV1 is Ownable {
     using SafeERC20 for IERC20;

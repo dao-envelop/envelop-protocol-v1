@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Envelop Protocol Fee Model
-pragma solidity 0.8.16;
+pragma solidity 0.8.19;
 
 import "../contracts/LibEnvelopTypes.sol";
 import "../interfaces/IFeeRoyaltyModel.sol";

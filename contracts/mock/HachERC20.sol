@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // NIFTSY protocol for NFT
-pragma solidity 0.8.16;
+pragma solidity 0.8.19;
 //import "../MinterRole.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../../interfaces/IWrapper.sol";

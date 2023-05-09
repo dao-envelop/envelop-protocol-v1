@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // ENVELOP protocol for NFT
-pragma solidity 0.8.16;
+pragma solidity 0.8.19;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
