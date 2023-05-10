@@ -1,10 +1,17 @@
 // SPDX-License-Identifier: MIT
 // ENVELOP(NIFTSY) protocol V1 for NFT. 
 
-import "./WrapperBaseV1.sol";
+import "../../WrapperBaseV1.sol";
 
 pragma solidity 0.8.19;
 
+/// @title TrustedWrapper  contract in Envelop PrtocolV1 
+/// @author Envelop Team
+/// @notice You can use this contract for SAFTV1 solution
+/// @dev  Use with BatchWrapper
+/// @dev !!!!!!! DEPRICATED !!!!!!!!!!!!!
+/// @dev Use SaftV2 solution instead https://gitlab.com/envelop/saftv2
+/// @custom:please see Envelop Docs Portal
 contract TrustedWrapper is WrapperBaseV1 {
 
 	address immutable public trustedOperator;

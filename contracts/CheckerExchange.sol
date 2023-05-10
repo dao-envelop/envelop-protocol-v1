@@ -8,6 +8,12 @@ import "../interfaces/IChecker.sol";
 import "../interfaces/IAdvancedWhiteList.sol";
 import "./LibEnvelopTypes.sol";
 
+/// @title CheckerExchange contract in Envelop PrtocolV1 
+/// @author Envelop Team
+/// @notice You can use this contract for control operations
+/// @notice in `WrapperRemovableAdvanced`
+/// @dev  Use with  `WrapperRemovableAdvanced` Only
+/// @custom:please see Envelop Docs Portal
 contract CheckerExchange is Ownable, IChecker {
 
     mapping(address => bool) public trustedMultisigs;

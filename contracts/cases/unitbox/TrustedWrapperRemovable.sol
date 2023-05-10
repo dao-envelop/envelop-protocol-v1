@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: MIT
 // ENVELOP(NIFTSY) protocol V1 for NFT. 
 
-import "./WrapperBaseV1.sol";
-import "../interfaces/IWrapperRemovable.sol";
+import "../../WrapperBaseV1.sol";
+import "../../../interfaces/IWrapperRemovable.sol";
 
 pragma solidity 0.8.19;
 
+/// @title TrustedWrapperRemovable  contract in Envelop PrtocolV1 
+/// @author Envelop Team
+/// @notice Special Partners GameFi case
+/// @dev  Use with UnitBoxPlatform
 contract TrustedWrapperRemovable is WrapperBaseV1, IWrapperRemovable {
 
     mapping(address => bool) public trustedOperators;

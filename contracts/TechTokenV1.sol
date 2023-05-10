@@ -6,7 +6,11 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./MinterRole.sol";
 import "./FeeRoyaltyModelV1_00.sol";
 
-
+/// @title Envelop PrtocolV1  - TechToken
+/// @author Envelop Team
+/// @notice Used for demostrate fee & roylty features
+/// @dev  In current impplementation include basic roylte fee model contract
+/// @custom:please see Envelop Docs Portal
 contract TechTokenV1 is ERC20, MinterRole, FeeRoyaltyModelV1_00 {
     constructor()
     ERC20("Virtual Envelop Transfer Fee Token", "vENVLP")

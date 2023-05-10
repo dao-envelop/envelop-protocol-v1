@@ -2,7 +2,7 @@
 // ENVELOP protocol for NFT
 pragma solidity 0.8.19;
 
-import "../Spawner721.sol";
+import "../cases/crossing/Spawner721.sol";
 
 //v0.0.1
 contract Spawner721Mock is Spawner721 {

@@ -5,6 +5,12 @@ pragma solidity 0.8.19;
 import "../contracts/LibEnvelopTypes.sol";
 import "../interfaces/IFeeRoyaltyModel.sol";
 
+/// @title FeeRoyaltyModelV1_00  contract in Envelop PrtocolV1 
+/// @author Envelop Team
+/// @notice This contract used for implement fee transfers in protocol
+/// @notice On dev date there is only one fee were implemnted
+/// @dev Used inside `TechToken`
+/// @custom:please see Envelop Docs Portal
 contract FeeRoyaltyModelV1_00 is IFeeRoyaltyModel {
 
     uint256 constant public ROYALTY_PERCENT_BASE = 10000;

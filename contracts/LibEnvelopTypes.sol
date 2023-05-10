@@ -2,6 +2,9 @@
 // ENVELOP(NIFTSY) protocol V1 for NFT. 
 pragma solidity 0.8.19;
 
+/// @title Flibrary ETypes in Envelop PrtocolV1 
+/// @author Envelop Team
+/// @notice This contract implement main protocol's data types
 library ETypes {
 
     enum AssetType {EMPTY, NATIVE, ERC20, ERC721, ERC1155, FUTURE1, FUTURE2, FUTURE3}

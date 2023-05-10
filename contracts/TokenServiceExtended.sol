@@ -4,6 +4,9 @@ pragma solidity 0.8.19;
 
 import "./TokenService.sol";
 
+/// @title Envelop PrtocolV1  helper service for manage ERC(20, 721, 115) getters
+/// @author Envelop Team
+/// @notice Just as dependence for main wrapper contract
 abstract contract TokenServiceExtended is TokenService {
 	
 

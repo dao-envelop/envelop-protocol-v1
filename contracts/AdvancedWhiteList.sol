@@ -5,8 +5,13 @@ pragma solidity 0.8.19;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/IAdvancedWhiteList.sol";
 import "./LibEnvelopTypes.sol";
-//import "../interfaces/IERC721Mintable.sol";
 
+
+/// @title White & Black List  contract in Envelop PrtocolV1 
+/// @author Envelop Team
+/// @notice You can use this contract for for operate assets enabled for wrap and collateral
+/// @dev  Need be activated with `setWhiteList` in main wraper contract
+/// @custom:please see Envelop Docs Portal
 contract AdvancedWhiteList is Ownable, IAdvancedWhiteList {
 
     

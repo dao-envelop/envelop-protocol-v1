@@ -6,6 +6,11 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../interfaces/IWrapper.sol";
 
+/// @title WNFT (erc721)  contract in Envelop PrtocolV1 
+/// @author Envelop Team
+/// @notice You can use this contract with main wrapper contracts
+/// @dev Use with WrapperLightV1 ONLY
+/// @custom:please see Envelop Docs Portal
 contract EnvelopwNFT721Trustless is ERC721Enumerable {
     using Strings for uint256;
     using Strings for uint160;

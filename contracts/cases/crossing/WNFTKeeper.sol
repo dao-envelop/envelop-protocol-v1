@@ -6,13 +6,18 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 //import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "../interfaces/IERC721Mintable.sol";
-import "../interfaces/IERC1155Mintable.sol";
+import "../../../interfaces/IERC721Mintable.sol";
+import "../../../interfaces/IERC1155Mintable.sol";
 
 /**
  * @title WNFT Token Keeper
  * @dev Use for hold wnft (like staking) 
  */
+/// @title Envelop PrtocolV1 Crossing v0.0.1 implementation  
+/// @author Envelop Team
+/// @notice You can use this contract for keep wnft in source chains
+/// @dev  Still  ALFA
+/// @custom:please see Envelop Docs Portal
 contract WNFTKeeper is  ERC721Holder, Ownable {
     using ECDSA for bytes32;
 

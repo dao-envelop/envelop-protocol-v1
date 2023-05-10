@@ -7,8 +7,10 @@ import "../interfaces/IERC20Extended.sol";
 import "./LibEnvelopTypes.sol";
 import "../interfaces/IERC721Mintable.sol";
 import "../interfaces/IERC1155Mintable.sol";
-//import "../interfaces/ITokenService.sol";
 
+/// @title Envelop PrtocolV1  helper service for ERC(20, 721, 115) transfers
+/// @author Envelop Team
+/// @notice Just as dependence for main wrapper contract
 abstract contract TokenService {
 	using SafeERC20 for IERC20Extended;
     

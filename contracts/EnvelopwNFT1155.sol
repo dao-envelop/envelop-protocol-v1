@@ -7,6 +7,11 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "../interfaces/IWrapper.sol";
 
+/// @title WNFT (erc721)  contract in Envelop PrtocolV1 
+/// @author Envelop Team
+/// @notice You can use this contract with main wrapper contracts
+/// @dev Not Use with WrapperLightV1
+/// @custom:please see Envelop Docs Portal
 contract EnvelopwNFT1155 is ERC1155Supply {
     using Strings for uint256;
     using Strings for uint160;

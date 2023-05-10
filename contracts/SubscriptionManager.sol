@@ -7,7 +7,8 @@ import "../interfaces/ITrustedWrapper.sol";
 import "../interfaces/ISubscriptionManager.sol";
 import "./LibEnvelopTypes.sol";
 
-
+/// @dev !!!!!!! DEPRICATED !!!!!!!!!!!!!
+/// @dev due https://gitlab.com/envelop/subscription
 pragma solidity 0.8.19;
 
 contract SubscriptionManagerV1 is Ownable {

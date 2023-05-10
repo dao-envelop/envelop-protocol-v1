@@ -3,12 +3,18 @@
 
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../interfaces/ITrustedWrapper.sol";
-import "../interfaces/IERC20Extended.sol";
-import "./Subscriber.sol";
+import "../../../interfaces/ITrustedWrapper.sol";
+import "../../../interfaces/IERC20Extended.sol";
+import "../../Subscriber.sol";
 
 
-
+/// @title Batch Worker  contract in Envelop PrtocolV1 
+/// @author Envelop Team
+/// @notice You can use this contract for batch wrap and add collateraL
+/// @dev  Use with TrustedWrapper Only
+/// @dev !!!!!!! DEPRICATED !!!!!!!!!!!!!
+/// @dev Use SaftV2 solution instead https://gitlab.com/envelop/saftv2
+/// @custom:please see Envelop Docs Portal
 pragma solidity 0.8.19;
 
 contract BatchWorker is Ownable, Subscriber {

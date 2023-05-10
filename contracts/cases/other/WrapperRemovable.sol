@@ -2,7 +2,7 @@
 // ENVELOP(NIFTSY) protocol V1 for NFT. Wrapper - main protocol contract
 pragma solidity 0.8.19;
 
-import "./WrapperBaseV1.sol";
+import "../../WrapperBaseV1.sol";
 
 
 contract WrapperRemovable is WrapperBaseV1 {

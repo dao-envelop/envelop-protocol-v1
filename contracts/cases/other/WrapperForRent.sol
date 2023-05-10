@@ -2,8 +2,11 @@
 // ENVELOP(NIFTSY) protocol V1 for NFT. Wrapper - main protocol contract
 pragma solidity 0.8.19;
 
-import "./WrapperBaseV1.sol";
+import "../../WrapperBaseV1.sol";
 
+/// @title WrapperForRent  contract in Envelop PrtocolV1 
+/// @author Envelop Team
+/// @notice Special Partners Game Subject Rent case
 contract WrapperForRent is WrapperBaseV1 {
     
 

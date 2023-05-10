@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // ENVELOP(NIFTSY) protocol V1 for NFT. 
 
-import "./WrapperBaseV1.sol";
-import "../interfaces/IWrapperRemovable.sol";
-import "../interfaces/IChecker.sol";
+import "../../WrapperBaseV1.sol";
+import "../../../interfaces/IWrapperRemovable.sol";
+import "../../../interfaces/IChecker.sol";
 
 pragma solidity 0.8.19;
 
