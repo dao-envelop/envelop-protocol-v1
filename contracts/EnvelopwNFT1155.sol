@@ -44,6 +44,7 @@ contract EnvelopwNFT1155 is ERC1155Supply {
         ));
         name = name_;
         symbol = symbol_;
+        wrapper = _wrapper
     }
 
     function mint(address _to, uint256 _tokenId, uint256 _amount) external {
