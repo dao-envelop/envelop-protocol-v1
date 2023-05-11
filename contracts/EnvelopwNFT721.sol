@@ -26,7 +26,7 @@ contract EnvelopwNFT721 is ERC721Enumerable {
     ) 
         ERC721(name_, symbol_)  
     {
-        wrapperMinter = msg.sender;
+        wrapperMinter = _wrapper;
         baseurl = string(
             abi.encodePacked(
                 _baseurl,
