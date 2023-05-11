@@ -265,12 +265,6 @@ def whiteListsForTrustedWrapper(accounts, AdvancedWhiteList):
     wlT = accounts[0].deploy(AdvancedWhiteList)
     yield wlT
 
-#for saftV1
-@pytest.fixture(scope="module")
-def subscriptionManager(accounts, SubscriptionManagerV1):
-    sM = accounts[0].deploy(SubscriptionManagerV1)
-    yield sM
-
 #for swap
 @pytest.fixture(scope="module")
 def swapChecker(accounts, CheckerExchange):
@@ -329,3 +323,35 @@ def wnft1155ForWrapperLightV1_1(accounts, EnvelopwNFT1155Trustless, wrapperLight
 def hackERC20LightV1(accounts, HackERC20, wrapperLight, wnft721ForWrapperLightV1):
     h = accounts[0].deploy(HackERC20,"Hacker Reentrancy Token", "HRT", wrapperLight.address, wnft721ForWrapperLightV1.address)
     yield h
+
+##########################################subscription###############################
+@pytest.fixture(scope="module")
+def techERC20ForwrapperTrusted2(accounts, TechTokenV1):
+    erc20 = accounts[0].deploy(TechTokenV1)
+    yield erc20
+
+@pytest.fixture(scope="module")
+def subscriptionManager(accounts, SubscriptionManagerV1):
+    sM = accounts[0].deploy(SubscriptionManagerV1)
+    yield sM
+
+@pytest.fixture(scope="module")
+def wrapperTrusted2(accounts, TrustedWrapper, techERC20ForwrapperTrusted2, subscriptionManager):
+    t = accounts[0].deploy(TrustedWrapper, techERC20ForwrapperTrusted2.address, subscriptionManager.address)
+    #t.setTokenService(tokenService.address, {'from':accounts[0]})
+    yield t
+
+@pytest.fixture(scope="module")
+def wnft721ForwrapperTrusted2(accounts, EnvelopwNFT721Trustless, wrapperTrusted2):
+    wnft = accounts[0].deploy(EnvelopwNFT721Trustless,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", wrapperTrusted2.address )
+    yield wnft 
+
+@pytest.fixture(scope="module")
+def whiteListsForwrapperTrusted2(accounts, AdvancedWhiteList):
+    wl = accounts[0].deploy(AdvancedWhiteList)
+    yield wl 
+
+
+
+
+
