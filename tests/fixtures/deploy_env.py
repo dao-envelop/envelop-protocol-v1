@@ -71,12 +71,31 @@ def techERC20(accounts, TechTokenV1):
 #     t = accounts[0].deploy(TokenService)
 #     yield t
 
+######################################rent#####################################
+'''@pytest.fixture(scope="module")
+def techERC20ForRent(accounts, TechTokenV1):
+    erc20 = accounts[0].deploy(TechTokenV1)
+    yield erc20 '''
 
 @pytest.fixture(scope="module")
 def wrapperRent(accounts, WrapperForRent, techERC20):
     t = accounts[0].deploy(WrapperForRent, techERC20.address)
     #t.setTokenService(tokenService.address, {'from':accounts[0]})
     yield t
+
+@pytest.fixture(scope="module")
+def wnft721ForRent(accounts, EnvelopwNFT721, wrapperRent):
+    wnft = accounts[0].deploy(EnvelopwNFT721,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", wrapperRent.address )
+    yield wnft
+
+@pytest.fixture(scope="module")
+def wnft1155ForRent(accounts, EnvelopwNFT1155, wrapperRent):
+    wnft = accounts[0].deploy(EnvelopwNFT1155,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", wrapperRent.address)
+    yield wnft
+
+###############################################################################
+
+
 
 @pytest.fixture(scope="module")
 def wrapperRemove(accounts, WrapperRemovable, techERC20):
@@ -265,26 +284,17 @@ def whiteListsForTrustedWrapper(accounts, AdvancedWhiteList):
     wlT = accounts[0].deploy(AdvancedWhiteList)
     yield wlT
 
-#for swap
-@pytest.fixture(scope="module")
-def swapChecker(accounts, CheckerExchange):
-    sw = accounts[0].deploy(CheckerExchange)
-    yield sw
 
+##########################################for swap#######################################
 @pytest.fixture(scope="module")
 def swapTechERC20(accounts, TechTokenV1):
     erc20 = accounts[0].deploy(TechTokenV1)
     yield erc20 
 
 @pytest.fixture(scope="module")
-def swapWnft721(accounts, EnvelopwNFT721):
-    wnft = accounts[0].deploy(EnvelopwNFT721,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/" )
-    yield wnft
-
-@pytest.fixture(scope="module")
-def swapWhiteLists(accounts, AdvancedWhiteList):
-    wl = accounts[0].deploy(AdvancedWhiteList)
-    yield wl 
+def swapChecker(accounts, CheckerExchange):
+    sw = accounts[0].deploy(CheckerExchange)
+    yield sw
 
 @pytest.fixture(scope="module")
 def swapWrapper(accounts, WrapperRemovableAdvanced, swapChecker, swapTechERC20):
@@ -292,6 +302,17 @@ def swapWrapper(accounts, WrapperRemovableAdvanced, swapChecker, swapTechERC20):
     sw.setTrustedAddress(accounts[0], True)
     sw.setCheckerAddress(swapChecker)
     yield sw
+
+@pytest.fixture(scope="module")
+def swapWnft721(accounts, EnvelopwNFT721, swapWrapper):
+    wnft = accounts[0].deploy(EnvelopwNFT721,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", swapWrapper.address )
+    yield wnft
+
+@pytest.fixture(scope="module")
+def swapWhiteLists(accounts, AdvancedWhiteList ):
+    wl = accounts[0].deploy(AdvancedWhiteList)
+    yield wl 
+
 
 #######################light version of protocol########################3
 @pytest.fixture(scope="module")

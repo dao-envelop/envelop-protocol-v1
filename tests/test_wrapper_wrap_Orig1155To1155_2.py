@@ -39,7 +39,6 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20, e
 
     if (wrapper.lastWNFTId(out_type)[1] == 0):
         wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
-    wnft1155.setMinterStatus(wrapper.address, {"from": accounts[0]})
 
     hack_property = (in_type, mockHacker1155_1)
     dai_property = (2, dai.address)

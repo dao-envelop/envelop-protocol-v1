@@ -25,7 +25,6 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, erc11
 
     if (wrapper.lastWNFTId(out_type)[1] == 0):
         wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-    wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
     #prepare data
     token_property = (10, erc721mock)  #bad asset type!!

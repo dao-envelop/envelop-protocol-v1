@@ -23,7 +23,6 @@ def test_simple_wrap(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy
 	dai.transfer(accounts[1], call_amount, {"from": accounts[0]})
 	weth.transfer(accounts[1], 2*call_amount, {"from": accounts[0]})
 
-	wnft1155.setMinterStatus(wrapper.address, {"from": accounts[0]})
 	dai.approve(wrapper.address, call_amount, {'from':accounts[1]})
 	weth.approve(wrapper.address, 2*call_amount, {'from':accounts[1]})
 

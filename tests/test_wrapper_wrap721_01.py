@@ -42,7 +42,6 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
     weth.approve(wrapper.address, 2*call_amount, {'from':accounts[1]})
 
     wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-    wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
     erc721_property = (in_type, erc721mock.address)
     dai_property = (2, dai.address)

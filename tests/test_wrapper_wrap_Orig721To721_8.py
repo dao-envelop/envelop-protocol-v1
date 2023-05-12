@@ -20,7 +20,6 @@ def test_wrap(accounts, erc721mock, wrapper, wnft721, whiteLists, erc1155mock, e
 
 	if (wrapper.lastWNFTId(out_type)[1] == 0):
 		wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-	wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
 	erc721_property = (3, erc721mock.address)
 	erc721_data = (erc721_property, ORIGINAL_NFT_IDs[0], 0)

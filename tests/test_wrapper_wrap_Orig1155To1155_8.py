@@ -14,21 +14,6 @@ eth_amount = "1 ether"
 #not add collateral
 #can transfer
 #can unwrap by UnwrapDestination
-def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
-	logging.info(
-		'\n=========wNFT=============\nwNFT:{0},{1}\nInAsset: {2}\nCollrecords:\n{3}\nunWrapDestination: {4}'
-		'\nFees: {5} \nLocks: {6} \nRoyalty: {7} \nrules: {8}({9:0>16b}) \n=========================='.format(
-		_wnft721, _wTokenId,
-		_wrapper.getWrappedToken(_wnft721, _wTokenId)[0],
-		_wrapper.getWrappedToken(_wnft721, _wTokenId)[1],
-		_wrapper.getWrappedToken(_wnft721, _wTokenId)[2],
-		_wrapper.getWrappedToken(_wnft721, _wTokenId)[3],
-		_wrapper.getWrappedToken(_wnft721, _wTokenId)[4],
-		_wrapper.getWrappedToken(_wnft721, _wTokenId)[5],
-		_wrapper.getWrappedToken(_wnft721, _wTokenId)[6],
-		Web3.toInt(_wrapper.getWrappedToken(_wnft721, _wTokenId)[6]),
-		
-	))
 
 def test_wrap(accounts, erc1155mock, wrapper, wnft1155, niftsy20):
 #make wrap NFT with empty
@@ -40,7 +25,6 @@ def test_wrap(accounts, erc1155mock, wrapper, wnft1155, niftsy20):
 
 	#service methods
 	wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
-	wnft1155.setMinterStatus(wrapper.address, {"from": accounts[0]})
 
 
 	#make test data

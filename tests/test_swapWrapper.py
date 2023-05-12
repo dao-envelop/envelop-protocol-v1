@@ -22,7 +22,6 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 	swapChecker.setTrustedAddress(multisig, True, {"from": accounts[0]})
 
 	swapWrapper.setWNFTId(out_type, swapWnft721.address, 0, {'from':accounts[0]})
-	swapWnft721.setMinter(swapWrapper.address, {"from": accounts[0]})
 
 	#try to set checker by not owner
 	with reverts("Ownable: caller is not the owner"):

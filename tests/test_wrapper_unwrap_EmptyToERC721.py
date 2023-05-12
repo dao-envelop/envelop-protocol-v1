@@ -33,7 +33,6 @@ def test_unwrap(accounts, erc1155mock, wrapper, dai, weth, wnft721, niftsy20, er
 
     if (wrapper.lastWNFTId(out_type)[1] == 0):
         wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-    wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
     empty_property = (in_type, zero_address)
     dai_property = (2, dai.address)

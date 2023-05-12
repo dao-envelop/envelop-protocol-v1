@@ -20,7 +20,6 @@ def test_simple_wrap(accounts, swapWrapper, dai, weth, swapWnft721, niftsy20, sw
 	swapChecker.setTrustedAddress(multisig, True, {"from": accounts[0]})
 
 	swapWrapper.setWNFTId(out_type, swapWnft721.address, 0, {'from':accounts[0]})
-	swapWnft721.setMinter(swapWrapper.address, {"from": accounts[0]})
 
 	wNFT = ( ((0, zero_address), 0,0), #empty
 		accounts[1], 
