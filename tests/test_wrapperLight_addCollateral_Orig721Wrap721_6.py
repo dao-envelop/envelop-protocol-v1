@@ -34,7 +34,7 @@ def test_addColl(accounts, erc721mock, wrapperLight, dai, weth, wnft721ForWrappe
     weth.approve(wrapperLight.address, 10*amount, {"from": accounts[1]})
 
     #add collateral
-    with reverts("ERC721: caller is not token owner nor approved"):
+    with reverts("ERC721: caller is not token owner or approved"):
         wrapperLight.addCollateral(wnft721ForWrapperLightV1.address, wTokenId, [((4, erc1155mock1.address), ORIGINAL_NFT_IDs[0], coll_amount),
             ((3, erc721mock1.address), ORIGINAL_NFT_IDs[0], 0),
             ((2, dai.address), 0, amount),

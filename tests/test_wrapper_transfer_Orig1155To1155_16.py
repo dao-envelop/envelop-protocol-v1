@@ -21,8 +21,6 @@ def test_wrap(accounts, erc1155mock, wrapper, wnft1155, niftsy20, techERC20, wra
 
 	#service methods
 	wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
-	wnft1155.setMinterStatus(wrapper.address, {"from": accounts[0]})
-
 
 	#make test data
 	makeNFTForTest1155(accounts, erc1155mock, ORIGINAL_NFT_IDs, in_nft_amount)

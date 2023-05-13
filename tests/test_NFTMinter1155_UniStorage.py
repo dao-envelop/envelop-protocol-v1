@@ -92,7 +92,7 @@ def test_mint(accounts, NFTMinter1155Uni, MockManager):
     logging.info('uri = {}'.format(NFTMinter1155Uni.uri(1)))
     #assert NFTMinter1155Uni.uri(1) == baseUrl+tokenUri
 
-def test_subscription(accounts, NFTMinter1155Uni, subscriptionManager, niftsy20, dai, wrapperTrustedV1, wnft721):
+def test_subscription(accounts, NFTMinter1155Uni, subscriptionManager, niftsy20, dai, wrapperTrusted2, wnft721ForwrapperTrusted2):
     tokenId = 2
     tokenUri = '2'
     amount = 3
@@ -113,11 +113,10 @@ def test_subscription(accounts, NFTMinter1155Uni, subscriptionManager, niftsy20,
     niftsy20.approve(subscriptionManager.address, payAmount, {"from": accounts[0]})
 
     #make settings
-    subscriptionManager.setMainWrapper(wrapperTrustedV1, {"from": accounts[0]})
+    subscriptionManager.setMainWrapper(wrapperTrusted2, {"from": accounts[0]})
 
-    if (wrapperTrustedV1.lastWNFTId(out_type)[1] == 0):
-        wrapperTrustedV1.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-    wnft721.setMinter(wrapperTrustedV1.address, {"from": accounts[0]})
+    if (wrapperTrusted2.lastWNFTId(out_type)[1] == 0):
+        wrapperTrusted2.setWNFTId(out_type, wnft721ForwrapperTrusted2.address, 0, {'from':accounts[0]})
 
     #try to set SubscriptionManager by not owner
     with reverts("Ownable: caller is not the owner"):
@@ -137,7 +136,7 @@ def test_subscription(accounts, NFTMinter1155Uni, subscriptionManager, niftsy20,
 
     #check subscription
     assert len(subscriptionManager.getUserTickets(accounts[0])) == 1
-    assert niftsy20.balanceOf(wrapperTrustedV1) == payAmount
+    assert niftsy20.balanceOf(wrapperTrusted2) == payAmount
 
     #check Tiket
     assert subscriptionManager.getUserTickets(accounts[0])[0][0] > chain.time()

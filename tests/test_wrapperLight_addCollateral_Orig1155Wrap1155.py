@@ -57,7 +57,7 @@ def test_addColl(accounts, erc1155mock, wrapperLight, dai, weth, wnft1155ForWrap
 		wrapperLight.addCollateral(wnft1155ForWrapperLightV1.address, wTokenId, [((3, erc1155mock.address), ORIGINAL_NFT_IDs[2], coll_amount-1)], {'from': accounts[9]})	
 
 	#with asset data - ERC1155 token. Msg.Sender is not owner of token
-	with reverts("ERC1155: caller is not token owner nor approved"):
+	with reverts("ERC1155: caller is not token owner or approved"):
 		wrapperLight.addCollateral(wnft1155ForWrapperLightV1.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[2], coll_amount-1)], {'from': accounts[8]})
 
 	#with asset data - ERC1155 token. Not enough balance for transfer

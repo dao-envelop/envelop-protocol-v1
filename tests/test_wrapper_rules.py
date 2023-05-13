@@ -25,7 +25,6 @@ def test_wrap(accounts, erc721mock, wrapper, wnft721, niftsy20):
 
     if (wrapper.lastWNFTId(out_type)[1] == 0):
         wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-    wnft721.setMinter(wrapper.address)
 
     token_property = (in_type, erc721mock)
 

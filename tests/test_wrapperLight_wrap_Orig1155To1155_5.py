@@ -65,7 +65,7 @@ def test_transfer(accounts, erc1155mock, wrapperLight, wnft1155ForWrapperLightV1
     collateral_property = (in_type, erc1155mock)
     collateral_data = (collateral_property, 0, in_nft_amount)
 
-    with reverts("ERC1155: caller is not token owner nor approved"):
+    with reverts("ERC1155: caller is not token owner or approved"):
         wrapperLight.addCollateral(wnft1155ForWrapperLightV1.address, wTokenId, [collateral_data], {"from": accounts[3]})
 
     collateral_property = (in_type, erc1155mock)

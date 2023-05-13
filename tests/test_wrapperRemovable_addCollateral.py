@@ -16,7 +16,7 @@ transfer_fee_amount = 100
 
 
 #transfer with fee without royalty
-def test_UnitBox(accounts, erc721mock, erc1155mock, wrapperRemovable, dai, weth, wnft721, niftsy20, erc1155mock1, erc721mock1, whiteLists, techERC20, wrapperChecker):
+def test_UnitBox(accounts, erc721mock, erc1155mock, wrapperRemovable, dai, weth, wnft721ForWrapperRemove, niftsy20, erc1155mock1, erc721mock1, whiteLists, techERC20):
 
     with reverts("Ownable: caller is not the owner"):
         wrapperRemovable.setTrustedAddress(accounts[1], True, {"from": accounts[1]})
@@ -30,8 +30,7 @@ def test_UnitBox(accounts, erc721mock, erc1155mock, wrapperRemovable, dai, weth,
     erc721mock.approve(wrapperRemovable.address, ORIGINAL_NFT_IDs[0], {"from": accounts[1]})
 
     if (wrapperRemovable.lastWNFTId(out_type)[1] == 0):
-        wrapperRemovable.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-    wnft721.setMinter(wrapperRemovable.address, {"from": accounts[0]})
+        wrapperRemovable.setWNFTId(out_type, wnft721ForWrapperRemove.address, 0, {'from':accounts[0]})
 
     token_property = (in_type, erc721mock)
 
@@ -70,59 +69,59 @@ def test_UnitBox(accounts, erc721mock, erc1155mock, wrapperRemovable, dai, weth,
 
     niftsy20.approve(wrapperRemovable.address, coll_amount, {"from": accounts[0]})
 
-    wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((2, niftsy20.address), 0, 0 )], {"from": accounts[0], "value": "1 ether"})
-    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721.address, wTokenId, 2, niftsy20.address, 0)[0] == 0
+    wrapperRemovable.addCollateral(wnft721ForWrapperRemove.address, wTokenId, [((2, niftsy20.address), 0, 0 )], {"from": accounts[0], "value": "1 ether"})
+    assert wrapperRemovable.getCollateralBalanceAndIndex(wnft721ForWrapperRemove.address, wTokenId, 2, niftsy20.address, 0)[0] == 0
 
 
-    wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((2, niftsy20.address), 0, 0 )], {"from": accounts[0]})
+    wrapperRemovable.addCollateral(wnft721ForWrapperRemove.address, wTokenId, [((2, niftsy20.address), 0, 0 )], {"from": accounts[0]})
 
     #try to remove ether
-    logging.info(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1])
+    logging.info(wrapperRemovable.getWrappedToken(wnft721ForWrapperRemove.address, wTokenId)[1])
     with reverts("Remove fail"):
-        wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, zero_address, {"from": accounts[1]}) 
+        wrapperRemovable.removeERC20Collateral(wnft721ForWrapperRemove.address, wTokenId, zero_address, {"from": accounts[1]}) 
 
     dai.approve(wrapperRemovable.address, coll_amount, {"from": accounts[0]})
-    wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((2, dai.address), 0, coll_amount )], {"from": accounts[0]})
+    wrapperRemovable.addCollateral(wnft721ForWrapperRemove.address, wTokenId, [((2, dai.address), 0, coll_amount )], {"from": accounts[0]})
 
-    #logging.info(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1])
+    #logging.info(wrapperRemovable.getWrappedToken(wnft721ForWrapperRemove.address, wTokenId)[1])
     #try to remove niftsy when amount is 0
     with reverts("Remove fail"):
-        wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, niftsy20.address, {"from": accounts[1]}) 
+        wrapperRemovable.removeERC20Collateral(wnft721ForWrapperRemove.address, wTokenId, niftsy20.address, {"from": accounts[1]}) 
 
     #try to remove collateral for nonexists wnft
     with reverts("Remove fail"):
-        wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId+1, dai.address, {"from": accounts[1]}) 
+        wrapperRemovable.removeERC20Collateral(wnft721ForWrapperRemove.address, wTokenId+1, dai.address, {"from": accounts[1]}) 
 
     #remove dai tokens
-    wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, dai.address, {"from": accounts[1]}) 
-    #logging.info(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1])
+    wrapperRemovable.removeERC20Collateral(wnft721ForWrapperRemove.address, wTokenId, dai.address, {"from": accounts[1]}) 
+    #logging.info(wrapperRemovable.getWrappedToken(wnft721ForWrapperRemove.address, wTokenId)[1])
 
     #add erc721 in collateral with amount
     erc721mock.approve(wrapperRemovable.address, ORIGINAL_NFT_IDs[1], {"from": accounts[0]})
-    wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[1], 0 )], {"from": accounts[0]})
+    wrapperRemovable.addCollateral(wnft721ForWrapperRemove.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[1], 0 )], {"from": accounts[0]})
 
     #add erc1155 in collateral
     erc1155mock.setApprovalForAll(wrapperRemovable.address,True, {"from": accounts[1]}) 
-    wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[0], in_nft_amount)], {"from": accounts[1]})
+    wrapperRemovable.addCollateral(wnft721ForWrapperRemove.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[0], in_nft_amount)], {"from": accounts[1]})
 
     #try to remove erc1155 from collateral
     with reverts("Remove fail"):
-        wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, erc1155mock.address, {"from": accounts[1]}) 
+        wrapperRemovable.removeERC20Collateral(wnft721ForWrapperRemove.address, wTokenId, erc1155mock.address, {"from": accounts[1]}) 
 
     #try to remove erc721 from collateral
     with reverts("Remove fail"):
-        wrapperRemovable.removeERC20Collateral(wnft721.address, wTokenId, erc721mock.address, {"from": accounts[1]}) 
+        wrapperRemovable.removeERC20Collateral(wnft721ForWrapperRemove.address, wTokenId, erc721mock.address, {"from": accounts[1]}) 
 
-    logging.info(wrapperRemovable.getWrappedToken(wnft721.address, wTokenId)[1])
+    logging.info(wrapperRemovable.getWrappedToken(wnft721ForWrapperRemove.address, wTokenId)[1])
 
     #try to add niftsy with type "empty"
     niftsy20.approve(wrapperRemovable.address, coll_amount, {"from": accounts[0]})
     with reverts(""):
-        wrapperRemovable.addCollateral(wnft721.address, wTokenId, [((0, niftsy20.address), 0, coll_amount )], {"from": accounts[0]})
+        wrapperRemovable.addCollateral(wnft721ForWrapperRemove.address, wTokenId, [((0, niftsy20.address), 0, coll_amount )], {"from": accounts[0]})
 
     before_balance_ether1 = accounts[1].balance()
 
-    wrapperRemovable.unWrap(out_type, wnft721.address, wTokenId, {"from": accounts[0]})
+    wrapperRemovable.unWrap(out_type, wnft721ForWrapperRemove.address, wTokenId, {"from": accounts[0]})
 
     assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[1]
     assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[1]) == accounts[1]

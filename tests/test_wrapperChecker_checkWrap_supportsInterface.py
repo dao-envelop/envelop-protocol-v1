@@ -29,7 +29,6 @@ def test_transfer(accounts, erc1155mock, erc721mock,  wrapper, dai, weth, wnft11
 
     if (wrapper.lastWNFTId(out_type)[1] == 0):
         wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
-    wnft1155.setMinterStatus(wrapper.address, {"from": accounts[0]})
 
     token_property = (3, erc1155mock)
     token_data = (token_property, ORIGINAL_NFT_IDs[0], in_nft_amount)

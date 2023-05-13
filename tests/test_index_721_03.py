@@ -18,24 +18,6 @@ secret = 7777777
 ORACLE_ADDRESS = '0x8125F522a712F4aD849E6c7312ba8263bEBeEFeD' 
 ORACLE_PRIVATE_KEY = '0x222ead82a51f24a79887aae17052718249295530f8153c73bf1f257a9ca664af'
 
-
-
-def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
-    logging.info(
-        '\n=========wNFT=============\nwNFT:{0},{1}\nInAsset: {2}\nCollrecords:\n{3}\nunWrapDestination: {4}'
-        '\nFees: {5} \nLocks: {6} \nRoyalty: {7} \nrules: {8}({9:0>16b}) \n=========================='.format(
-        _wnft721, _wTokenId,
-        _wrapper.getWrappedToken(_wnft721, _wTokenId)[0],
-        _wrapper.getWrappedToken(_wnft721, _wTokenId)[1],
-        _wrapper.getWrappedToken(_wnft721, _wTokenId)[2],
-        _wrapper.getWrappedToken(_wnft721, _wTokenId)[3],
-        _wrapper.getWrappedToken(_wnft721, _wTokenId)[4],
-        _wrapper.getWrappedToken(_wnft721, _wTokenId)[5],
-        _wrapper.getWrappedToken(_wnft721, _wTokenId)[6],
-        Web3.toInt(_wrapper.getWrappedToken(_wnft721, _wTokenId)[6]),
-        
-    ))
-
 def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20):
     #make test data
     makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
@@ -48,7 +30,6 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
     weth.approve(wrapper.address, 2*call_amount, {'from':accounts[1]})
 
     wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-    wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
     erc721_property = (in_type, erc721mock.address)
     dai_property = (2, dai.address)
@@ -77,7 +58,6 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
     wrapper.wrap(wNFT, [dai_data, weth_data, eth_data], accounts[3], {"from": accounts[1], "value": eth_amount})
     wTokenId = wrapper.lastWNFTId(out_type)[1]
     wNFT = wrapper.getWrappedToken(wnft721, wTokenId)   
-    wnft_pretty_print(wrapper, wnft721, wTokenId)
     #checks
     assert wrapper.balance() == eth_amount
     assert dai.balanceOf(wrapper) == call_amount

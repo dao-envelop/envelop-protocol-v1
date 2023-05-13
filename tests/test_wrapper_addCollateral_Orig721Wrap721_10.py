@@ -21,7 +21,6 @@ def test_addCollateral(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy
 
     if (wrapper.lastWNFTId(out_type)[1] == 0):
         wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-    wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
     token_property = (in_type, erc721mock)
     token_data = (token_property, ORIGINAL_NFT_IDs[0], 0)

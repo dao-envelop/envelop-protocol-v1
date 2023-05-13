@@ -12,7 +12,7 @@ eth_amount = 1e18
 transfer_fee_amount = 100
 
 #reverts due to bad collateral data
-def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1):
+def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721ForwrapperTrustedV1, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1):
     #make wrap NFT with empty
     in_type = 3
     out_type = 3
@@ -27,8 +27,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     
 
     if (wrapperTrustedV1.lastWNFTId(out_type)[1] == 0):
-        wrapperTrustedV1.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-    wnft721.setMinter(wrapperTrustedV1.address, {"from": accounts[0]})
+        wrapperTrustedV1.setWNFTId(out_type, wnft721ForwrapperTrustedV1.address, 0, {'from':accounts[0]})
 
     #add whiteList
     wrapperTrustedV1.setWhiteList(whiteListsForTrustedWrapper.address, {"from": accounts[0]})

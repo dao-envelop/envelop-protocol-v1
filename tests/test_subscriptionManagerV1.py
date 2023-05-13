@@ -23,7 +23,7 @@ subscriptionId = 0
 
 
 #send in wrapping time more or less eth than in collateral's array
-def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721ForwrapperTrustedV1, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
     
     #set agent
     with reverts("Ownable: caller is not the owner"):
@@ -65,8 +65,7 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, ni
     subscriptionManager.setMainWrapper(wrapperTrustedV1, {"from": accounts[0]})
     saftV1.setTrustedWrapper(wrapperTrustedV1, {"from": accounts[0]})
     if (wrapperTrustedV1.lastWNFTId(out_type)[1] == 0):
-        wrapperTrustedV1.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-    wnft721.setMinter(wrapperTrustedV1.address, {"from": accounts[0]})
+        wrapperTrustedV1.setWNFTId(out_type, wnft721ForwrapperTrustedV1.address, 0, {'from':accounts[0]})
     
     with reverts("Ownable: caller is not the owner"):
         saftV1.setSubscriptionManager(subscriptionManager.address, {"from": accounts[1]})
@@ -81,14 +80,14 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, ni
     wTokenId = tx.events['WrappedV1']['outTokenId']
 
     #check wNFT
-    assert wnft721.ownerOf(wTokenId) == accounts[0]
-    assert wnft721.wnftInfo(wTokenId)[0] == ((0, zero_address), 0, 0) 
-    assert wnft721.wnftInfo(wTokenId)[1][0] == ((2, niftsy20.address), 0, int(payAmount))
-    assert wnft721.wnftInfo(wTokenId)[2] == zero_address
-    assert wnft721.wnftInfo(wTokenId)[3] == []
-    assert wnft721.wnftInfo(wTokenId)[4][0][1] > chain.time() + ticketValidPeriod
-    assert wnft721.wnftInfo(wTokenId)[5] == []
-    assert wnft721.wnftInfo(wTokenId)[6] == '0x0000'
+    assert wnft721ForwrapperTrustedV1.ownerOf(wTokenId) == accounts[0]
+    assert wnft721ForwrapperTrustedV1.wnftInfo(wTokenId)[0] == ((0, zero_address), 0, 0) 
+    assert wnft721ForwrapperTrustedV1.wnftInfo(wTokenId)[1][0] == ((2, niftsy20.address), 0, int(payAmount))
+    assert wnft721ForwrapperTrustedV1.wnftInfo(wTokenId)[2] == zero_address
+    assert wnft721ForwrapperTrustedV1.wnftInfo(wTokenId)[3] == []
+    assert wnft721ForwrapperTrustedV1.wnftInfo(wTokenId)[4][0][1] > chain.time() + ticketValidPeriod
+    assert wnft721ForwrapperTrustedV1.wnftInfo(wTokenId)[5] == []
+    assert wnft721ForwrapperTrustedV1.wnftInfo(wTokenId)[6] == '0x0000'
 
     #check Tiket
     assert subscriptionManager.getUserTickets(accounts[0])[0][0] > chain.time()
@@ -100,7 +99,7 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, ni
     assert subscriptionManager.agentRegistry(saftV1.address) == True
 
     ############################################################ WRAP wNFT by subscription ################################################
-def test_wrapBatch(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+def test_wrapBatch(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721ForwrapperTrustedV1, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
     global ORIGINAL_NFT_IDs
     #make 721 token for wrapping
     makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
@@ -210,7 +209,7 @@ def test_wrapBatch(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, w
         tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[0], "value": len(ORIGINAL_NFT_IDs)*eth_amount})
 
 #without subscription (there is not valid ticket of subscription)
-def test_wrap_without_subscription(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+def test_wrap_without_subscription(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721ForwrapperTrustedV1, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
 
     inDataS = []
     receiverS = []
@@ -228,7 +227,7 @@ def test_wrap_without_subscription(accounts, erc721mock, wrapperTrustedV1, dai, 
     with reverts("Valid ticket not found"):
         tx = saftV1.wrapBatch(inDataS, collateralS, receiverS, {"from": accounts[2]})
 
-def test_buySubscription(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+def test_buySubscription(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721ForwrapperTrustedV1, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
     
     #try to buy nonexist subscription
     with reverts("Index out of range"):
@@ -289,15 +288,15 @@ def test_buySubscription(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrap
         subscriptionManager.removeServiceFromTarif(0, 1, {"from": accounts[1]})
     subscriptionManager.removeServiceFromTarif(0, 1, {"from": accounts[0]})
 
-def test_buySubscription_for_other_user(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
-    assert wnft721.balanceOf(accounts[9]) == 0
+def test_buySubscription_for_other_user(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721ForwrapperTrustedV1, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+    assert wnft721ForwrapperTrustedV1.balanceOf(accounts[9]) == 0
     #create allowance
     niftsy20.transfer(accounts[9], payAmount, {"from": accounts[0]})
     niftsy20.approve(subscriptionManager.address, payAmount, {"from": accounts[9]})
     #buy subscription
     tx = subscriptionManager.buySubscription(0,0, accounts[1], {"from": accounts[9]})
     assert subscriptionManager.getUserTickets(accounts[1])[0][0] > 0
-    assert wnft721.balanceOf(accounts[9]) == 1
+    assert wnft721ForwrapperTrustedV1.balanceOf(accounts[9]) == 1
     assert subscriptionManager.getUserTickets(accounts[9])[0][0] == 0
 
 

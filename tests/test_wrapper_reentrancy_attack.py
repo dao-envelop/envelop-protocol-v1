@@ -24,7 +24,6 @@ def test_simple_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20
 	hackERC20.approve(wrapper.address, 3*call_amount, {'from':accounts[1]})
 
 	wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-	wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
 	empty_data = ((0, zero_address), 0, 0)
 	dai_data = ((2, dai.address), 0, Wei(call_amount))

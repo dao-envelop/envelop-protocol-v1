@@ -22,7 +22,7 @@ in_nft_amount = 3
 subscriptionId = 0
 
 #several tariffs for one service. Buy both tariff. Try to wrap
-def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721ForwrapperTrustedV1, niftsy20, saftV1, whiteListsForTrustedWrapper, subscriptionManager):
     
     #set agent
     subscriptionManager.setAgentStatus(saftV1, True, {"from": accounts[0]}) 
@@ -44,15 +44,14 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, ni
     subscriptionManager.setMainWrapper(wrapperTrustedV1, {"from": accounts[0]})
     saftV1.setTrustedWrapper(wrapperTrustedV1, {"from": accounts[0]})
     if (wrapperTrustedV1.lastWNFTId(out_type)[1] == 0):
-        wrapperTrustedV1.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-    wnft721.setMinter(wrapperTrustedV1.address, {"from": accounts[0]})
+        wrapperTrustedV1.setWNFTId(out_type, wnft721ForwrapperTrustedV1.address, 0, {'from':accounts[0]})
     
     saftV1.setSubscriptionManager(subscriptionManager.address, {"from": accounts[0]})
 
     #call buySubscription
     tx = subscriptionManager.buySubscription(0,0, accounts[0], {"from": accounts[0]})
     tx = subscriptionManager.buySubscription(1,1, accounts[0], {"from": accounts[0]})
-    assert wnft721.balanceOf(accounts[0]) == 2
+    assert wnft721ForwrapperTrustedV1.balanceOf(accounts[0]) == 2
     #check tickets
     assert subscriptionManager.getUserTickets(accounts[0])[0][1] == 0
     assert subscriptionManager.getUserTickets(accounts[0])[0][0] > 0
@@ -60,7 +59,7 @@ def test_settings(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, ni
     assert subscriptionManager.getUserTickets(accounts[0])[1][1] == 0
     assert subscriptionManager.getUserTickets(accounts[0])[1][0] > 0
     
-def test_wrapBatch(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1, subscriptionManager):
+def test_wrapBatch(accounts, erc721mock, wrapperTrustedV1, dai, weth, wrapper, wnft721ForwrapperTrustedV1, niftsy20, saftV1, whiteListsForTrustedWrapper, subscriptionManager):
     
     #wrap empty
     token_property = (0, zero_address)

@@ -11,7 +11,7 @@ call_amount = 1e18
 eth_amount = 1e18
 transfer_fee_amount = 100
 
-def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1):
+def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721ForwrapperTrustedV1, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1):
     #make wrap NFT with empty
     in_type = 3
     out_type = 3
@@ -24,8 +24,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     
 
     if (wrapperTrustedV1.lastWNFTId(out_type)[1] == 0):
-        wrapperTrustedV1.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-    wnft721.setMinter(wrapperTrustedV1.address, {"from": accounts[0]})
+        wrapperTrustedV1.setWNFTId(out_type, wnft721ForwrapperTrustedV1.address, 0, {'from':accounts[0]})
 
     #add whiteList
     wrapperTrustedV1.setWhiteList(whiteListsForTrustedWrapper.address, {"from": accounts[0]})
@@ -81,7 +80,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     wnftContracts = []
     wnftIDs = []
     for i in range(len(ORIGINAL_NFT_IDs)):
-        wnftContracts.append(wnft721.address)
+        wnftContracts.append(wnft721ForwrapperTrustedV1.address)
         wnftIDs.append(wrapperTrustedV1.lastWNFTId(out_type)[1] - i)
 
         dai_amount = dai_amount + Wei(call_amount)
@@ -104,7 +103,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     
     #check CollateralAdded events
     for i in range(len(tx.events['CollateralAdded'])):
-        assert tx.events['CollateralAdded'][i]['wrappedAddress'] == wnft721.address
+        assert tx.events['CollateralAdded'][i]['wrappedAddress'] == wnft721ForwrapperTrustedV1.address
         assert tx.events['CollateralAdded'][i]['wrappedId'] in [1,2,3,4,5]
         if tx.events['CollateralAdded'][i]['collateralAddress'] == zero_address:
             assert tx.events['CollateralAdded'][i]['collateralBalance'] == eth_amount
@@ -121,9 +120,9 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     
     for i in range(len(ORIGINAL_NFT_IDs)):
         #check collateral in every wnft
-        assert wnft721.wnftInfo(i+1)[1][0] == eth_data
-        assert wnft721.wnftInfo(i+1)[1][1] == dai_data
-        assert wnft721.wnftInfo(i+1)[1][2] == weth_data
+        assert wnft721ForwrapperTrustedV1.wnftInfo(i+1)[1][0] == eth_data
+        assert wnft721ForwrapperTrustedV1.wnftInfo(i+1)[1][1] == dai_data
+        assert wnft721ForwrapperTrustedV1.wnftInfo(i+1)[1][2] == weth_data
 
     assert dai.balanceOf(wrapperTrustedV1.address) == call_amount*len(ORIGINAL_NFT_IDs)
     assert weth.balanceOf(wrapperTrustedV1.address) == 2*call_amount*len(ORIGINAL_NFT_IDs)
@@ -154,14 +153,14 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, dai, weth, wnft721, niftsy
     eth_amount_new = round(1e18)+1
     for i in range(len(wnftContracts)):
         #check collateral in every wnft
-        assert wnft721.wnftInfo(i+2)[1][0][2] == eth_amount_new
+        assert wnft721ForwrapperTrustedV1.wnftInfo(i+2)[1][0][2] == eth_amount_new
 
     #check unwrap
     chain.sleep(100)
     chain.mine()
     for i in range(len(ORIGINAL_NFT_IDs)):
-        wrapperTrustedV1.unWrap(wnft721.address, i+1, {"from": accounts[i]})
+        wrapperTrustedV1.unWrap(wnft721ForwrapperTrustedV1.address, i+1, {"from": accounts[i]})
         assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[i]) == accounts[i]
 
-    logging.info(wnft721.wnftInfo(1))
+    logging.info(wnft721ForwrapperTrustedV1.wnftInfo(1))
 

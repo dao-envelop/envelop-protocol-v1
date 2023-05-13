@@ -18,7 +18,6 @@ def test_wrap(accounts, erc721mock, wrapper, wnft721, niftsy20, techERC20, wrapp
 
 	#service methods
 	wrapper.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-	wnft721.setMinter(wrapper.address, {"from": accounts[0]})
 
 
 	#make test data

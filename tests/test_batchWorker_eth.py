@@ -12,7 +12,7 @@ eth_amount = 1e18
 transfer_fee_amount = 100
 
 #
-def test_wrap(accounts, erc721mock, wrapperTrustedV1, wnft721, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1):
+def test_wrap(accounts, erc721mock, wrapperTrustedV1, wnft721ForwrapperTrustedV1, niftsy20, saftV1, whiteListsForTrustedWrapper, techERC20ForSaftV1):
     #make wrap NFT with empty
     in_type = 3
     out_type = 3
@@ -24,8 +24,7 @@ def test_wrap(accounts, erc721mock, wrapperTrustedV1, wnft721, niftsy20, saftV1,
     
 
     if (wrapperTrustedV1.lastWNFTId(out_type)[1] == 0):
-        wrapperTrustedV1.setWNFTId(out_type, wnft721.address, 0, {'from':accounts[0]})
-    wnft721.setMinter(wrapperTrustedV1.address, {"from": accounts[0]})
+        wrapperTrustedV1.setWNFTId(out_type, wnft721ForwrapperTrustedV1.address, 0, {'from':accounts[0]})
 
     token_property = (in_type, erc721mock.address)
 

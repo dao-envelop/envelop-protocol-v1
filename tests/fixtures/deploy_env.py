@@ -12,11 +12,6 @@ def weth(accounts, TokenMock):
     weth = accounts[0].deploy(TokenMock,"WETH MOCK Token", "WETH")
     yield weth
 
-# @pytest.fixture(scope="module")
-# def pft(accounts, TokenMock):
-#     pft = accounts[0].deploy(TokenMock,"PF MOCK Token", "PFT")
-#     yield pft
-
 @pytest.fixture(scope="module")
 def erc721mock(accounts, Token721Mock):
     """
@@ -51,31 +46,12 @@ def erc1155mock1(accounts, Token1155Mock):
     t = accounts[0].deploy(Token1155Mock, "https://maxsiz.github.io/1/")
     yield t  
 
-# @pytest.fixture(scope="module")
-# def fakeERC721mock(accounts, Token721Mock):
-#     """
-#     Simple NFT with URI
-#     """
-#     b = accounts[0].deploy(Token721Mock, "Fake NFT with URI", "FXX")
-#     #t.setURI(0, 'https://maxsiz.github.io/')
-#     yield b
-# ############################################
-
 @pytest.fixture(scope="module")
 def techERC20(accounts, TechTokenV1):
     erc20 = accounts[0].deploy(TechTokenV1)
     yield erc20 
 
-# @pytest.fixture(scope="module")
-# def tokenService(accounts, TokenService):
-#     t = accounts[0].deploy(TokenService)
-#     yield t
-
 ######################################rent#####################################
-'''@pytest.fixture(scope="module")
-def techERC20ForRent(accounts, TechTokenV1):
-    erc20 = accounts[0].deploy(TechTokenV1)
-    yield erc20 '''
 
 @pytest.fixture(scope="module")
 def wrapperRent(accounts, WrapperForRent, techERC20):
@@ -96,12 +72,19 @@ def wnft1155ForRent(accounts, EnvelopwNFT1155, wrapperRent):
 ###############################################################################
 
 
+######################################???????########################################
 
 @pytest.fixture(scope="module")
 def wrapperRemove(accounts, WrapperRemovable, techERC20):
     t = accounts[0].deploy(WrapperRemovable, techERC20.address )
     #t.setTokenService(tokenService.address, {'from':accounts[0]})
     yield t
+
+
+############################################################################################3
+
+
+
 
 @pytest.fixture(scope="module")
 def wrapperChecker(accounts, WrapperChecker, wrapper):
@@ -149,25 +132,6 @@ def trFeeModel(accounts, FeeRoyaltyModelV1_00):
     tr = accounts[0].deploy(FeeRoyaltyModelV1_00)
     yield tr 
 
-    
-
-# @pytest.fixture(scope="module")
-# def wrapper(accounts, WrapperWithERC20Collateral, techERC20, dai, weth):
-#     t = accounts[0].deploy(WrapperWithERC20Collateral, techERC20.address)
-#     #niftsy20.addMinter(t.address, {'from':accounts[0]})
-#     t.setCollateralStatus(dai.address, True)
-#     t.setCollateralStatus(weth.address, True)
-#     techERC20.addMinter(t.address, {'from': accounts[0]})
-#     yield t 
-
-#@pytest.fixture(scope="module")
-#def trmodel(accounts, TransferRoyaltyModel01, wrapper, niftsy20):
-#    t = accounts[0].deploy(TransferRoyaltyModel01, wrapper.address)
-#    wrapper.editPartnersItem(niftsy20.address, True, t.address, False,{'from': accounts[0]})
-#    yield t 
-
-
-
 @pytest.fixture(scope="module")
 def mockHacker(accounts, MaliciousTokenMock):
     h = accounts[0].deploy(MaliciousTokenMock,"Hacker Malicious Token", "KLR")
@@ -210,12 +174,13 @@ def spawner721mock(accounts, Spawner721Mock):
     yield s
 
 @pytest.fixture(scope="module")
-def techERC20ForWrapperRemovable(accounts, TechTokenV1):
+def techERC20ForTrustedWrapper(accounts, TechTokenV1):
     erc20 = accounts[0].deploy(TechTokenV1)
     yield erc20 
 
+#####################################for unitbox###############################
 @pytest.fixture(scope="module")
-def techERC20ForTrustedWrapper(accounts, TechTokenV1):
+def techERC20ForWrapperRemovable(accounts, TechTokenV1):
     erc20 = accounts[0].deploy(TechTokenV1)
     yield erc20 
 
@@ -226,9 +191,15 @@ def wrapperRemovable(accounts, TrustedWrapperRemovable, techERC20ForWrapperRemov
     yield t 
 
 @pytest.fixture(scope="module")
+def wnft721ForWrapperRemove(accounts, EnvelopwNFT721, wrapperRemovable):
+    wnft = accounts[0].deploy(EnvelopwNFT721,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", wrapperRemovable.address )
+    yield wnft
+
+@pytest.fixture(scope="module")
 def unitbox(accounts, wrapperRemovable, UnitBoxPlatform):
     u = accounts[0].deploy(UnitBoxPlatform, wrapperRemovable.address)
     yield u
+#################################################################################
 
 '''@pytest.fixture(scope="module")
 def wrapperTrusted(accounts, TrustedWrapper, techERC20ForTrustedWrapper):
@@ -260,24 +231,36 @@ def NFTMinter1155Uni(accounts, EnvelopUsers1155UniStorage):
 def MockManager(accounts, MockSubscriptionManager):
     MockManager = accounts[0].deploy(MockSubscriptionManager)
     yield MockManager
-
+#################################################for saft######################################
 @pytest.fixture(scope="module")
 def saftV1(accounts, BatchWorker):
     t = accounts[0].deploy(BatchWorker, 0)
     #t.setTokenService(tokenService.address, {'from':accounts[0]})
-    yield t 
+    yield t
 
 @pytest.fixture(scope="module")
 def techERC20ForSaftV1(accounts, TechTokenV1):
     erc20 = accounts[0].deploy(TechTokenV1)
     yield erc20
 
-
 @pytest.fixture(scope="module")
 def wrapperTrustedV1(accounts, TrustedWrapper, techERC20ForSaftV1, saftV1):
     t = accounts[0].deploy(TrustedWrapper, techERC20ForSaftV1.address, saftV1.address)
     #t.setTokenService(tokenService.address, {'from':accounts[0]})
-    yield t 
+    yield t
+
+@pytest.fixture(scope="module")
+def wnft721ForwrapperTrustedV1(accounts, EnvelopwNFT721Trustless, wrapperTrustedV1):
+    wnft = accounts[0].deploy(EnvelopwNFT721Trustless,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", wrapperTrustedV1.address )
+    yield wnft 
+
+#################################################################################################
+
+'''@pytest.fixture(scope="module")
+def wrapperTrustedV1(accounts, TrustedWrapper, techERC20ForSaftV1, saftV1):
+    t = accounts[0].deploy(TrustedWrapper, techERC20ForSaftV1.address, saftV1.address)
+    #t.setTokenService(tokenService.address, {'from':accounts[0]})
+    yield t'''
 
 @pytest.fixture(scope="module")
 def whiteListsForTrustedWrapper(accounts, AdvancedWhiteList):

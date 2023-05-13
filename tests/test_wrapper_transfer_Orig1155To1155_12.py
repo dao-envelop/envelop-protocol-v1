@@ -27,7 +27,6 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
 
     if (wrapper.lastWNFTId(out_type)[1] == 0):
         wrapper.setWNFTId(out_type, wnft1155.address, 0, {'from':accounts[0]})
-    wnft1155.setMinterStatus(wrapper.address, {"from": accounts[0]})
 
     token_property = (in_type, erc1155mock)
 

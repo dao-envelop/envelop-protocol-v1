@@ -44,7 +44,7 @@ def test_transfer(accounts, erc1155mock, wrapperLight, wnft1155ForWrapperLightV1
         '0'
         )
 
-    with reverts("ERC1155: caller is not token owner nor approved"):
+    with reverts("ERC1155: caller is not token owner or approved"):
         wrapperLight.wrap(wNFT, [], accounts[3], {"from": accounts[3]})
 
     token_data = (token_property, ORIGINAL_NFT_IDs[0], in_nft_amount+1)
