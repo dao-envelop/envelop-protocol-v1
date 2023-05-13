@@ -74,17 +74,11 @@ def wnft1155ForRent(accounts, EnvelopwNFT1155, wrapperRent):
 
 ######################################???????########################################
 
-@pytest.fixture(scope="module")
+'''@pytest.fixture(scope="module")
 def wrapperRemove(accounts, WrapperRemovable, techERC20):
     t = accounts[0].deploy(WrapperRemovable, techERC20.address )
     #t.setTokenService(tokenService.address, {'from':accounts[0]})
-    yield t
-
-
-############################################################################################3
-
-
-
+    yield t'''
 
 @pytest.fixture(scope="module")
 def wrapperChecker(accounts, WrapperChecker, wrapper):
@@ -173,10 +167,6 @@ def spawner721mock(accounts, Spawner721Mock):
     s = accounts[0].deploy(Spawner721Mock,"Envelop NFT Spawner Mock", "sNFT", "https://api.envelop.is/metadata/" )
     yield s
 
-@pytest.fixture(scope="module")
-def techERC20ForTrustedWrapper(accounts, TechTokenV1):
-    erc20 = accounts[0].deploy(TechTokenV1)
-    yield erc20 
 
 #####################################for unitbox###############################
 @pytest.fixture(scope="module")
@@ -199,13 +189,7 @@ def wnft721ForWrapperRemove(accounts, EnvelopwNFT721, wrapperRemovable):
 def unitbox(accounts, wrapperRemovable, UnitBoxPlatform):
     u = accounts[0].deploy(UnitBoxPlatform, wrapperRemovable.address)
     yield u
-#################################################################################
-
-'''@pytest.fixture(scope="module")
-def wrapperTrusted(accounts, TrustedWrapper, techERC20ForTrustedWrapper):
-    t = accounts[0].deploy(TrustedWrapper, techERC20ForTrustedWrapper.address, accounts[0])
-    #t.setTokenService(tokenService.address, {'from':accounts[0]})
-    yield t'''
+######################################for minters########################################3
 
 @pytest.fixture(scope="module")
 def NFTMinter(accounts, EnvelopUsers721Swarm):
@@ -250,23 +234,14 @@ def wrapperTrustedV1(accounts, TrustedWrapper, techERC20ForSaftV1, saftV1):
     yield t
 
 @pytest.fixture(scope="module")
-def wnft721ForwrapperTrustedV1(accounts, EnvelopwNFT721Trustless, wrapperTrustedV1):
-    wnft = accounts[0].deploy(EnvelopwNFT721Trustless,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", wrapperTrustedV1.address )
+def wnft721ForwrapperTrustedV1(accounts, EnvelopwNFT721, wrapperTrustedV1):
+    wnft = accounts[0].deploy(EnvelopwNFT721,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", wrapperTrustedV1.address )
     yield wnft 
-
-#################################################################################################
-
-'''@pytest.fixture(scope="module")
-def wrapperTrustedV1(accounts, TrustedWrapper, techERC20ForSaftV1, saftV1):
-    t = accounts[0].deploy(TrustedWrapper, techERC20ForSaftV1.address, saftV1.address)
-    #t.setTokenService(tokenService.address, {'from':accounts[0]})
-    yield t'''
 
 @pytest.fixture(scope="module")
 def whiteListsForTrustedWrapper(accounts, AdvancedWhiteList):
     wlT = accounts[0].deploy(AdvancedWhiteList)
     yield wlT
-
 
 ##########################################for swap#######################################
 @pytest.fixture(scope="module")
@@ -295,7 +270,6 @@ def swapWnft721(accounts, EnvelopwNFT721, swapWrapper):
 def swapWhiteLists(accounts, AdvancedWhiteList ):
     wl = accounts[0].deploy(AdvancedWhiteList)
     yield wl 
-
 
 #######################light version of protocol########################3
 @pytest.fixture(scope="module")
@@ -346,8 +320,8 @@ def wrapperTrusted2(accounts, TrustedWrapper, techERC20ForwrapperTrusted2, subsc
     yield t
 
 @pytest.fixture(scope="module")
-def wnft721ForwrapperTrusted2(accounts, EnvelopwNFT721Trustless, wrapperTrusted2):
-    wnft = accounts[0].deploy(EnvelopwNFT721Trustless,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", wrapperTrusted2.address )
+def wnft721ForwrapperTrusted2(accounts, EnvelopwNFT721, wrapperTrusted2):
+    wnft = accounts[0].deploy(EnvelopwNFT721,"Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", wrapperTrusted2.address )
     yield wnft 
 
 @pytest.fixture(scope="module")

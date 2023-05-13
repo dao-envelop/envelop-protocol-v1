@@ -70,7 +70,6 @@ def test_transfer(accounts, erc1155mock, wrapper, dai, weth, wnft1155, niftsy20,
 
     #switch on new wnft1155
     wrapper.setWNFTId(out_type, wnft1155_1.address, 0, {'from':accounts[0]})
-    wnft1155_1.setMinterStatus(wrapper.address, {"from": accounts[0]})
 
     erc1155mock.safeTransferFrom(accounts[0], accounts[1], ORIGINAL_NFT_IDs[2], in_nft_amount, "", {"from": accounts[0]})
     token_data = (token_property, ORIGINAL_NFT_IDs[2], in_nft_amount-2)
