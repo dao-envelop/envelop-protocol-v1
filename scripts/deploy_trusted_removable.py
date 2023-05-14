@@ -103,6 +103,7 @@ def main():
         'UNITBOX & ENVELOP 1155 wNFT Collection', 
         'wNFT', 
         'https://api.envelop.is/metadata/',
+        wrapper.address,
         tx_params                           
     )
     #time.sleep(5)
@@ -112,6 +113,7 @@ def main():
         'UNITBOX & ENVELOP 721 wNFT Collection', 
         'wNFT', 
         'https://api.envelop.is/metadata/',
+        wrapper.address,
         tx_params
     )
     #time.sleep(5)
@@ -137,8 +139,6 @@ def main():
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],unitbox))
 
     #Init
-    wnft1155.setMinterStatus(wrapper.address, tx_params)
-    wnft721.setMinter(wrapper.address, tx_params)
     wrapper.setWNFTId(3, wnft721.address, 1, tx_params)
     wrapper.setWNFTId(4, wnft1155.address,1, tx_params)
     wrapper.setWhiteList(whitelist.address, tx_params)

@@ -125,8 +125,6 @@ def main():
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],whitelist))
     #Init
     #techERC20.addMinter(wrapper.address, {'from': accounts[0]})
-    #wnft1155.setMinterStatus(wrapper.address, tx_params)
-    #wnft721.setMinter(wrapper.address, tx_params)
     wrapper.setWNFTId(3, wnft721.address, 1, tx_params)
     wrapper.setWNFTId(4, wnft1155.address,1, tx_params)
     wrapper.setWhiteList(whitelist.address, tx_params)

@@ -74,17 +74,17 @@ def main():
 
     time.sleep(120)
 
-    baseUrl='https://stage.api.envelop.is/'
-    app_name='bunnybank24.com'
-    app_id='7110613d8b66a507e083491007dc0d72fcd8a5f97b3c138d92d3817e21586a74'
-    app_key='b14130564aaa38f203ca6fe3d9ed294d92b0ce26ac7b8fae8c25c164ecd71c07'
+    baseUrl='???'
+    app_name='???'
+    app_id='???'
+    app_key='???'
     key_active=300
     now = now = int(time.time())
     timeBlock = str(int(now / int(key_active)))
     auth = app_id + '.' + sha256(f'{app_name}{app_key}{timeBlock}'.encode('utf-8')).hexdigest()
     print(auth)
 
-    response = requests.get('https://stage.api.envelop.is/'+'discover/721/'+str(4)+'/'+str(wnft721.address)+'/'+str(wTokenId), headers = {'Content-Type': 'application/json', 'Authorization': auth})
+    response = requests.get(baseUrl+'discover/721/'+str(4)+'/'+str(wnft721.address)+'/'+str(wTokenId), headers = {'Content-Type': 'application/json', 'Authorization': auth})
     print(response.json())
 
     assert len(response.json())>0

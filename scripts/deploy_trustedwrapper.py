@@ -84,6 +84,7 @@ def main():
         'ENVELOP 1155 wNFT SAFT V1 Collection', 
         'swNFT', 
         'https://api.envelop.is/metadata/',
+        wrapperTrustedV1.address,
         tx_params
     )
     
@@ -91,6 +92,7 @@ def main():
         'ENVELOP 721 wNFT SAFT V1 Collection', 
         'swNFT', 
         'https://api.envelop.is/metadata/',
+        wrapperTrustedV1.address,
         tx_params
     )
 
@@ -112,8 +114,6 @@ def main():
 
 
     #make settings of contracts
-    wnft1155.setMinterStatus(wrapperTrustedV1.address, tx_params)
-    wnft721.setMinter(wrapperTrustedV1.address, tx_params)
     wrapperTrustedV1.setWNFTId(3, wnft721.address, 1, tx_params)
     wrapperTrustedV1.setWNFTId(4, wnft1155.address,1, tx_params)
     #wrapperTrustedV1.setWhiteList(whitelist.address, tx_params)

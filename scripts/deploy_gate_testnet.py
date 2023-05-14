@@ -94,6 +94,7 @@ def main():
         'ENVELOP 1155 wNFT Collection', 
         'wNFT', 
         'https://api.envelop.is/metadata/',
+        wrapper.address,
         tx_params
     )
     #wnft1155 = EnvelopwNFT1155.at('')
@@ -102,6 +103,7 @@ def main():
         'ENVELOP 721 wNFT Collection', 
         'wNFT', 
         'https://api.envelop.is/metadata/',
+        wrapper.address,
         tx_params
     )
     #wnft721 = EnvelopwNFT721.at('')
@@ -109,8 +111,6 @@ def main():
     whitelist = AdvancedWhiteList.deploy(tx_params)
     #whitelist = AdvancedWhiteList.at('')
     #Init
-    wnft1155.setMinterStatus(wrapper.address, tx_params)
-    wnft721.setMinter(wrapper.address, tx_params)
     wrapper.setWNFTId(3, wnft721.address, 1, tx_params)
     wrapper.setWNFTId(4, wnft1155.address,1, tx_params)
     wrapper.setWhiteList(whitelist.address, tx_params)

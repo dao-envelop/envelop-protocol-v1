@@ -77,7 +77,7 @@ if web3.eth.chainId in  [1,4]:
 
 def main():
     print('Deployer account= {}'.format(accounts[0]))
-    '''techERC20 = TechTokenV1.deploy(tx_params)
+    techERC20 = TechTokenV1.deploy(tx_params)
     #techERC20 = TechTokenV1.at('0x7e4Be057C70657C71dEc4716A2fD23BEad0Ad4Eb')
     wrapper   = WrapperForRent.deploy(techERC20.address,tx_params) 
     #wrapper = WrapperForRent.at('0x59C769f7A26892146816C817b44A4A557225Dc06')
@@ -85,21 +85,19 @@ def main():
         'ENVELOP 1155 wNFT Collection', 
         'wNFT', 
         'https://api.envelop.is/metadata/',
+        wrapper.address,
         tx_params
-    )'''
-    techERC20 = TechTokenV1.at('0xDD2C613E4C06127f7c69fA4A941BDde50fc4A9b1')
-    wrapper = WrapperForRent.at('0x13c38357360f2A674FC49F8035DB9CeD8963B96C')
-    wnft1155 = EnvelopwNFT1155.at('0x34Ed6Af28AfA2e42e31C2604FD25D0Fe8B200910')
-    wnft721 = EnvelopwNFT721.at('0x1fBa8e7237C2Eef4104406a230bB562Bf66be162')
-    #wnft721 = EnvelopwNFT721.deploy("Envelop wNFT 721", "eNFT", "https://api.envelop.is/metadata/" , tx_params)
+    )
+    #techERC20 = TechTokenV1.at('0xDD2C613E4C06127f7c69fA4A941BDde50fc4A9b1')
+    #wrapper = WrapperForRent.at('0x13c38357360f2A674FC49F8035DB9CeD8963B96C')
+    #wnft1155 = EnvelopwNFT1155.at('0x34Ed6Af28AfA2e42e31C2604FD25D0Fe8B200910')
+    #wnft721 = EnvelopwNFT721.at('0x1fBa8e7237C2Eef4104406a230bB562Bf66be162')
+    wnft721 = EnvelopwNFT721.deploy("Envelop wNFT 721", "eNFT", "https://api.envelop.is/metadata/" , wrapper.address, tx_params)
     #wnft1155 = EnvelopwNFT1155.at('0xf294ab4B27f27cC619E2EfF2db5077A7D995A1FC')
     #trmodel   = TransferRoyaltyModel01.deploy(wrapper.address,{'from':accounts[0]})
     #trmodel   = TransferRoyaltyModel01.at('0x6664c8118284b3F5ECB47c2105cAa544Ab0Cf75B') 
     #Init
-    #techERC20.addMinter(wrapper.address, {'from': accounts[0]})
-    #wnft1155.setMinterStatus(wrapper.address, tx_params)
-    #wnft721.setMinter(wrapper.address,  tx_params)
-
+    techERC20.addMinter(wrapper.address, {'from': accounts[0]})
     wrapper.setWNFTId(3, wnft721.address, 0, tx_params)
     wrapper.setWNFTId(4, wnft1155.address, 0, tx_params)
 

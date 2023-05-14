@@ -83,11 +83,11 @@ def main():
         'ENVELOP 721 wNFT Collection', 
         'wNFT', 
         'https://api.envelop.is/metadata/',
+        wrapper.address,
         tx_params
     )
     #make settings of contracts
 
-    wnft721.setMinter(wrapper.address, tx_params)
     wrapper.setWNFTId(3, wnft721.address, 1, tx_params)
 
     wrapper.setWhiteList(whitelist.address, tx_params)
