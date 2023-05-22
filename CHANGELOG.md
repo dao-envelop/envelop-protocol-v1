@@ -8,7 +8,8 @@ All notable changes to this project are documented in this file.
 
 This changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
+## [Unreleased]
+- Factory for SBT wNFTs
 ## [1.2.0](https://github.com/dao-envelop/envelop-protocol-v1/tree/1.2.0) - 2023-05-16
 ### Added
 - Fresh audit report added 
@@ -19,9 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auditor issues resolving
 - Remove owner and setMinter from wnft contracts. move this featere to constructor. 
 Update fixtures and deploy_main scrypt
-- Some contracts are marked as depricated
 - Files structure refactor
 - Update unit tests and some deployment scripts
+### Deprecated
+- Some contracts are marked as depricated
 
 ## [1.1.0](https://github.com/dao-envelop/envelop-protocol-v1/tree/1.1.0) - 2023-03-17
 ### Added
