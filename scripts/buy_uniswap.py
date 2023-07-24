@@ -124,11 +124,14 @@ def main():
         tx_params = {'from':a}
         if web3.eth.chainId in  [1,4, 5, 137]:
             tx_params={'from':a, 'priority_fee': chain.priority_fee}
-        if inasset.allowance(router, a) < BUY_AMOUNT_USD * 10 ** inasset.decimals():
-            inasset.approve(router, BUY_AMOUNT_USD * 10 ** inasset.decimals(), tx_params)
+        if inasset.balanceOf(a) >= BUY_AMOUNT_USD * 10 ** inasset.decimals():
+            if inasset.allowance(router, a) < BUY_AMOUNT_USD * 10 ** inasset.decimals():
+
+                inasset.approve(router, BUY_AMOUNT_USD * 10 ** inasset.decimals(), tx_params)
+
             router.swapExactTokensForTokens(
                 BUY_AMOUNT_USD * 10 ** inasset.decimals(), 
                 0, path, a, chain.time() + 360, tx_params
-        )
+            )
     
 

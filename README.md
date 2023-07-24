@@ -5,6 +5,9 @@ This version of the protocol is currently being systematically developed.
 The main vector of improvements is related to updating versions 
 of dependencies (Solidity and OpenZeppelin)
 
+## License
+All code provided with  `SPDX-License-Identifier: MIT`
+
 ### Deployment info  
 This version has many deployments in different chains. Please follow the docs:  
 https://docs.envelop.is/tech/smart-contracts/deployment-addresses  
@@ -17,6 +20,6 @@ We use Brownie as main framework for developing and unit testing. For run tests
 first please [install it](https://eth-brownie.readthedocs.io/en/stable/install.html)
 
 ```bash
-brownie pm install OpenZeppelin/openzeppelin-contracts@4.7.2
+brownie pm install OpenZeppelin/openzeppelin-contracts@4.8.3
 brownie test
 ```

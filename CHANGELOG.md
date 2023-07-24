@@ -1,7 +1,4 @@
 
-SAFT with subscription (only wrap-and-lock payment method)  
-
-
 # CHANGELOG
 
 All notable changes to this project are documented in this file.
