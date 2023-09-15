@@ -4,7 +4,7 @@
 import "../../WrapperBaseV1.sol";
 import "../../../interfaces/IWrapperRemovable.sol";
 
-pragma solidity 0.8.19;
+pragma solidity 0.8.21;
 
 /// @title TrustedWrapperRemovable  contract in Envelop PrtocolV1 
 /// @author Envelop Team

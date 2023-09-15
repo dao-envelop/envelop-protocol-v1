@@ -9,7 +9,7 @@ import "./LibEnvelopTypes.sol";
 
 /// @dev !!!!!!! DEPRICATED !!!!!!!!!!!!!
 /// @dev due https://gitlab.com/envelop/subscription
-pragma solidity 0.8.19;
+pragma solidity 0.8.21;
 
 contract SubscriptionManagerV1 is Ownable {
     using SafeERC20 for IERC20;

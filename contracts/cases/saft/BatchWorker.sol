@@ -15,7 +15,7 @@ import "../../Subscriber.sol";
 /// @dev !!!!!!! DEPRICATED !!!!!!!!!!!!!
 /// @dev Use SaftV2 solution instead https://gitlab.com/envelop/saftv2
 /// @custom:please see Envelop Docs Portal
-pragma solidity 0.8.19;
+pragma solidity 0.8.21;
 
 contract BatchWorker is Ownable, Subscriber {
     using SafeERC20 for IERC20Extended;

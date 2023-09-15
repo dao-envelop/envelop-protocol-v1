@@ -5,7 +5,7 @@ import "../../WrapperBaseV1.sol";
 import "../../../interfaces/IWrapperRemovable.sol";
 import "../../../interfaces/IChecker.sol";
 
-pragma solidity 0.8.19;
+pragma solidity 0.8.21;
 
 contract WrapperRemovableAdvanced is WrapperBaseV1, IWrapperRemovable {
 

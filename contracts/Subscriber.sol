@@ -14,7 +14,7 @@
 /// !!! use Ownable pattern for `setSubscriptionManager`
 /// @dev !!!!!!! DEPRICATED !!!!!!!!!!!!!
 /// @dev due https://gitlab.com/envelop/subscription
-pragma solidity 0.8.19;
+pragma solidity 0.8.21;
 
 import "../interfaces/ISubscriptionManager.sol";
 

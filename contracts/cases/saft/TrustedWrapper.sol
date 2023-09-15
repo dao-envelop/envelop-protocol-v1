@@ -3,7 +3,7 @@
 
 import "../../WrapperBaseV1.sol";
 
-pragma solidity 0.8.19;
+pragma solidity 0.8.21;
 
 /// @title TrustedWrapper  contract in Envelop PrtocolV1 
 /// @author Envelop Team
