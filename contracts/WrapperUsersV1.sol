@@ -705,9 +705,13 @@ contract WrapperUsersV1 is
         ETypes.AssetItem[] calldata _collateral
     ) 
         internal 
-        view 
+        view
+        virtual 
         returns (bool enabled)
     {
+        require(IUsersSBT(_wNFTAddress).owner() == msg.sender, 
+            'Only wNFT contract owner able to add collateral'
+        );
         // Check  that wNFT exist
         ETypes.AssetType wnftType = _getNFTType(_wNFTAddress, _wNFTTokenId);
         if (wnftType == ETypes.AssetType.ERC721) {
@@ -719,7 +723,8 @@ contract WrapperUsersV1 is
                 ETypes.AssetItem(ETypes.Asset(wnftType,_wNFTAddress),_wNFTTokenId, 0)
             );
         }
-        // Lets check wNFT rules 
+
+        // Lets check wNFT rules - TODO   Ask  Alex
         // 0x0008 - this rule disable add collateral
         enabled = !_checkRule(0x0008, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
     }

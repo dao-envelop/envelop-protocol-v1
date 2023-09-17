@@ -93,6 +93,10 @@ contract MockUsersSBTCollection721 is ERC721Enumerable {
     }
     /////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
+    function exists(uint256 _tokenId) public view returns(bool) {
+        return _exists(_tokenId);
+    }
+    
     function wnftInfo(uint256 tokenId) external view returns (ETypes.WNFT memory) {
         return IWrapper(wrapperMinter).getWrappedToken(address(this), tokenId);
     }

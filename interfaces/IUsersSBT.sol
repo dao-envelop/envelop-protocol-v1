@@ -15,5 +15,7 @@ interface IUsersSBT  {
         uint256 _balance, 
         bytes2 _rules
     ) external returns(uint256 tokenId);
+
+    function owner() external view returns(address);
    
 }

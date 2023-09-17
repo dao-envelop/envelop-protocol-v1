@@ -67,7 +67,10 @@ def test_check_wrap_721(accounts, usersSBTRegistry, wrapperUsers, wnft721SBT, wn
         0,            # outBalance
         Web3.toBytes(0x0005)  #rules - NO Unwrap, No Transfer
     )
+    with reverts('Wrap check fail'):
+        wrapperUsers.wrapIn(indata, [], accounts[3], wnft721SBT, {"from": accounts[0]})
 
+    
     tx = wrapperUsers.wrapIn(indata, [], accounts[3], wnft721SBT, {"from": accounts[1]})
     logging.info(tx.return_value)
     assert wnft721SBT.balanceOf(accounts[3]) == 1
@@ -78,5 +81,12 @@ def test_rules_721(accounts, wrapperUsers, wnft721SBT, erc721mock):
     with reverts('UnWrapp forbidden by author'):    
         wrapperUsers.unWrap(wnft721SBT, 0)
 
+def test_add_collateral(accounts, wrapperUsers, wnft721SBT, erc721mock, niftsy20):
+    coll = [((2, niftsy20.address), 0, 1e18)]
+    niftsy20.transfer(accounts[1], 1e18, {"from": accounts[0]})
+    niftsy20.approve(wrapperUsers.address, 1e18, {"from": accounts[0]})
+    wrapperUsers.addCollateral(wnft721SBT,0, coll, {"from": accounts[0]})
+    with reverts('Only wNFT contract owner able to add collateral'):
+        wrapperUsers.addCollateral(wnft721SBT,0, coll, {"from": accounts[1]})
 
 
