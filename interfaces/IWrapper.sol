@@ -119,8 +119,6 @@ interface IWrapper  {
     function MAX_COLLATERAL_SLOTS() external view returns (uint256);
     function protocolTechToken() external view returns (address);
     function protocolWhiteList() external view returns (address);
-    //function trustedOperators(address _operator) external view returns (bool); 
-    //function lastWNFTId(ETypes.AssetType _assetType) external view returns (ETypes.NFTItem); 
 
     function getWrappedToken(address _wNFTAddress, uint256 _wNFTTokenId) 
         external 

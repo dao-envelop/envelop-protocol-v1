@@ -329,7 +329,35 @@ def whiteListsForwrapperTrusted2(accounts, AdvancedWhiteList):
     wl = accounts[0].deploy(AdvancedWhiteList)
     yield wl 
 
+###############################################################
+####################   SBT Wrapper with Mocks  ################
+@pytest.fixture(scope="module")
+def usersSBTRegistry(accounts, MockUsersSBTCollectionPRegistry):
+    r = accounts[0].deploy(MockUsersSBTCollectionPRegistry)
+    yield r
+
+@pytest.fixture(scope="module")
+def wrapperUsers(accounts, WrapperUsersV1, usersSBTRegistry):
+    w = accounts[0].deploy(WrapperUsersV1, usersSBTRegistry)
+    yield w
+
+@pytest.fixture(scope="module")
+def wnft721SBT(accounts, MockUsersSBTCollection721, wrapperUsers):
+    w = accounts[0].deploy(MockUsersSBTCollection721, 
+        accounts[0],
+        "Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", 
+        wrapperUsers
+    )
+    yield w
 
 
+@pytest.fixture(scope="module")
+def wnft1155SBT(accounts, MockUsersCollection1155, wrapperUsers):
+    w = accounts[0].deploy(MockUsersCollection1155, 
+        accounts[0],
+        "Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", 
+        wrapperUsers
+    )
+    yield w
 
 
