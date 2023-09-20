@@ -1,10 +1,11 @@
 from brownie import *
 import json
 
-if  web3.eth.chain_id in [4, 5, 97]:
+if  web3.eth.chain_id in [4, 5, 97, 11155111]:
     # Testnets
-    #private_key='???'
-    accounts.load('tone');
+    private_key='???'
+    #accounts.load('tone');
+    #accounts.load('secret2');
 elif web3.eth.chain_id in [1,56,137, 42161]:
     accounts.load('envdeployer')
 
@@ -84,7 +85,7 @@ CHAIN = {
 }.get(web3.eth.chainId, {'explorer_base':'io'})
 print(CHAIN)
 tx_params = {'from':accounts[0]}
-if web3.eth.chainId in  [1,4,5]:
+if web3.eth.chainId in  [1,4,5, 11155111]:
     tx_params={'from':accounts[0], 'priority_fee': chain.priority_fee}
 
 def main():
@@ -136,7 +137,7 @@ def main():
 
     
 
-    if  web3.eth.chainId in [1,4, 5, 137, 42161, 43114]:
+    if  web3.eth.chainId in [1,4, 5, 137, 42161, 43114, 11155111]:
         TechTokenV1.publish_source(techERC20);
         WrapperBaseV1.publish_source(wrapper);
         EnvelopwNFT1155.publish_source(wnft1155);
