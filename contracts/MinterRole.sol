@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // ENVELOP(NIFTSY) protocol V1 for NFT. From old OpenZeppelin helpers
-pragma solidity 0.8.19;
+pragma solidity 0.8.21;
 
 /**
  * @title Roles

@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 // ENVELOP(NIFTSY) protocol V1 for NFT. Wrapper - main protocol contract
-pragma solidity 0.8.19;
+pragma solidity 0.8.21;
 
 import "./TokenService.sol";
+import "../interfaces/IUsersSBT.sol";
 
 /// @title Envelop PrtocolV1  helper service for manage ERC(20, 721, 115) getters
 /// @author Envelop Team
@@ -42,6 +43,31 @@ abstract contract TokenServiceExtended is TokenService {
             _owner = address(0);
         } else {
             revert UnSupportedAsset(_assetItem);
+        }
+    }
+
+    function _mintWNFTWithRules(
+        ETypes.AssetType _mint_type, 
+        address _contract, 
+        address _mintFor, 
+        uint256 _outBalance,
+        bytes2 _rules
+    ) 
+        internal 
+        virtual
+        returns(uint256 tokenId)
+    {
+        if (_mint_type == ETypes.AssetType.ERC721) {
+            tokenId = IUsersSBT(_contract).mintWithRules(_mintFor, _rules);
+        } else if (_mint_type == ETypes.AssetType.ERC1155) {
+            tokenId = IUsersSBT(_contract).mintWithRules(_mintFor, _outBalance, _rules);
+        }else {
+            revert UnSupportedAsset(
+                ETypes.AssetItem(
+                    ETypes.Asset(_mint_type, _contract),
+                    tokenId, _outBalance
+                )
+            );
         }
     }
 }

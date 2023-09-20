@@ -20,6 +20,6 @@ We use Brownie as main framework for developing and unit testing. For run tests
 first please [install it](https://eth-brownie.readthedocs.io/en/stable/install.html)
 
 ```bash
-brownie pm install OpenZeppelin/openzeppelin-contracts@4.8.3
+brownie pm install OpenZeppelin/openzeppelin-contracts@4.9.3
 brownie test
 ```

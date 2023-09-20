@@ -1,42 +1,64 @@
 // SPDX-License-Identifier: MIT
-// ENVELOP(NIFTSY) protocol V1 for NFT. Wrapper - main protocol contract
+// ENVELOP(NIFTSY) protocol V1 for NFT. Wrapper - for users SBT collections
 pragma solidity 0.8.21;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+//import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "../interfaces/IWrapper.sol";
-import "./TokenService.sol";
+import "./TokenServiceExtended.sol";
+import "../interfaces/IWrapperUsers.sol";
+import "../interfaces/IUserCollectionRegistry.sol";
 
 
+// #### Envelop ProtocolV1 Rules
+// 15   14   13   12   11   10   9   8   7   6   5   4   3   2   1   0  <= Bit number(dec)
+// ------------------------------------------------------------------------------------  
+//  1    1    1    1    1    1   1   1   1   1   1   1   1   1   1   1
+//  |    |    |    |    |    |   |   |   |   |   |   |   |   |   |   |
+//  |    |    |    |    |    |   |   |   |   |   |   |   |   |   |   +-No_Unwrap
+//  |    |    |    |    |    |   |   |   |   |   |   |   |   |   +-No_Wrap 
+//  |    |    |    |    |    |   |   |   |   |   |   |   |   +-No_Transfer
+//  |    |    |    |    |    |   |   |   |   |   |   |   +-No_Collateral
+//  |    |    |    |    |    |   |   |   |   |   |   +-reserved_core
+//  |    |    |    |    |    |   |   |   |   |   +-reserved_core
+//  |    |    |    |    |    |   |   |   |   +-reserved_core  
+//  |    |    |    |    |    |   |   |   +-reserved_core
+//  |    |    |    |    |    |   |   |
+//  |    |    |    |    |    |   |   |
+//  +----+----+----+----+----+---+---+
+//      for use in extendings
 /**
  * @title Non-Fungible Token Wrapper
  * @dev Make  wraping for existing ERC721 & ERC1155 and empty 
  */
-contract WrapperLightV1 is 
+contract WrapperUsersV1 is 
     ReentrancyGuard, 
     ERC721Holder, 
     ERC1155Holder, 
-    IWrapper, 
-    TokenService, 
-    Ownable 
+    IWrapperUsers, 
+    TokenServiceExtended
 {
 
     uint256 public MAX_COLLATERAL_SLOTS = 25;
+    address constant public protocolTechToken = address(0);  // Just for backward interface compatibility
+    address constant public protocolWhiteList = address(0);  // Just for backward interface compatibility
 
-    // two below vars not used in light implementation
-    address public protocolTechToken;
-    address public protocolWhiteList;
+    address immutable public usersCollectionRegistry;
 
     // Map from wrapping asset type to wnft contract address and last minted id
-    mapping(ETypes.AssetType => ETypes.NFTItem) public lastWNFTId;  
+    //mapping(ETypes.AssetType => ETypes.NFTItem) public lastWNFTId;  
     
     // Map from wNFT address to it's type (721, 1155)
-    mapping(address => ETypes.AssetType) public wnftTypes;
+    //mapping(address => ETypes.AssetType) public wnftTypes;
 
     // Map from wrapped token address and id => wNFT record 
     mapping(address => mapping(uint256 => ETypes.WNFT)) internal wrappedTokens; 
+
+    constructor(address _usersWNFTRegistry) {
+        require(_usersWNFTRegistry != address(0), "Only for non zero registry");
+        usersCollectionRegistry = _usersWNFTRegistry;
+    }
 
     function wrap(
         ETypes.INData calldata _inData, 
@@ -46,12 +68,26 @@ contract WrapperLightV1 is
         public 
         virtual
         payable 
+        returns (ETypes.AssetItem memory) 
+    {
+      // Just for backward interface compatibility        
+    }
+
+    function wrapIn(
+        ETypes.INData calldata _inData, 
+        ETypes.AssetItem[] calldata _collateral, 
+        address _wrappFor,
+        address _wrappIn
+    )
+        public 
+        virtual
+        payable 
         nonReentrant 
         returns (ETypes.AssetItem memory) 
     {
 
         // 0. Check assetIn asset
-        require(_checkWrap(_inData,_wrappFor),
+        require(_checkWrap(_inData, _wrappFor, _wrappIn),
             "Wrap check fail"
         );
         // 1. Take users inAsset
@@ -59,6 +95,7 @@ contract WrapperLightV1 is
              _inData.inAsset.asset.assetType != ETypes.AssetType.EMPTY
         ) 
         {
+            // try move to end of call
             require(
                 _mustTransfered(_inData.inAsset) == _transferSafe(
                     _inData.inAsset, 
@@ -70,42 +107,55 @@ contract WrapperLightV1 is
         }
         
         // 2. Mint wNFT
-        lastWNFTId[_inData.outType].tokenId += 1;  //Save just will minted id 
-        _mintNFT(
+        //lastWNFTId[_inData.outType].tokenId += 1;  //Save just will minted id 
+        uint256 wnftId = _mintWNFTWithRules(
             _inData.outType,     // what will be minted instead of wrapping asset
-            lastWNFTId[_inData.outType].contractAddress, // wNFT contract address
+            _wrappIn, // wNFT contract address
             _wrappFor,                                   // wNFT receiver (1st owner) 
-            lastWNFTId[_inData.outType].tokenId,        
-            _inData.outBalance                           // wNFT tokenId
+            _inData.outBalance,                           // wNFT tokenId
+            _inData.rules
         );
         
         // 3. Safe wNFT info
         _saveWNFTinfo(
-            lastWNFTId[_inData.outType].contractAddress, 
-            lastWNFTId[_inData.outType].tokenId,
+            _wrappIn, 
+            wnftId,
             _inData
         );
 
         
         addCollateral(
-            lastWNFTId[_inData.outType].contractAddress, 
-            lastWNFTId[_inData.outType].tokenId,
+            _wrappIn, 
+            wnftId,
             _collateral
         ); 
          
+        // Charge Fee Hook 
+        // There is No Any Fees in Protocol
+        // So this hook can be used in b2b extensions of Envelop Protocol 
+        // 0x02 - feeType for WrapFee
+        // _chargeFees(
+        //     lastWNFTId[_inData.outType].contractAddress, 
+        //     lastWNFTId[_inData.outType].tokenId, 
+        //     msg.sender, 
+        //     address(this), 
+        //     0x02
+        // );
+        
 
         emit WrappedV1(
             _inData.inAsset.asset.contractAddress,        // inAssetAddress
-            lastWNFTId[_inData.outType].contractAddress,  // outAssetAddress
+            _wrappIn,                                     // outAssetAddress
             _inData.inAsset.tokenId,                      // inAssetTokenId 
-            lastWNFTId[_inData.outType].tokenId,          // outTokenId 
+            wnftId,                                       // outTokenId 
             _wrappFor,                                    // wnftFirstOwner
             msg.value,                                    // nativeCollateralAmount
             _inData.rules                                 // rules
         );
+
         return ETypes.AssetItem(
-            ETypes.Asset(_inData.outType, lastWNFTId[_inData.outType].contractAddress),
-            lastWNFTId[_inData.outType].tokenId,
+            ETypes.Asset(_inData.outType, _wrappIn),
+            wnftId,
             _inData.outBalance
         );
     }
@@ -135,7 +185,8 @@ contract WrapperLightV1 is
     
 
     function unWrap(address _wNFTAddress, uint256 _wNFTTokenId) external virtual {
-        unWrap(wnftTypes[_wNFTAddress], _wNFTAddress, _wNFTTokenId, false);
+
+        unWrap(_getNFTType(_wNFTAddress, _wNFTTokenId), _wNFTAddress, _wNFTTokenId, false);
     }
 
     function unWrap(
@@ -161,6 +212,13 @@ contract WrapperLightV1 is
             _checkLocks(_wNFTAddress, _wNFTTokenId)
         );
 
+        // 3. Charge Fee Hook 
+        // There is No Any Fees in Protocol
+        // So this hook can be used in b2b extensions of Envelop Protocol 
+        // 0x03 - feeType for UnWrapFee
+        // 
+        _chargeFees(_wNFTAddress, _wNFTTokenId, msg.sender, address(this), 0x03);
+        
         (uint256 nativeCollateralAmount, ) = getCollateralBalanceAndIndex(
             _wNFTAddress, 
             _wNFTTokenId,
@@ -209,28 +267,18 @@ contract WrapperLightV1 is
         returns (bool charged) 
     {
         //TODO  only wNFT contract can  execute  this(=charge fee)
-        require(msg.sender == _wNFTAddress || msg.sender == address(this), 
-            "Only for wNFT or wrapper"
-        );
-        require(_chargeFees(_wNFTAddress, _wNFTTokenId, _from, _to, _feeType),
-            "Fee charge fail"
-        );
-        // For Light edition
+        // require(msg.sender == _wNFTAddress || msg.sender == address(this), 
+        //     "Only for wNFT or wrapper"
+        // );
+        // require(_chargeFees(_wNFTAddress, _wNFTTokenId, _from, _to, _feeType),
+        //     "Fee charge fail"
+        // );
         charged = true;
     }
     /////////////////////////////////////////////////////////////////////
     //                    Admin functions                              //
     /////////////////////////////////////////////////////////////////////
-    function setWNFTId(
-        ETypes.AssetType  _assetOutType, 
-        address _wnftContract, 
-        uint256 _tokenId
-    ) external onlyOwner {
-        require(_wnftContract != address(0), "No zero address");
-        lastWNFTId[_assetOutType] = ETypes.NFTItem(_wnftContract, _tokenId);
-        wnftTypes[_wnftContract] =  _assetOutType;
-    }
-
+    
     /////////////////////////////////////////////////////////////////////
 
 
@@ -342,6 +390,14 @@ contract WrapperLightV1 is
         for (uint256 i = 0; i <_collateral.length; i ++) {
             if (_collateral[i].asset.assetType != ETypes.AssetType.NATIVE) {
                 
+                // // Check WhiteList Logic
+                // if  (protocolWhiteList != address(0)) {
+                //     require(
+                //         IAdvancedWhiteList(protocolWhiteList).enabledForCollateral(
+                //         _collateral[i].asset.contractAddress),
+                //         "WL:Some assets are not enabled for collateral"
+                //     );
+                // } 
                 require(
                     _mustTransfered(_collateral[i]) == _transferSafe(
                         _collateral[i], 
@@ -381,6 +437,13 @@ contract WrapperLightV1 is
         {
             require(collateralItem.tokenId == 0, "TokenId must be zero");
         }
+
+        /////////////////////////////////////////
+        //  ERC1155 Collateral                ///
+        // /////////////////////////////////////////
+        // if (collateralItem.asset.assetType == ETypes.AssetType.ERC1155) {
+        //  No need special checks
+        // }    
 
         /////////////////////////////////////////
         //  ERC721 Collateral                 ///
@@ -461,8 +524,8 @@ contract WrapperLightV1 is
         virtual  
         returns (bool _charged) 
     {
-        
-        _charged = true;
+        // There is NO fee in this implementation
+         _charged = true;
     }
 
 
@@ -522,7 +585,18 @@ contract WrapperLightV1 is
             // dont pop due in some case it c can be very costly
             // https://docs.soliditylang.org/en/v0.8.9/types.html#array-members  
 
-            
+            // For safe exit in case of low gaslimit
+            // this strange part of code can prevent only case 
+            // when when some collateral tokens spent unexpected gas limit
+            if (
+                gasleft() <= 1_000 &&
+                    i < wrappedTokens[_wNFTAddress][_wNFTTokenId].collateral.length - 1
+                ) 
+            {
+                emit PartialUnWrapp(_wNFTAddress, _wNFTTokenId, i);
+                //allReturned = false;
+                return false;
+            }
         }
 
         // 5. Return Original
@@ -549,6 +623,26 @@ contract WrapperLightV1 is
     }
     ////////////////////////////////////////////////////////////////////////////////////////////
 
+    function _getNFTType(address _wNFTAddress, uint256 _wNFTTokenId) 
+        internal 
+        view 
+        returns (ETypes.AssetType _wNFTType)
+    {
+        if (IERC165(_wNFTAddress).supportsInterface(type(IERC721).interfaceId)) {
+            _wNFTType = ETypes.AssetType.ERC721;
+        } else if (IERC165(_wNFTAddress).supportsInterface(type(IERC1155).interfaceId)) {
+            _wNFTType = ETypes.AssetType.ERC1155;
+        } else {
+            revert UnSupportedAsset(
+                ETypes.AssetItem(
+                    ETypes.Asset(_wNFTType, _wNFTAddress),
+                    _wNFTTokenId,
+                    0
+                )
+            );
+        }
+    }
+
     function _mustTransfered(ETypes.AssetItem calldata _assetForTransfer) 
         internal 
         pure 
@@ -563,43 +657,46 @@ contract WrapperLightV1 is
         }
     }
      
-    // function _checkRule(bytes2 _rule, bytes2 _wNFTrules) internal pure returns (bool) {
-    //     return _rule == (_rule & _wNFTrules);
-    // }
+    function _checkRule(bytes2 _rule, bytes2 _wNFTrules) internal pure returns (bool) {
+        return _rule == (_rule & _wNFTrules);
+    }
 
     // 0x00 - TimeLock
-    // 0x01 - TransferFeeLock -  NOT used in Ligth
+    // 0x01 - TransferFeeLock
     // 0x02 - Personal Collateral count Lock check
-    function _checkLocks(address _wNFTAddress, uint256 _wNFTTokenId) internal view returns (bool) 
+    function _checkLocks(address _wNFTAddress, uint256 _wNFTTokenId) internal view virtual returns (bool) 
     {
-        // Lets check that inAsset
-        for (uint256 i = 0; i < wrappedTokens[_wNFTAddress][_wNFTTokenId].locks.length; i ++) {
-            // Time Lock check
-            if (wrappedTokens[_wNFTAddress][_wNFTTokenId].locks[i].lockType == 0x00) {
-                require(
-                    wrappedTokens[_wNFTAddress][_wNFTTokenId].locks[i].param <= block.timestamp,
-                    "TimeLock error"
-                );
-            }
-
-        }
+        // There is NO locks checks in this implementation
         return true;
     }
 
 
-    function _checkWrap(ETypes.INData calldata _inData, address _wrappFor) 
+    function _checkWrap(ETypes.INData calldata _inData, address _wrappFor, address _wrappIn) 
         internal 
         view 
         returns (bool enabled)
     {
+        
+        //enabled = _wrappFor != address(this);
+
+        // Check that _wrappIn belongs to user
+        ETypes.Asset[] memory userAssets = IUserCollectionRegistry(usersCollectionRegistry)
+            .getUsersCollections(msg.sender);
+        bool isUsersAsset;
+        for (uint256 i = 0; i < userAssets.length; ++ i ){
+            if (userAssets[i].contractAddress == _wrappIn && 
+                userAssets[i].assetType == _inData.outType
+                ) 
+            {
+                isUsersAsset = true;
+                break;
+            }
+        }
+        
         // Lets check that inAsset 
-        // 0x0002 - this rule disable wrap already wrappednFT (NO matryoshka)
-        // enabled = !_checkRule(0x0002, getWrappedToken(
-        //     _inData.inAsset.asset.contractAddress, 
-        //     _inData.inAsset.tokenId).rules
-        //     ) 
-        //     && _wrappFor != address(this);
-        enabled = true;
+        enabled =     
+            _wrappFor != address(this) && 
+            isUsersAsset;
     }
     
     function _checkAddCollateral(
@@ -608,23 +705,28 @@ contract WrapperLightV1 is
         ETypes.AssetItem[] calldata _collateral
     ) 
         internal 
-        view 
+        view
+        virtual 
         returns (bool enabled)
     {
+        require(IUsersSBT(_wNFTAddress).owner() == msg.sender, 
+            'Only wNFT contract owner able to add collateral'
+        );
         // Check  that wNFT exist
-        if (wnftTypes[_wNFTAddress] == ETypes.AssetType.ERC721) {
+        ETypes.AssetType wnftType = _getNFTType(_wNFTAddress, _wNFTTokenId);
+        if (wnftType == ETypes.AssetType.ERC721) {
             require(IERC721Mintable(_wNFTAddress).exists(_wNFTTokenId), "wNFT not exists");
-        } else if(wnftTypes[_wNFTAddress] == ETypes.AssetType.ERC1155) {
+        } else if(wnftType == ETypes.AssetType.ERC1155) {
             require(IERC1155Mintable(_wNFTAddress).exists(_wNFTTokenId), "wNFT not exists");
         } else {
             revert UnSupportedAsset(
-                ETypes.AssetItem(ETypes.Asset(wnftTypes[_wNFTAddress],_wNFTAddress),_wNFTTokenId, 0)
+                ETypes.AssetItem(ETypes.Asset(wnftType,_wNFTAddress),_wNFTTokenId, 0)
             );
         }
-        // Lets check wNFT rules 
+
+        // Lets check wNFT rules - TODO   Ask  Alex
         // 0x0008 - this rule disable add collateral
-        // enabled = !_checkRule(0x0008, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
-        enabled = true;
+        enabled = !_checkRule(0x0008, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules); 
     }
 
     function _checkCoreUnwrap(
@@ -639,10 +741,10 @@ contract WrapperLightV1 is
     {
         
         // Lets wNFT rules 
-        // 0x0001 - this rule disable unwrap wrappednFT   -not in Light
-        // require(!_checkRule(0x0001, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules),
-        //     "UnWrapp forbidden by author"
-        // );
+        // 0x0001 - this rule disable unwrap wrappednFT 
+        require(!_checkRule(0x0001, getWrappedToken(_wNFTAddress, _wNFTTokenId).rules),
+            "UnWrapp forbidden by author"
+        );
 
         if (_wNFTType == ETypes.AssetType.ERC721) {
             // Only token owner can UnWrap

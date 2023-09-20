@@ -7,6 +7,15 @@ This changelog format is based on [Keep a Changelog](https://keepachangelog.com/
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 - Factory for SBT wNFTs
+
+## [1.3.0](https://github.com/dao-envelop/envelop-protocol-v1/tree/1.3.0) - 2023-09-16
+### Added
+- Upgrade solidity version up to 0.8.21
+- Open Zeppelin dependencies upgrade to 4.9.3
+
+### Fixed
+- 
+
 ## [1.2.0](https://github.com/dao-envelop/envelop-protocol-v1/tree/1.2.0) - 2023-05-16
 ### Added
 - Fresh audit report added 
