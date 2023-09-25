@@ -90,21 +90,7 @@ contract WrapperUsersV1 is
         require(_checkWrap(_inData, _wrappFor, _wrappIn),
             "Wrap check fail"
         );
-        // 1. Take users inAsset
-        if ( _inData.inAsset.asset.assetType != ETypes.AssetType.NATIVE &&
-             _inData.inAsset.asset.assetType != ETypes.AssetType.EMPTY
-        ) 
-        {
-            // try move to end of call
-            require(
-                _mustTransfered(_inData.inAsset) == _transferSafe(
-                    _inData.inAsset, 
-                    msg.sender, 
-                    address(this)
-                ),
-                "Suspicious asset for wrap"
-            );
-        }
+        
         
         // 2. Mint wNFT
         //lastWNFTId[_inData.outType].tokenId += 1;  //Save just will minted id 
@@ -123,7 +109,21 @@ contract WrapperUsersV1 is
             _inData
         );
 
-        
+        // 1. Take users inAsset
+        if ( _inData.inAsset.asset.assetType != ETypes.AssetType.NATIVE &&
+             _inData.inAsset.asset.assetType != ETypes.AssetType.EMPTY
+        ) 
+        {
+            require(
+                _mustTransfered(_inData.inAsset) == _transferSafe(
+                    _inData.inAsset, 
+                    msg.sender, 
+                    address(this)
+                ),
+                "Suspicious asset for wrap"
+            );
+        }
+
         addCollateral(
             _wrappIn, 
             wnftId,
@@ -202,7 +202,7 @@ contract WrapperUsersV1 is
         address _wNFTAddress, 
         uint256 _wNFTTokenId, 
         bool _isEmergency
-    ) public virtual {
+    ) public virtual nonReentrant{
         // 1. Check core protocol logic:
         // - who and what possible to unwrap
         (address burnFor, uint256 burnBalance) = _checkCoreUnwrap(_wNFTType, _wNFTAddress, _wNFTTokenId);
@@ -243,15 +243,20 @@ contract WrapperUsersV1 is
             _wNFTTokenId, 
             burnBalance
         );
-
+        
+        ETypes.WNFT memory w = getWrappedToken(_wNFTAddress, _wNFTTokenId);
         emit UnWrappedV1(
             _wNFTAddress,
-            wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.asset.contractAddress,
+            w.inAsset.asset.contractAddress,
+            //wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.asset.contractAddress,
             _wNFTTokenId, 
-            wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.tokenId,
-            wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestination, 
+            w.inAsset.tokenId,
+            //wrappedTokens[_wNFTAddress][_wNFTTokenId].inAsset.tokenId,
+            w.unWrapDestination, 
+            //wrappedTokens[_wNFTAddress][_wNFTTokenId].unWrapDestination, 
             nativeCollateralAmount,  // TODO Check  GAS
-            wrappedTokens[_wNFTAddress][_wNFTTokenId].rules 
+            w.rules
+            //wrappedTokens[_wNFTAddress][_wNFTTokenId].rules 
         );
     } 
 
