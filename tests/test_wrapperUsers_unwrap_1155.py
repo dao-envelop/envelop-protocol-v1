@@ -65,7 +65,8 @@ def test_unwrap(accounts, erc721mock, wrapperUsers, dai, weth, wnft1155SBT, nift
 	before_eth_balance = wNFT[1][0][2]
 	before_acc_balance = accounts[3].balance()
 
-	
+	with reverts('ERC115 unwrap available only for all totalSupply'):
+		wrapperUsers.unWrap(4, wnft1155SBT.address, wTokenId, {"from": accounts[0]})
 	wrapperUsers.unWrap(4, wnft1155SBT.address, wTokenId, {"from": accounts[3]})
 	
 	#checks
