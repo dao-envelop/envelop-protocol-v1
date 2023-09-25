@@ -60,7 +60,7 @@ def test_simple_wrap(accounts, erc721mock, wrapperUsers, dai, weth, wnft721SBT, 
 		Web3.toBytes(0x0005)  #rules - NO Unwrap, No Transfer
 		)
 
-	wrapperUsers.wrapIn(wNFT, [dai_data, weth_data, eth_data], accounts[3], wnft721SBT,  {"from": accounts[0], "value": eth_amount})
+	tx = wrapperUsers.wrapIn(wNFT, [dai_data, weth_data, eth_data], accounts[3], wnft721SBT,  {"from": accounts[0], "value": eth_amount})
 	
 	#checks
 	assert wrapperUsers.balance() == eth_amount
@@ -71,17 +71,17 @@ def test_simple_wrap(accounts, erc721mock, wrapperUsers, dai, weth, wnft721SBT, 
 	logging.info(wnft721SBT.totalSupply())
 	logging.info(wnft721SBT.tokenOfOwnerByIndex(accounts[3], 0))
 	#assert wnft721SBT.totalSupply() == 1
+	logging.info(tx.return_value)
 
-	'''wTokenId = wrapperUsers.lastWNFTId(out_type)[1]
+	wTokenId = tx.return_value[1]
 	wNFT = wrapperUsers.getWrappedToken(wnft721SBT, wTokenId)
-	#logging.info(wNFT)
 	assert wNFT[0] == erc721_data
 	assert wNFT[1] == [eth_data, dai_data, weth_data]
 	assert wNFT[2] == zero_address
 	assert wNFT[3] == fee
 	assert wNFT[4] == lock
 	assert wNFT[5] == royalty
-	assert wNFT[6] == '0x0'	'''
+	assert wNFT[6] == '0x0005'
 
 	erc721_property = (0, zero_address)
 
@@ -91,7 +91,7 @@ def test_simple_wrap(accounts, erc721mock, wrapperUsers, dai, weth, wnft721SBT, 
 	lock = []
 	royalty = []
 
-	wNFT = ( erc721_data,
+	tx = wNFT = ( erc721_data,
 		accounts[2],
 		fee,
 		lock,
@@ -101,6 +101,15 @@ def test_simple_wrap(accounts, erc721mock, wrapperUsers, dai, weth, wnft721SBT, 
 		Web3.toBytes(0x0005)  #rules - NO Unwrap, No Transfer
 		)
 
-	wrapperUsers.wrapIn(wNFT, [], accounts[3], wnft721SBT,  {"from": accounts[0]})
-	logging.info(wnft721SBT.totalSupply())
-	logging.info(wnft721SBT.tokenOfOwnerByIndex(accounts[3], 1))
+	tx= wrapperUsers.wrapIn(wNFT, [], accounts[3], wnft721SBT,  {"from": accounts[0]})
+
+	wTokenId = tx.return_value[1]
+	wNFT = wrapperUsers.getWrappedToken(wnft721SBT, wTokenId)
+	#logging.info(wNFT)
+	assert wNFT[0] == erc721_data
+	assert wNFT[1] == []
+	assert wNFT[2] == zero_address
+	assert wNFT[3] == fee
+	assert wNFT[4] == lock
+	assert wNFT[5] == royalty
+	assert wNFT[6] == '0x0005'

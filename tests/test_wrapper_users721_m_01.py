@@ -89,4 +89,31 @@ def test_add_collateral(accounts, wrapperUsers, wnft721SBT, erc721mock, niftsy20
     with reverts('Only wNFT contract owner able to add collateral'):
         wrapperUsers.addCollateral(wnft721SBT,0, coll, {"from": accounts[1]})
 
+def test_check_wrap_721_1(accounts, usersSBTRegistry, wrapperUsers, wnft721SBT, wnft1155SBT, erc721mock):
+     #without possible rules
+    
+    token_data = ((0, zero_address), 0, 0)
+    
+    fee = []
+    lock = []
+    royalty = []
+
+    indata = ( 
+        token_data,   # inAsset
+        accounts[2],  # unWrapDestinition
+        fee,
+        lock,
+        royalty,
+        out_type,
+        0,            # outBalance
+        Web3.toBytes(0x0005)  #rules - NO Unwrap, No Transfer
+    )
+
+    
+    tx = wrapperUsers.wrapIn(indata, [], accounts[3], wnft721SBT, {"from": accounts[1]})
+    logging.info(tx.return_value)
+    assert wnft721SBT.balanceOf(accounts[3]) == 2
+    logging.info(wnft721SBT.totalSupply())
+    #logging.info(wnft721SBT.tokenByIndex(1))
+
 
