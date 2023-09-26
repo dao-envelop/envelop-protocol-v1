@@ -27,12 +27,14 @@ def test_call_factory(accounts, usersSBTRegistry, wrapperUsers, wnft1155SBT, wnf
     logging.info(usersSBTRegistry.getUsersCollections(accounts[0]))
     assert len(usersSBTRegistry.getUsersCollections(accounts[0])) == 1
 
-def test_addColl(accounts, erc721mock, wrapperUsers, wnft1155SBT, niftsy20, erc721mock1, erc1155mock, dai):
+def test_addColl(accounts, erc721mock, wrapperUsers, wnft1155SBT, niftsy20, erc721mock1, erc1155mock, dai, erc1155mock1):
 	#make test data
 	erc1155mock.mint(accounts[0], ORIGINAL_NFT_IDs[1], 2, {"from": accounts[0]})
 	erc721mock.mint(ORIGINAL_NFT_IDs[0], {"from": accounts[0]})
 	erc721mock1.mint(ORIGINAL_NFT_IDs[0], {"from": accounts[0]})
 	erc1155mock.mint(accounts[0], ORIGINAL_NFT_IDs[0], 1, {"from": accounts[0]})
+
+	erc1155mock1.mint(accounts[1], 1, 1, {"from": accounts[1]})
 	
 
 	#make wrap NFT 1155
@@ -92,6 +94,10 @@ def test_addColl(accounts, erc721mock, wrapperUsers, wnft1155SBT, niftsy20, erc7
 	#with asset data - ERC721 token. Msg.Sender is not owner of token
 	with reverts("Only wNFT contract owner able to add collateral"):
 		wrapperUsers.addCollateral(wnft1155SBT.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[0], 0)], {'from': accounts[8]})
+
+	#with asset data - ERC1155 token. Msg.Sender is not owner of token
+	with reverts("ERC1155: caller is not token owner or approved"):
+		wrapperUsers.addCollateral(wnft1155SBT.address, wTokenId, [((4, erc1155mock1.address), 1, 1)], {'from': accounts[0]})
 	
 	#with asset data - ERC721 token. Second token to collateral
 	wrapperUsers.addCollateral(wnft1155SBT.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[0], 0)], {'from': accounts[0]})
