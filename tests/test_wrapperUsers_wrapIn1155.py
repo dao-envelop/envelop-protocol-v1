@@ -64,6 +64,7 @@ def test_simple_wrap(accounts, erc1155mock, wrapperUsers, dai, weth, wnft1155SBT
 	#tx = wrapperUsers.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 	#checks
 	wTokenId = tx.return_value[1]
+	assert wrapperUsers.getOriginalURI(wnft1155SBT, wTokenId) == erc1155mock.uri(ORIGINAL_NFT_IDs[0])
 	assert wrapperUsers.balance() == eth_amount
 	assert dai.balanceOf(wrapperUsers) == call_amount
 	assert weth.balanceOf(wrapperUsers) == 2*call_amount

@@ -119,9 +119,6 @@ def test_addColl(accounts, erc721mock, wrapperUsers, wnft1155SBT, niftsy20, erc7
 		wrapperUsers.addCollateral(wnft1155SBT.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[1], 2), ((2, dai),1, call_amount)], {'from': accounts[0]})
 	wrapperUsers.addCollateral(wnft1155SBT.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[1], 2), ((2, dai),0, call_amount)], {'from': accounts[0]})
 
-	logging.info(wrapperUsers.getWrappedToken(wnft1155SBT, wTokenId)[1])
-	logging.info(wrapperUsers.getWrappedToken(wnft1155SBT, wTokenId)[1][0])
-
 	assert wrapperUsers.balance() == "4 ether"
 
 	collateral = wrapperUsers.getWrappedToken(wnft1155SBT, wTokenId)[1]
@@ -154,6 +151,8 @@ def test_addColl(accounts, erc721mock, wrapperUsers, wnft1155SBT, niftsy20, erc7
 	assert wrapperUsers.getCollateralBalanceAndIndex(wnft1155SBT.address, wTokenId, 3, erc721mock1.address, ORIGINAL_NFT_IDs[0])[0] == 0
 	assert wrapperUsers.getCollateralBalanceAndIndex(wnft1155SBT.address, wTokenId, 3, erc721mock1.address, ORIGINAL_NFT_IDs[0])[1] == 3
 
+	with reverts("ERC115 unwrap available only for all totalSupply"):
+		wrapperUsers.unWrap(4, wnft1155SBT.address, wTokenId, {"from": accounts[0]})
 	wrapperUsers.unWrap(4, wnft1155SBT.address, wTokenId, {"from": accounts[3]})
 
 	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[3]
@@ -167,3 +166,6 @@ def test_addColl(accounts, erc721mock, wrapperUsers, wnft1155SBT, niftsy20, erc7
 
 	with reverts("wNFT not exists"):
 		wrapperUsers.addCollateral(wnft1155SBT.address, wTokenId, [], {'from': accounts[0], "value": "1 ether"})
+
+
+	assert wnft1155SBT.balanceOf(accounts[3], wTokenId) == 0

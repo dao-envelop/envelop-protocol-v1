@@ -80,7 +80,14 @@ def test_addColl(accounts, erc721mock, wrapperUsers, wnft721SBT, niftsy20, erc72
 	with reverts("ERC721: caller is not token owner or approved"):
 		wrapperUsers.addCollateral(wnft721SBT.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[1], 0)], {'from': accounts[0], "value": '1 ether'})
 	erc721mock.approve(wrapperUsers.address, ORIGINAL_NFT_IDs[1], {"from": accounts[0]})
-	wrapperUsers.addCollateral(wnft721SBT.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[1], 0)], {'from': accounts[0], "value": '1 ether'})
+	tx = wrapperUsers.addCollateral(wnft721SBT.address, wTokenId, [((3, erc721mock.address), ORIGINAL_NFT_IDs[1], 0)], {'from': accounts[0], "value": '1 ether'})
+
+	assert tx.events['CollateralAdded'][0]['wrappedAddress']== wnft721SBT
+	assert tx.events['CollateralAdded'][0]['wrappedId'] == wTokenId
+	assert tx.events['CollateralAdded'][0]['assetType'] == 1
+	assert tx.events['CollateralAdded'][0]['collateralAddress'] == zero_address
+	assert tx.events['CollateralAdded'][0]['collateralTokenId'] == 0
+	assert tx.events['CollateralAdded'][0]['collateralBalance'] == 1e18
 
 	
 	#with asset data - ERC721 token. Wrong type
@@ -114,9 +121,6 @@ def test_addColl(accounts, erc721mock, wrapperUsers, wnft721SBT, niftsy20, erc72
 		wrapperUsers.addCollateral(wnft721SBT.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[0], 1), ((2, dai),1, call_amount)], {'from': accounts[0]})
 	wrapperUsers.addCollateral(wnft721SBT.address, wTokenId, [((4, erc1155mock.address), ORIGINAL_NFT_IDs[0], 1), ((2, dai),0, call_amount)], {'from': accounts[0]})
 
-	logging.info(wrapperUsers.getWrappedToken(wnft721SBT, wTokenId)[1])
-	logging.info(wrapperUsers.getWrappedToken(wnft721SBT, wTokenId)[1][0])
-
 	assert wrapperUsers.balance() == "4 ether"
 
 	collateral = wrapperUsers.getWrappedToken(wnft721SBT, wTokenId)[1]
@@ -146,7 +150,23 @@ def test_addColl(accounts, erc721mock, wrapperUsers, wnft721SBT, niftsy20, erc72
 	assert wrapperUsers.getCollateralBalanceAndIndex(wnft721SBT.address, wTokenId, 3, erc721mock1.address, ORIGINAL_NFT_IDs[0])[0] == 0
 	assert wrapperUsers.getCollateralBalanceAndIndex(wnft721SBT.address, wTokenId, 3, erc721mock1.address, ORIGINAL_NFT_IDs[0])[1] == 3
 
-	wrapperUsers.unWrap(3, wnft721SBT.address, wTokenId, {"from": accounts[3]})
+	assert wrapperUsers.getCollateralBalanceAndIndex(wnft721SBT, wTokenId, 2, dai, 0)[0] == call_amount
+
+	dai.approve(wrapperUsers, call_amount, {"from": accounts[0]})
+	tx = wrapperUsers.addCollateral(wnft721SBT.address, wTokenId, [((2, dai),0, call_amount)], {'from': accounts[0]})
+	assert wrapperUsers.getCollateralBalanceAndIndex(wnft721SBT, wTokenId, 2, dai, 0)[0] == 2*call_amount
+	assert dai.balanceOf(wrapperUsers) == 2*call_amount
+
+	assert tx.events['CollateralAdded']['wrappedAddress']== wnft721SBT
+	assert tx.events['CollateralAdded']['wrappedId'] == wTokenId
+	assert tx.events['CollateralAdded']['assetType'] == 2
+	assert tx.events['CollateralAdded']['collateralAddress'] == dai
+	assert tx.events['CollateralAdded']['collateralTokenId'] == 0
+	assert tx.events['CollateralAdded']['collateralBalance'] == call_amount
+
+	with reverts("Only owner can unwrap it"):
+		tx = wrapperUsers.unWrap(3, wnft721SBT.address, wTokenId, {"from": accounts[0]})
+	tx = wrapperUsers.unWrap(3, wnft721SBT.address, wTokenId, {"from": accounts[3]})
 
 	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == accounts[3]
 	assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[1]) == accounts[3]
@@ -155,7 +175,19 @@ def test_addColl(accounts, erc721mock, wrapperUsers, wnft721SBT, niftsy20, erc72
 	assert erc1155mock.balanceOf(accounts[3], ORIGINAL_NFT_IDs[0]) == 1
 	assert erc721mock.balanceOf(accounts[3]) == 3
 	assert erc721mock1.balanceOf(accounts[3]) == 1
-	assert dai.balanceOf(accounts[3]) == call_amount
+	assert dai.balanceOf(accounts[3]) == 2*call_amount
 
 	with reverts("wNFT not exists"):
 		wrapperUsers.addCollateral(wnft721SBT.address, wTokenId, [], {'from': accounts[0], "value": "1 ether"})
+
+	assert tx.events['UnWrappedV1']['wrappedAddress']== wnft721SBT
+	assert tx.events['UnWrappedV1']['wrappedId'] == wTokenId
+	assert tx.events['UnWrappedV1']['originalAddress'] == erc721mock
+	assert tx.events['UnWrappedV1']['originalTokenId'] == ORIGINAL_NFT_IDs[0]
+	assert tx.events['UnWrappedV1']['beneficiary'] == zero_address
+	assert tx.events['UnWrappedV1']['nativeCollateralAmount'] == 4e18
+	assert tx.events['UnWrappedV1']['rules'] == '0x0004'
+
+	with reverts("ERC721: invalid token ID"):
+		wnft721SBT.ownerOf(wTokenId)
+
