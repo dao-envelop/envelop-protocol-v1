@@ -127,4 +127,3 @@ def test_check_wrap_721_unwrap(
     logging.info(tx.events)
     assert wnft721SBT.balanceOf(accounts[3]) == 1
 
-

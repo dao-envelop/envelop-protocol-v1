@@ -360,4 +360,9 @@ def wnft1155SBT(accounts, MockUsersCollection1155, wrapperUsers):
     )
     yield w
 
+@pytest.fixture(scope="module")
+def hackERC20Users(accounts, HackERC20, wrapperUsers, wnft721SBT):
+    h = accounts[0].deploy(HackERC20,"Hacker Reentrancy Token", "HRT", wrapperUsers.address, wnft721SBT.address)
+    yield h
+
 

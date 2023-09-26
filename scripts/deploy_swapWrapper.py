@@ -51,6 +51,10 @@ TRON_MAIN_ERC20_COLLATERAL_TOKENS = [
 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',  #USDT
 ]
 
+ETH_SEPOLIA_ERC20_COLLATERAL_TOKENS = [
+'0x5dB9f4C9239345308614604e69258C0bba9b437f',  #NIFTSY
+]
+
 CHAIN = {   
     0:{'explorer_base':'io'},
     1:{'explorer_base':'etherscan.io', 'enabled_erc20': ETH_MAIN_ERC20_COLLATERAL_TOKENS},
@@ -62,12 +66,13 @@ CHAIN = {
     80001:{'explorer_base':'mumbai.polygonscan.com', },  
     43114:{'explorer_base':'cchain.explorer.avax.network', 'enabled_erc20': AVALANCHE_MAIN_ERC20_COLLATERAL_TOKENS},
     43113:{'explorer_base':'cchain.explorer.avax-test.network', },
+    11155111:{'explorer_base':'sepolia.etherscan.io','enabled_erc20': ETH_SEPOLIA_ERC20_COLLATERAL_TOKENS},
 
 }.get(web3.eth.chainId, {'explorer_base':'io'})
 print(CHAIN)
 
 tx_params = {'from':accounts[0]}
-if web3.eth.chainId in  [1,4,5]:
+if web3.eth.chainId in  [1,4,5, 11155111]:
     tx_params={'from':accounts[0], 'priority_fee': chain.priority_fee}
 
 def main():
@@ -98,7 +103,7 @@ def main():
     #account for deployment
     checker.setTrustedAddress('0xeC060A763ACf876a0f25D7796497174B834140b5', True, {"from": accounts[0]})
 
-    if  web3.eth.chainId in [1,4,5, 137, 43114]:
+    if  web3.eth.chainId in [1,4,5, 137, 43114, 11155111]:
         TechTokenV1.publish_source(techERC20);
         EnvelopwNFT721.publish_source(wnft721);
         AdvancedWhiteList.publish_source(whitelist);

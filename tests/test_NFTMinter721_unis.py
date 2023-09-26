@@ -6,7 +6,6 @@ from web3 import Web3
 from eth_abi import encode_single
 from eth_account.messages import encode_defunct
 
-
 LOGGER = logging.getLogger(__name__)
 
 ORACLE_ADDRESS = '0x8125F522a712F4aD849E6c7312ba8263bEBeEFeD' 
@@ -76,6 +75,7 @@ def test_mint(accounts, NFTMinterUni, MockManager):
     tx = NFTMinterUni.mintWithURI(accounts[1], tokenId, tokenUri, signed_message.signature, {"from": accounts[0]})
     logging.info('gas = {}'.format(tx.gas_used))
 
+
     #use previous data again
     with reverts("ERC721: token already minted"):
         NFTMinterUni.mintWithURI(accounts[1], tokenId, tokenUri, signed_message.signature, {"from": accounts[0]})
@@ -84,6 +84,7 @@ def test_mint(accounts, NFTMinterUni, MockManager):
     #use previous signature, new data
     with reverts("Unexpected signer"):
         NFTMinterUni.mintWithURI(accounts[1], tokenId+1, tokenUri, signed_message.signature, {"from": accounts[0]})
+
 
 def test_subscription(accounts, NFTMinterUni, subscriptionManager, niftsy20, dai, wrapperTrusted2, wnft721ForwrapperTrusted2):
     tokenId = 2
