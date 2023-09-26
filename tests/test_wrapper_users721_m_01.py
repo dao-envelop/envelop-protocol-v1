@@ -74,6 +74,7 @@ def test_check_wrap_721(accounts, usersSBTRegistry, wrapperUsers, wnft721SBT, wn
     tx = wrapperUsers.wrapIn(indata, [], accounts[3], wnft721SBT, {"from": accounts[1]})
     logging.info(tx.return_value)
     assert wnft721SBT.balanceOf(accounts[3]) == 1
+    assert wnft721SBT.totalSupply() == 1
 
 def test_rules_721(accounts, wrapperUsers, wnft721SBT, erc721mock):
     with reverts('Trasfer was disabled by author'):
