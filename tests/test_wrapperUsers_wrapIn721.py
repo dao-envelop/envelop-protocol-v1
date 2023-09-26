@@ -127,3 +127,37 @@ def test_simple_wrap(accounts, erc721mock, wrapperUsers, dai, weth, wnft721SBT, 
 	assert tx.events['WrappedV1']['nativeCollateralAmount'] == 0
 	assert tx.events['WrappedV1']['rules'] == '0x0005'
 
+	empty_property = (0, zero_address)
+
+	empty_data = (empty_property, 0, 0)
+
+	fee = []
+	lock = []
+	royalty = []
+
+	tx = wNFT = ( empty_data,
+		accounts[2],
+		fee,
+		lock,
+		royalty,
+		out_type,
+		0,
+		Web3.toBytes(0x0001)  #rules - NO Unwrap
+		)
+
+	tx= wrapperUsers.wrapIn(wNFT, [], accounts[3], wnft721SBT,  {"from": accounts[0]})
+
+	wTokenId = tx.return_value[1]
+	wNFT = wrapperUsers.getWrappedToken(wnft721SBT, wTokenId)
+	#logging.info(wNFT)
+	assert wNFT[6] == '0x0001'
+
+	with reverts('ERC721: caller is not token owner or approved'):
+		wnft721SBT.transferFrom(accounts[3], accounts[0], wTokenId, {"from": accounts[0]})
+
+	wnft721SBT.transferFrom(accounts[3], accounts[0], wTokenId, {"from": accounts[3]})
+
+	assert wnft721SBT.ownerOf(wTokenId) == accounts[0]
+
+	with reverts('UnWrapp forbidden by author'):
+		wrapperUsers.unWrap(3, wnft721SBT, wTokenId, {"from": accounts[0]})
