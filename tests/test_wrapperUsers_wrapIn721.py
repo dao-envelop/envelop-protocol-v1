@@ -41,7 +41,7 @@ def test_simple_wrap(accounts, erc721mock, wrapperUsers, dai, weth, wnft721SBT, 
 	weth_property = (2, weth.address)
 	eth_property = (1, zero_address)
 
-	erc721_data = (erc721_property, ORIGINAL_NFT_IDs[0], 1)
+	erc721_data = (erc721_property, ORIGINAL_NFT_IDs[0], 0)
 	dai_data = (dai_property, 0, Wei(call_amount))
 	weth_data = (weth_property, 0, Wei(2*call_amount))
 	eth_data = (eth_property, 0, Wei(eth_amount))

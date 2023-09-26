@@ -62,11 +62,6 @@ def test_transfer(accounts, erc1155mock, wrapperLight, wnft1155ForWrapperLightV1
     logging.info("add wnft with transfer fee to collateral yourself*************************")
     wrapperLight.addCollateral(wnft1155ForWrapperLightV1.address, wTokenId, [((out_type, wnft1155ForWrapperLightV1.address), wTokenId, out_nft_amount)], {"from": accounts[3]})
 
-
-    logging.info("balance_wrapperLight = {}".format(niftsy20.balanceOf(wrapperLight)))
-    logging.info("balance_acc3 = {}".format(niftsy20.balanceOf(accounts[3])))
-    logging.info("balance_acc4 = {}".format(niftsy20.balanceOf(accounts[4])))
-    logging.info(wrapperCheckerLightV1.getERC20CollateralBalance(wnft1155ForWrapperLightV1.address, wTokenId, niftsy20.address))
     assert wnft1155ForWrapperLightV1.balanceOf(wrapperLight.address, wTokenId) == out_nft_amount
 
     with reverts("ERC115 unwrap available only for all totalSupply"):
