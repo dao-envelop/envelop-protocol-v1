@@ -51,7 +51,7 @@ contract MockUsersSBTCollection721 is ERC721Enumerable {
         );
         rules.push(_rules);
         tokenId = rules.length - 1;
-        _mint(_to, tokenId);
+        super._mint(_to, tokenId);
     }
 
     /**
@@ -131,7 +131,7 @@ contract MockUsersSBTCollection721 is ERC721Enumerable {
         uint256 tokenId,
         uint256 batchSize
     ) internal virtual override {
-        //super._beforeTokenTransfer(from, to, tokenId, 1);
+        super._beforeTokenTransfer(from, to, tokenId, 1);
         bytes2 _r = rules[tokenId];
         // Check NO Burn rule
         if (to == address(0)){

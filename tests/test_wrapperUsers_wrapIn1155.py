@@ -115,5 +115,5 @@ def test_simple_wrap(accounts, erc1155mock, wrapperUsers, dai, weth, wnft1155SBT
 
 	assert wnft1155SBT.balanceOf(accounts[0], wTokenId) == nft_amount
 
-	with reverts('UnWrapp forbidden by author'):
+	with reverts('UnWrap was disabled by author'):
 		wrapperUsers.unWrap(4, wnft1155SBT, wTokenId, {"from": accounts[0]})
