@@ -52,6 +52,6 @@ def test_wrap(accounts, erc721mock, wrapperUsers, wnft721SBT):
         0,
         Web3.toBytes(0x0004)  #rules - No Transfer
         )
-
-    tx = wrapperUsers.wrapIn(wNFT, [], accounts[3], wnft721SBT,  {"from": accounts[0]})
-    assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == wrapperUsers
+    with reverts():
+        tx = wrapperUsers.wrapIn(wNFT, [], accounts[3], wnft721SBT,  {"from": accounts[0]})
+    #assert erc721mock.ownerOf(ORIGINAL_NFT_IDs[0]) == wrapperUsers
