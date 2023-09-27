@@ -193,7 +193,7 @@ contract WrapperUsersV1 is
         ETypes.AssetType _wNFTType, 
         address _wNFTAddress, 
         uint256 _wNFTTokenId
-    ) external virtual {
+    ) external virtual  {
         unWrap(_wNFTType, _wNFTAddress, _wNFTTokenId, false);
     }
 
