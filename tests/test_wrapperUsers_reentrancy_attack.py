@@ -76,7 +76,7 @@ def test_simple_wrap(accounts, erc721mock, wrapperUsers, dai, weth, wnft721SBT, 
 	hackERC20Users.transfer(wrapperUsers.address, 3*call_amount, {"from": accounts[0]})
 
 	#try to attack
-	with reverts("1"):
+	with reverts("ReentrancyGuard: reentrant call"):
 		wrapperUsers.unWrap(3, wnft721SBT.address, wTokenId, {"from": accounts[3]})
 	
 
