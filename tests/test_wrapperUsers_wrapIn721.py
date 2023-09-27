@@ -159,5 +159,5 @@ def test_simple_wrap(accounts, erc721mock, wrapperUsers, dai, weth, wnft721SBT, 
 
 	assert wnft721SBT.ownerOf(wTokenId) == accounts[0]
 
-	with reverts('UnWrapp forbidden by author'):
+	with reverts('UnWrap was disabled by author'):
 		wrapperUsers.unWrap(3, wnft721SBT, wTokenId, {"from": accounts[0]})
