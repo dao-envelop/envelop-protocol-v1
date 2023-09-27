@@ -64,6 +64,7 @@ def test_simple_wrap(accounts, erc1155mock, wrapperUsers, dai, weth, wnft1155SBT
 	#tx = wrapperUsers.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
 	#checks
 	wTokenId = tx.return_value[1]
+	assert wrapperUsers.getOriginalURI(wnft1155SBT, wTokenId) == erc1155mock.uri(ORIGINAL_NFT_IDs[0])
 	assert wrapperUsers.balance() == eth_amount
 	assert dai.balanceOf(wrapperUsers) == call_amount
 	assert weth.balanceOf(wrapperUsers) == 2*call_amount
@@ -81,3 +82,38 @@ def test_simple_wrap(accounts, erc1155mock, wrapperUsers, dai, weth, wnft1155SBT
 	assert wNFT[4] == lock
 	assert wNFT[5] == royalty
 	assert wNFT[6] == '0x0005'	
+
+	empty_property = (0, zero_address)
+
+	empty_data = (empty_property, 0, 0)
+
+	fee = []
+	lock = []
+	royalty = []
+
+	tx = wNFT = ( empty_data,
+		accounts[2],
+		fee,
+		lock,
+		royalty,
+		out_type,
+		nft_amount,
+		Web3.toBytes(0x0001)  #rules - NO Unwrap
+		)
+
+	tx= wrapperUsers.wrapIn(wNFT, [], accounts[3], wnft1155SBT,  {"from": accounts[0]})
+
+	wTokenId = tx.return_value[1]
+	wNFT = wrapperUsers.getWrappedToken(wnft1155SBT, wTokenId)
+	#logging.info(wNFT)
+	assert wNFT[6] == '0x0001'
+
+	with reverts('ERC1155: caller is not token owner or approved'):
+		wnft1155SBT.safeTransferFrom(accounts[3], accounts[0], wTokenId, nft_amount, '', {"from": accounts[0]})
+
+	wnft1155SBT.safeTransferFrom(accounts[3], accounts[0], wTokenId, nft_amount, '', {"from": accounts[3]})
+
+	assert wnft1155SBT.balanceOf(accounts[0], wTokenId) == nft_amount
+
+	with reverts('UnWrapp forbidden by author'):
+		wrapperUsers.unWrap(4, wnft1155SBT, wTokenId, {"from": accounts[0]})

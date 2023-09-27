@@ -71,9 +71,13 @@ def test_simple_wrap(accounts, erc721mock, wrapperUsers, dai, weth, wnft721SBT, 
 	logging.info(wnft721SBT.totalSupply())
 	logging.info(wnft721SBT.tokenOfOwnerByIndex(accounts[3], 0))
 	#assert wnft721SBT.totalSupply() == 1
-	logging.info(tx.return_value)
+
 
 	wTokenId = tx.return_value[1]
+
+	assert wrapperUsers.getOriginalURI(wnft721SBT, wTokenId) == erc721mock.tokenURI(ORIGINAL_NFT_IDs[0])
+	logging.info(erc721mock.tokenURI(ORIGINAL_NFT_IDs[0]))
+
 	wNFT = wrapperUsers.getWrappedToken(wnft721SBT, wTokenId)
 	assert wNFT[0] == erc721_data
 	assert wNFT[1] == [eth_data, dai_data, weth_data]
@@ -104,6 +108,7 @@ def test_simple_wrap(accounts, erc721mock, wrapperUsers, dai, weth, wnft721SBT, 
 	tx= wrapperUsers.wrapIn(wNFT, [], accounts[3], wnft721SBT,  {"from": accounts[0]})
 
 	wTokenId = tx.return_value[1]
+	assert wrapperUsers.getOriginalURI(wnft721SBT, wTokenId) == ''
 	wNFT = wrapperUsers.getWrappedToken(wnft721SBT, wTokenId)
 	#logging.info(wNFT)
 	assert wNFT[0] == erc721_data
@@ -113,3 +118,46 @@ def test_simple_wrap(accounts, erc721mock, wrapperUsers, dai, weth, wnft721SBT, 
 	assert wNFT[4] == lock
 	assert wNFT[5] == royalty
 	assert wNFT[6] == '0x0005'
+
+	assert tx.events['WrappedV1']['inAssetAddress'] == zero_address
+	assert tx.events['WrappedV1']['outAssetAddress'] == wnft721SBT
+	assert tx.events['WrappedV1']['inAssetTokenId'] == 0
+	assert tx.events['WrappedV1']['outTokenId'] == wTokenId
+	assert tx.events['WrappedV1']['wnftFirstOwner'] == accounts[3]
+	assert tx.events['WrappedV1']['nativeCollateralAmount'] == 0
+	assert tx.events['WrappedV1']['rules'] == '0x0005'
+
+	empty_property = (0, zero_address)
+
+	empty_data = (empty_property, 0, 0)
+
+	fee = []
+	lock = []
+	royalty = []
+
+	tx = wNFT = ( empty_data,
+		accounts[2],
+		fee,
+		lock,
+		royalty,
+		out_type,
+		0,
+		Web3.toBytes(0x0001)  #rules - NO Unwrap
+		)
+
+	tx= wrapperUsers.wrapIn(wNFT, [], accounts[3], wnft721SBT,  {"from": accounts[0]})
+
+	wTokenId = tx.return_value[1]
+	wNFT = wrapperUsers.getWrappedToken(wnft721SBT, wTokenId)
+	#logging.info(wNFT)
+	assert wNFT[6] == '0x0001'
+
+	with reverts('ERC721: caller is not token owner or approved'):
+		wnft721SBT.transferFrom(accounts[3], accounts[0], wTokenId, {"from": accounts[0]})
+
+	wnft721SBT.transferFrom(accounts[3], accounts[0], wTokenId, {"from": accounts[3]})
+
+	assert wnft721SBT.ownerOf(wTokenId) == accounts[0]
+
+	with reverts('UnWrapp forbidden by author'):
+		wrapperUsers.unWrap(3, wnft721SBT, wTokenId, {"from": accounts[0]})
