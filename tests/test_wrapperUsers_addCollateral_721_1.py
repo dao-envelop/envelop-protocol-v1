@@ -29,6 +29,7 @@ def test_call_factory(accounts, usersSBTRegistry, wrapperUsers, wnft721SBT, wnft
 
 def test_addColl(accounts, erc721mock, wrapperUsers, wnft721SBT, niftsy20, erc721mock1):
     #make test data
+    ORIGINAL_NFT_IDs = [x for x in range(10,wrapperUsers.MAX_COLLATERAL_SLOTS()+10+2)]
     makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
     
     #make wrap NFT 721erc721mock.approve(wrapperUsers.address, ORIGINAL_NFT_IDs[0], {'from':accounts[0]})
