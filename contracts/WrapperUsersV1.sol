@@ -333,6 +333,15 @@ contract WrapperUsersV1 is
             }
         }
     } 
+
+    function getNFTType(address _nftAddress, uint256 _nftTokenId) 
+        external 
+        view 
+        returns (ETypes.AssetType nftType) 
+    {
+        return _getNFTType(_nftAddress, _nftTokenId);
+    }
+    
     /////////////////////////////////////////////////////////////////////
     //                    Internals                                    //
     /////////////////////////////////////////////////////////////////////

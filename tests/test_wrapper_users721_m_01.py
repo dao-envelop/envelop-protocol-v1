@@ -46,6 +46,13 @@ def test_check_mock_registry(accounts, usersSBTRegistry, wrapperUsers, wnft721SB
     assert len(usersSBTRegistry.getUsersCollections(accounts[1])) == 2
 
 
+def test_wNFTType (accounts, usersSBTRegistry, wrapperUsers, wnft721SBT, wnft1155SBT, erc721mock):
+    nfttype721 = wrapperUsers.getNFTType(wnft721SBT, 0);
+    nfttype1155 = wrapperUsers.getNFTType(wnft1155SBT, 0);
+    logging.info('721: {}, 1155: {}'.format(nfttype721, nfttype1155))
+    assert nfttype721 == 3
+    assert nfttype1155 == 4
+
 def test_check_wrap_721(accounts, usersSBTRegistry, wrapperUsers, wnft721SBT, wnft1155SBT, erc721mock):
      #without possible rules
     makeNFTForTest721(accounts, erc721mock, ORIGINAL_NFT_IDs)
