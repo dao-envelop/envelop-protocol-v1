@@ -252,6 +252,25 @@ contract WrapperUsersV1 is
         // There is No Any Fees in Protocol
         charged = true;
     }
+
+    function upgradeRules(
+        ETypes.AssetItem calldata _wNFT
+    ) external returns (bytes2) {
+        require(
+            _ownerOf(_wNFT) == msg.sender, 
+            'Only wNFT owner can upgrade rules'
+        );
+        bytes2 rls = IUserCollectionRegistry(usersCollectionRegistry)
+            .isRulesUpdateEnabled(_wNFT.asset.contractAddress);
+        if (rls > 0) {
+            wrappedTokens[_wNFT.asset.contractAddress][_wNFT.tokenId].rules = rls;
+            _updateRules(
+                _wNFT.asset.contractAddress,
+                _wNFT.tokenId, 
+                rls
+            );       
+        }    
+    }
     /////////////////////////////////////////////////////////////////////
     //                    Admin functions                              //
     /////////////////////////////////////////////////////////////////////
@@ -630,25 +649,32 @@ contract WrapperUsersV1 is
         returns (bool enabled)
     {
         
-
+        bool isCreator;
         // Check that _wrappIn belongs to user
         ETypes.Asset[] memory userAssets = IUserCollectionRegistry(usersCollectionRegistry)
             .getUsersCollections(msg.sender);
-        bool isUsersAsset;
+        
         for (uint256 i = 0; i < userAssets.length; ++ i ){
             if (userAssets[i].contractAddress == _wrappIn && 
                 userAssets[i].assetType == _inData.outType
                 ) 
             {
-                isUsersAsset = true;
+                isCreator = true;
                 break;
             }
         }
+
+        if (isCreator) {
+            // wNFT creater can make any wrap
+            enabled = _wrappFor != address(this) && isCreator; 
+        } else {
+            // Any users can wrap(make simple wNFT) thier assets 
+            // if it enabled in regeistry
+            bool enabledInRegistry = IUserCollectionRegistry(usersCollectionRegistry)
+                .isWrapEnabled(_inData.inAsset.asset.contractAddress, _wrappIn);
+            enabled = enabledInRegistry && _inData.rules == 0;    
+        }
         
-        // Lets check that inAsset 
-        enabled =     
-            _wrappFor != address(this) && 
-            isUsersAsset;
     }
     
     function _checkAddCollateral(

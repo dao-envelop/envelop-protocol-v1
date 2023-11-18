@@ -10,5 +10,15 @@ interface IUserCollectionRegistry {
         external 
         view 
         returns(ETypes.Asset[] memory);
+
+    function isWrapEnabled(address _ticketContract, address _eventContract)
+        external 
+        view 
+        returns(bool enabled); 
+
+    function isRulesUpdateEnabled(address _eventContract)
+        external 
+        view 
+        returns(bytes2 rules); 
    
 }

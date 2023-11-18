@@ -85,7 +85,8 @@ CHAIN = {
         'enabled_erc20': BSC_MAIN_ERC20_COLLATERAL_TOKENS,
         'uswp_router': '0x10ed43c718714eb63d5aa57b78b54704e256024e',
         'uswp_factory': '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73',
-        'in_asset_address':   '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', # busd
+        #'in_asset_address':   '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', # busd
+        'in_asset_address': '0x55d398326f99059fF775485246999027B3197955', #usdt
         'niftsy_address': '0x7728cd70b3dD86210e2bd321437F448231B81733'
 
     },
@@ -112,7 +113,7 @@ if web3.eth.chainId in  [1,4, 5, 137]:
     tx_params={'from':accounts[0], 'priority_fee': chain.priority_fee}
 # elif web3.eth.chainId in  [1313161555, 1313161554]:    
 #     tx_params={'from':accounts[0], 'allow_revert': True, 'gas_limit': 10e7}
-BUY_AMOUNT_USD = 1
+BUY_AMOUNT_USD = 2
 def main():
     inasset = interface.ERC20(CHAIN['in_asset_address'])
     niftsy = interface.ERC20(CHAIN['niftsy_address'])

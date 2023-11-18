@@ -16,6 +16,11 @@ interface IUsersSBT  {
         bytes2 _rules
     ) external returns(uint256 tokenId);
 
+    function updateRules(
+        uint256 _tokenId, 
+        bytes2 _rules
+    ) external returns(bool changed);
+
     function owner() external view returns(address);
    
 }
