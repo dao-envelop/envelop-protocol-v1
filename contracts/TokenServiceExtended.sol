@@ -81,5 +81,8 @@ abstract contract TokenServiceExtended is TokenService {
         returns(bool changed)
     {
         changed = IUsersSBT(_contract).updateRules(_tokenId, _rules);
+        if (changed){
+            emit EnvelopRulesChanged(_contract, _tokenId, _rules);
+        }
     }
 }
