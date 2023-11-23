@@ -6,6 +6,12 @@ import "./IWrapper.sol";
 
 interface IWrapperUsers is IWrapper  {
 
+    event EnvelopRulesChanged(
+        address indexed wrappedAddress,
+        uint256 indexed wrappedIdaddress,
+        bytes2 newRules
+    );
+    
     function wrapIn(
         ETypes.INData calldata _inData, 
         ETypes.AssetItem[] calldata _collateral, 

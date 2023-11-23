@@ -70,4 +70,19 @@ abstract contract TokenServiceExtended is TokenService {
             );
         }
     }
+
+    function _updateRules(
+        address _contract,
+        uint256 _tokenId, 
+        bytes2 _rules
+    )
+        internal
+        virtual
+        returns(bool changed)
+    {
+        changed = IUsersSBT(_contract).updateRules(_tokenId, _rules);
+        if (changed){
+            emit EnvelopRulesChanged(_contract, _tokenId, _rules);
+        }
+    }
 }

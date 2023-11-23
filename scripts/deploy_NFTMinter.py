@@ -1,10 +1,11 @@
 from brownie import *
 import json
 
-if  web3.eth.chain_id in [4, 5, 97]:
+if  web3.eth.chain_id in [4, 5, 97, 11155111]:
     # Testnets
     #private_key='???'
-    accounts.load('niftsyms');
+    #accounts.load('niftsyms');
+    accounts.load('secret2');
 elif web3.eth.chain_id in [1,56,137]:
     accounts.load('envdeployer')
     
@@ -32,13 +33,13 @@ if web3.eth.chainId in  [1,4,5, 137]:
 def main():
     print('Deployer account= {}'.format(accounts[0]))
 
-    # NFTMinter721 = EnvelopUsers721UniStorageEnum.deploy(
-    #     "Envelop UniStorage NFT", 
-    #     "eNFT", 
-    #     'https://api.envelop.is/metadata/',
-    #     100, 
-    #     tx_params
-    # )
+    NFTMinter721 = EnvelopUsers721UniStorageEnum.deploy(
+        "Envelop UniStorage NFT", 
+        "eNFT", 
+        'https://api.envelop.is/metadata/',
+        100, 
+        tx_params
+     )
 
     NFTMinter1155 = EnvelopUsers1155UniStorage.deploy(
         "Envelop UniStorage NFT", 
@@ -47,7 +48,7 @@ def main():
         100, 
         tx_params
     )
-    NFTMinter721 = EnvelopUsers721UniStorageEnum.at('0x33ec38185f213D6e75ba26F711ba309b8BcD211a')
+    #NFTMinter721 = EnvelopUsers721UniStorageEnum.at('0x33ec38185f213D6e75ba26F711ba309b8BcD211a')
     #NFTMinter1155 = EnvelopUsers1155UniStorage.at('0xa459d2f635812792Df0F175B2263D4bE15A0D5aa')
 
 
@@ -61,12 +62,12 @@ def main():
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],NFTMinter1155))
     
     # set signers
-    for a in signers:
-        NFTMinter721.setSignerStatus(a, True, tx_params)
-        NFTMinter1155.setSignerStatus(a, True, tx_params)
+    #for a in signers:
+    #    NFTMinter721.setSignerStatus(a, True, tx_params)
+    #    NFTMinter1155.setSignerStatus(a, True, tx_params)
 
 
-    if  web3.eth.chainId in [1,4,5, 56, 137, 43114]:
+    if  web3.eth.chainId in [1,4,5, 56, 137, 43114, 11155111]:
         EnvelopUsers721UniStorageEnum.publish_source(NFTMinter721);
         EnvelopUsers1155UniStorage.publish_source(NFTMinter1155);
     #721
