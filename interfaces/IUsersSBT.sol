@@ -4,6 +4,7 @@ pragma solidity 0.8.21;
 
 
 interface IUsersSBT  {
+    
 
     function mintWithRules(
         address _to,  

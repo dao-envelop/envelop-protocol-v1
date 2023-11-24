@@ -10,7 +10,12 @@ import "../interfaces/IUsersSBT.sol";
 /// @notice Just as dependence for main wrapper contract
 abstract contract TokenServiceExtended is TokenService {
 	
-
+    event EnvelopRulesChanged(
+        address indexed wrappedAddress,
+        uint256 indexed wrappedIdaddress,
+        bytes2 newRules
+    );
+    
     function _balanceOf(
         ETypes.AssetItem memory _assetItem,
         address _holder
