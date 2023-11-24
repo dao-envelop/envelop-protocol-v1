@@ -79,6 +79,17 @@ contract MockUsersCollection1155 is ERC1155Supply {
         _mint(_to, tokenId, _balance, "");
     }
 
+    function updateRules(uint256 _tokenId, bytes2 _rules) external returns(bool changed) {
+        require(wrapperMinter == msg.sender, "Trusted address only");
+        require(rules[_tokenId] == bytes2(0x0000), "Only once to SBT");
+        require(
+            (bytes2(0x0001) == (bytes2(0x0001) & _rules ) || bytes2(0x0004) == (bytes2(0x0004) & _rules)), 
+            'SBT MUST Have rule'
+        );
+        rules[_tokenId] = _rules;
+        changed = true;
+    }
+
     function burn(address _from, uint256 _tokenId, uint256 _amount) public virtual {
         require(wrapperMinter == msg.sender, "Trusted address only");
         // Think about check totaLsUPPLY

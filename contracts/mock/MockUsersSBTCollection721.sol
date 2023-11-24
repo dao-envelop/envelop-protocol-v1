@@ -46,12 +46,27 @@ contract MockUsersSBTCollection721 is ERC721Enumerable {
     function mintWithRules(address _to,  bytes2 _rules) external returns(uint256 tokenId) {
         require(wrapperMinter == msg.sender, "Trusted address only");
         require(
-            (bytes2(0x0001) == (bytes2(0x0001) & _rules ) || bytes2(0x0004) == (bytes2(0x0004) & _rules)), 
+            (
+                   bytes2(0x0001) == (bytes2(0x0001) & _rules) 
+                || bytes2(0x0004) == (bytes2(0x0004) & _rules) 
+                || bytes2(0x0000) == _rules
+            ), 
             'SBT MUST Have rule'
         );
         rules.push(_rules);
         tokenId = rules.length - 1;
-        super._mint(_to, tokenId);
+        _mint(_to, tokenId);
+    }
+
+    function updateRules(uint256 _tokenId, bytes2 _rules) external returns(bool changed) {
+        require(wrapperMinter == msg.sender, "Trusted address only");
+        require(rules[_tokenId] == bytes2(0x0000), "Only once to SBT");
+        require(
+            (bytes2(0x0001) == (bytes2(0x0001) & _rules ) || bytes2(0x0004) == (bytes2(0x0004) & _rules)), 
+            'SBT MUST Have rule'
+        );
+        rules[_tokenId] = _rules;
+        changed = true;
     }
 
     /**
@@ -80,6 +95,10 @@ contract MockUsersSBTCollection721 is ERC721Enumerable {
         return creator;
     }
 
+    function exists(uint256 _tokenId) public view returns(bool) {
+        return _exists(_tokenId);
+    }
+
     
 
     /**
@@ -93,10 +112,6 @@ contract MockUsersSBTCollection721 is ERC721Enumerable {
     }
     /////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
-    function exists(uint256 _tokenId) public view returns(bool) {
-        return _exists(_tokenId);
-    }
-    
     function wnftInfo(uint256 tokenId) external view returns (ETypes.WNFT memory) {
         return IWrapper(wrapperMinter).getWrappedToken(address(this), tokenId);
     }
