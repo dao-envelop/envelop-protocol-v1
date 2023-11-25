@@ -2,9 +2,9 @@
 // Event Manager with Full Ticket's life cycle
 pragma solidity 0.8.21;
     
-    import "./MockUsersSBTCollectionPRegistry.sol";
+    import "./MockUsersSBTCollectionRegistry.sol";
 
-contract MockEventManager is MockUsersSBTCollectionPRegistry {
+contract MockEventManager is MockUsersSBTCollectionRegistry {
 
     struct Period {
         uint256 start;
@@ -28,6 +28,10 @@ contract MockEventManager is MockUsersSBTCollectionPRegistry {
     /// that was created by (for) another user
     error Unauthorized(address User, address Contract);
 
+    constructor ()
+        MockUsersSBTCollectionRegistry()
+    {}
+
     function deployNewCollection(
         address _implAddress, 
         address _creator,
@@ -41,18 +45,18 @@ contract MockEventManager is MockUsersSBTCollectionPRegistry {
     {
         // TODO   some  checks
         // First create event contract as simple proxy
-        newCollection = deployNewCollection(
+        /*newCollection = deployNewCollection(
             _implAddress, 
             _creator,
             name_,
             symbol_,
             _baseurl,
             _wrapper
-        );
+        );*/
 
         // Save event info
-        ticketsForEvents[_ticketContract].push(newCollection);
-        events[newCollection] = _eventDates;
+        /*ticketsForEvents[_ticketContract].push(newCollection);
+        events[newCollection] = _eventDates;*/
     }
 
     function editDatesForEvent(address _eventContract, EventDates calldata _newEventDates)
@@ -124,6 +128,26 @@ contract MockEventManager is MockUsersSBTCollectionPRegistry {
             rules = events[_eventContract].sbtRules;
         }
 
+    }
+
+    function setTicketsForEvents(
+        address _ticketContract, 
+        address _eventContract
+    ) public  
+    {
+        
+        // Save event info
+        ticketsForEvents[_ticketContract].push(_eventContract);
+    }
+
+    function setEventData(
+        address _eventContract,
+        EventDates calldata _eventDates
+    ) public  
+    {
+        
+        // Save event info
+        events[_eventContract] = _eventDates;
     }
 
 }

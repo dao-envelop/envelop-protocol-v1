@@ -71,7 +71,11 @@ contract MockUsersCollection1155 is ERC1155Supply {
     function mintWithRules(address _to,  uint256 _balance, bytes2 _rules) external returns(uint256 tokenId) {
         require(wrapperMinter == msg.sender, "Trusted address only");
         require(
-            (bytes2(0x0001) == (bytes2(0x0001) & _rules ) || bytes2(0x0004) == (bytes2(0x0004) & _rules)), 
+            (
+                   bytes2(0x0001) == (bytes2(0x0001) & _rules) 
+                || bytes2(0x0004) == (bytes2(0x0004) & _rules) 
+                || bytes2(0x0000) == _rules
+            ), 
             'SBT MUST Have rule'
         );
         rules.push(_rules);
