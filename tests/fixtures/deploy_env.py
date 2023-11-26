@@ -330,10 +330,10 @@ def whiteListsForwrapperTrusted2(accounts, AdvancedWhiteList):
     yield wl 
 
 ###############################################################
-####################   SBT Wrapper with Mocks  ################
+####################   SBT Wrapper with Mocks - owner case ################
 @pytest.fixture(scope="module")
-def usersSBTRegistry(accounts, MockUsersSBTCollectionPRegistry):
-    r = accounts[0].deploy(MockUsersSBTCollectionPRegistry)
+def usersSBTRegistry(accounts, MockUsersSBTCollectionRegistry):
+    r = accounts[0].deploy(MockUsersSBTCollectionRegistry)
     yield r
 
 @pytest.fixture(scope="module")
@@ -364,5 +364,38 @@ def wnft1155SBT(accounts, MockUsersCollection1155, wrapperUsers):
 def hackERC20Users(accounts, HackERC20, wrapperUsers, wnft721SBT):
     h = accounts[0].deploy(HackERC20,"Hacker Reentrancy Token", "HRT", wrapperUsers.address, wnft721SBT.address)
     yield h
+
+
+###############################################################
+####################   SBT Wrapper with Mocks - event case ################
+@pytest.fixture(scope="module")
+def eventManager(accounts, MockEventManager):
+    w = accounts[0].deploy(MockEventManager)
+    yield w
+
+@pytest.fixture(scope="module")
+def wrapperUsers1(accounts, WrapperUsersV1, eventManager):
+    w = accounts[0].deploy(WrapperUsersV1, eventManager)
+    yield w
+
+@pytest.fixture(scope="module")
+def wnft721SBT1(accounts, MockUsersSBTCollection721, wrapperUsers1):
+    w = accounts[0].deploy(MockUsersSBTCollection721, 
+        accounts[0],
+        "Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", 
+        wrapperUsers1
+    )
+    yield w
+
+@pytest.fixture(scope="module")
+def wnft1155SBT1(accounts, MockUsersCollection1155, wrapperUsers1):
+    w = accounts[0].deploy(MockUsersCollection1155, 
+        accounts[0],
+        "Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", 
+        wrapperUsers1
+    )
+    yield w
+
+
 
 

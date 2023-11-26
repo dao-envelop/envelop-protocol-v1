@@ -3,7 +3,7 @@
 pragma solidity 0.8.21;
     
 
-contract MockUsersSBTCollectionPRegistry  {
+contract MockUsersSBTCollectionRegistry {
     
     enum AssetType {EMPTY, NATIVE, ERC20, ERC721, ERC1155, FUTURE1, FUTURE2, FUTURE3}
 
@@ -16,10 +16,6 @@ contract MockUsersSBTCollectionPRegistry  {
     // mapping from user to his(her) contracts with type
     mapping(address => Asset[]) public collectionRegistry;
 
-    //IUsersSBTCollectionFactory public factory;
-    
-    
-
     function deployNewCollection(
         address _implAddress, 
         address _creator,
@@ -27,9 +23,21 @@ contract MockUsersSBTCollectionPRegistry  {
         string memory symbol_,
         string memory _baseurl,
         address _wrapper
-    ) external {
+    ) public returns(address newCollection) 
+    {
+        /*require(_supported, "This implementation address is not supported");
+        newCollection = factory.deployProxyFor(
+            _implAddress, 
+            _creator,
+            name_,
+            symbol_,
+            _baseurl,
+            _wrapper
+        );*/
+        //collectionRegistry[_creator].push(Asset(supportedImplementations[index].assetType, newCollection)); 
         (bool _supported, uint256 index) = isImplementationSupported(_implAddress);
         collectionRegistry[_creator].push(Asset(supportedImplementations[index].assetType, _implAddress)); 
+
     }
     function getSupportedImplementation() external view returns(Asset[] memory) {
         return supportedImplementations;
@@ -41,7 +49,7 @@ contract MockUsersSBTCollectionPRegistry  {
     ////////////////////////////////////
     /// Admin  functions           /////
     ////////////////////////////////////
-    function addImplementation(Asset calldata _impl) external  {
+    function addImplementation(Asset calldata _impl) external {
         // Check that not exist
         for(uint256 i; i < supportedImplementations.length; ++i){
             require(
@@ -52,12 +60,14 @@ contract MockUsersSBTCollectionPRegistry  {
         supportedImplementations.push(Asset(_impl.assetType, _impl.contractAddress));
     }
 
-    function removeImplementationByIndex(uint256 _index) external  {
+    function removeImplementationByIndex(uint256 _index) external {
         if (_index != supportedImplementations.length -1) {
             supportedImplementations[_index] = supportedImplementations[supportedImplementations.length -1];
         }
         supportedImplementations.pop();
     }
+
+    //////////////////////////////////////
     function isImplementationSupported(address _impl) public view  returns(bool isSupported, uint256 index) {
         for (uint256 i; i < supportedImplementations.length; ++i){
             if (_impl == supportedImplementations[i].contractAddress){
