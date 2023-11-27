@@ -160,7 +160,7 @@ contract MockUsersSBTCollection721 is ERC721Enumerable {
         if (from != address(0) && to != address(0)){
             require(
                 !(bytes2(0x0004) == (bytes2(0x0004) & _r)),
-                "Trasfer was disabled by author"
+                "Transfer was disabled by author"
             );
 
         }
