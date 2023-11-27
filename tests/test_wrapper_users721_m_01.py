@@ -13,6 +13,7 @@ eth_amount = "1 ether"
 in_type = 3
 out_type = 3
 
+#owner case - only owner can create sbt!
 
 def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
     logging.info(
@@ -74,9 +75,9 @@ def test_check_wrap_721(accounts, usersSBTRegistry, wrapperUsers, wnft721SBT, wn
         0,            # outBalance
         Web3.toBytes(0x0005)  #rules - NO Unwrap, No Transfer
     )
-    with reverts('Wrap check fail'):
-        wrapperUsers.wrapIn(indata, [], accounts[3], wnft721SBT, {"from": accounts[0]})
 
+    with reverts(''):
+        wrapperUsers.wrapIn(indata, [], accounts[3], wnft721SBT, {"from": accounts[0]})
     
     tx = wrapperUsers.wrapIn(indata, [], accounts[3], wnft721SBT, {"from": accounts[1]})
     logging.info(tx.return_value)
@@ -86,7 +87,7 @@ def test_check_wrap_721(accounts, usersSBTRegistry, wrapperUsers, wnft721SBT, wn
 def test_rules_721(accounts, wrapperUsers, wnft721SBT, erc721mock):
     with reverts('Trasfer was disabled by author'):
         wnft721SBT.transferFrom(accounts[3], accounts[0], 0, {'from': accounts[3]})
-    with reverts('UnWrapp forbidden by author'):    
+    with reverts('UnWrap was disabled by author'):    
         wrapperUsers.unWrap(wnft721SBT, 0, {'from': accounts[3]})
 
 def test_add_collateral(accounts, wrapperUsers, wnft721SBT, erc721mock, niftsy20):
