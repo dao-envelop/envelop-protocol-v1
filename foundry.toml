@@ -1,10 +1,45 @@
 [profile.default]
-src = "src"
+src = "contracts"
 out = "out"
-libs = ["node_modules"]
+libs = ["lib"]
 remappings = [
-    "@openzeppelin/=node_modules/@openzeppelin/",
-    "hardhat/=node_modules/hardhat/",
+    "@uniswap/=lib/",
+    "@openzeppelin/=lib/openzeppelin-contracts/",
+    "@Uopenzeppelin/=lib/openzeppelin-contracts-upgradeable/",
+    "@envelop-protocol-v1/=lib/envelop-protocol-v1/",
+    "@envelop-subscription/=lib/subscription/"
 ]
+
+fs_permissions = [
+    { access = "read", path = "./script/"}, 
+    { access = "read", path = "/home/max_siz/.brownie/accounts/"},
+    { access = "read", path = "/home/max_siz/.foundry/keystores/"}
+]
+
+[etherscan]
+  arbitrum = { key = "${ARBISCAN_TOKEN}" }
+  avalanche = { key = "${SNOWTRACE_TOKEN}" }
+  blast_sepolia = {key = "verifyContract", url = "https://api.routescan.io/v2/network/testnet/evm/168587773/etherscan"}
+
+  bnb_smart_chain = { key = "${BSCSCAN_TOKEN}" }
+  gnosis_chain = { key = "${API_KEY_GNOSISSCAN}" }
+  goerli = { key = "${ETHERSCAN_TOKEN}" }
+  mainnet = { key = "${ETHERSCAN_TOKEN}" }
+  optimism = { key = "${API_KEY_OPTIMISTIC_ETHERSCAN}" }
+  polygon = { key = "${POLYGONSCAN_TOKEN}" }
+  sepolia = { key = "${ETHERSCAN_TOKEN}" }
+
+[rpc_endpoints]
+  arbitrum = "https://arbitrum-mainnet.infura.io/v3/${WEB3_INFURA_PROJECT_ID}"
+  avalanche = "https://avalanche-mainnet.infura.io/v3/${WEB3_INFURA_PROJECT_ID}"
+  blast_sepolia = "https://red-billowing-sanctuary.blast-sepolia.quiknode.pro/${WEB3_QUICKNODE_ID}"
+  bnb_smart_chain = "https://bsc-dataseed.binance.org"
+  gnosis_chain = "https://rpc.gnosischain.com"
+  goerli = "https://goerli.infura.io/v3/${WEB3_INFURA_PROJECT_ID}"
+  localhost = "http://localhost:8545"
+  mainnet = "https://mainnet.infura.io/v3/${WEB3_INFURA_PROJECT_ID}"
+  optimism = "https://optimism-mainnet.infura.io/v3/${WEB3_INFURA_PROJECT_ID}"
+  polygon = "https://polygon-mainnet.infura.io/v3/${WEB3_INFURA_PROJECT_ID}"
+  sepolia = "https://sepolia.infura.io/v3/${WEB3_INFURA_PROJECT_ID}"
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
