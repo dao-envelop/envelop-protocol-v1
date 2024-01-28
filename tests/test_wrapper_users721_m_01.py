@@ -13,6 +13,7 @@ eth_amount = "1 ether"
 in_type = 3
 out_type = 3
 
+#owner case - only owner can create sbt!
 
 def wnft_pretty_print(_wrapper, _wnft721, _wTokenId):
     logging.info(
@@ -74,6 +75,7 @@ def test_check_wrap_721(accounts, usersSBTRegistry, wrapperUsers, wnft721SBT, wn
         0,            # outBalance
         Web3.toBytes(0x0005)  #rules - NO Unwrap, No Transfer
     )
+
     with reverts(''):
         # This revert mean that used Registry has no 
         # isWrapEnabled method implementation
