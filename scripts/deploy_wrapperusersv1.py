@@ -3,8 +3,8 @@ import json
 
 if  web3.eth.chain_id in [4, 5, 97, 11155111]:
     # Testnets
-    private_key='???'
-    #accounts.load('tone');
+    #private_key='???'
+    accounts.load('ttwo');
     #accounts.load('secret2');
 elif web3.eth.chain_id in [1,56,137, 42161]:
     accounts.load('envdeployer')
@@ -36,8 +36,15 @@ CHAIN = {
     80001:{'explorer_base':'mumbai.polygonscan.com', },  
     43114:{'explorer_base':'cchain.explorer.avax.network'},
     43113:{'explorer_base':'cchain.explorer.avax-test.network', },
+    11155111:{
+        'explorer_base':'sepolia.etherscan.io', 
+        'subscription_registry': '0xbdE298FcD625d77C30CB6F1Ad661a6CA4F41aE67',
+        'users_sbt_collection_registry':'0x1C6568b1858C05F0229fadE7B01C473436Ab93B1'
+    }
 
-}.get(web3.eth.chainId, {'explorer_base':'io', 'users_sbt_collection_registry':'0xc4e4Cf661A0B9878588E3fE49eF4e1244894cf81'})
+}.get(web3.eth.chainId, {
+    'explorer_base':'io', 'users_sbt_collection_registry':'0xc4e4Cf661A0B9878588E3fE49eF4e1244894cf81'
+})
 print(CHAIN)
 tx_params = {'from':accounts[0]}
 if web3.eth.chainId in  [1,4,5, 137, 42161, 11155111]:
@@ -45,7 +52,7 @@ if web3.eth.chainId in  [1,4,5, 137, 42161, 11155111]:
 
 def main():
     wrapper   = WrapperUsersV1.deploy(CHAIN['users_sbt_collection_registry'],tx_params) 
-    
+    print("**WrapperUsersV1**")
     print('https://{}/address/{}#code'.format(CHAIN['explorer_base'],wrapper))
     print("\n```python")
     print("wrapper = WrapperUsersV1.at('{}')".format(wrapper.address))

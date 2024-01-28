@@ -12,7 +12,7 @@ abstract contract TokenServiceExtended is TokenService {
 	
     event EnvelopRulesChanged(
         address indexed wrappedAddress,
-        uint256 indexed wrappedIdaddress,
+        uint256 indexed wrappedId,
         bytes2 newRules
     );
     
