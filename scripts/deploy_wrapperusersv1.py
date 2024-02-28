@@ -27,7 +27,7 @@ CHAIN = {
     97:{'explorer_base':'testnet.bscscan.com'},
     137:{
         'explorer_base':'polygonscan.com',
-        'users_sbt_collection_registry':'0xed5A643370467De27984A3B92565A02187413604',
+        'users_sbt_collection_registry':'0x2594C54B8682265Db27438403eF29C1c925A2a06',
     },
     42161:{
         'explorer_base':'arbiscan.io',
