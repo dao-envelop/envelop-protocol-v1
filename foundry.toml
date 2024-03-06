@@ -20,7 +20,8 @@ fs_permissions = [
   arbitrum = { key = "${ARBISCAN_TOKEN}" }
   avalanche = { key = "${SNOWTRACE_TOKEN}" }
   blast_sepolia = {key = "verifyContract", url = "https://api.routescan.io/v2/network/testnet/evm/168587773/etherscan"}
-
+  blast_mainnet = {key = "${BLASTSCAN_TOKEN}", url = "https://api.blastscan.io/api"}
+ 
   bnb_smart_chain = { key = "${BSCSCAN_TOKEN}" }
   gnosis_chain = { key = "${API_KEY_GNOSISSCAN}" }
   goerli = { key = "${ETHERSCAN_TOKEN}" }
@@ -33,6 +34,7 @@ fs_permissions = [
   arbitrum = "https://arbitrum-mainnet.infura.io/v3/${WEB3_INFURA_PROJECT_ID}"
   avalanche = "https://avalanche-mainnet.infura.io/v3/${WEB3_INFURA_PROJECT_ID}"
   blast_sepolia = "https://red-billowing-sanctuary.blast-sepolia.quiknode.pro/${WEB3_QUICKNODE_ID}"
+  blast_mainnet = "https://blast.gasswap.org"
   bnb_smart_chain = "https://bsc-dataseed.binance.org"
   gnosis_chain = "https://rpc.gnosischain.com"
   goerli = "https://goerli.infura.io/v3/${WEB3_INFURA_PROJECT_ID}"

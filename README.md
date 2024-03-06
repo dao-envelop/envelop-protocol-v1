@@ -91,11 +91,31 @@ $ forge verify-contract  0x645B343ae714Bf3E548A24D4E46AD6D1D19E3933 ./contracts/
 $ forge verify-contract 0x6A37E369b615C4244B0D3d092a45a8D2B092e6f9  ./contracts/AdvancedWhiteList.sol:AdvancedWhiteList --verifier-url 'https://api.routescan.io/v2/network/testnet/evm/168587773/etherscan' --etherscan-api-key "verifyContract" --num-of-optimizations 200 --compiler-version 0.8.21 
 
 ```
+#### Blast Mainnet
+```shell
+$ forge script script/Deploy-main-blast.s.sol:DeployMainBlast --rpc-url blast_mainnet  --account envdeployer --sender 0xE1a8F0a249A87FDB9D8B912E11B198a2709D6d9B  --verifier-url 'https://api.blastscan.io/api' --etherscan-api-key $BLASTSCAN_TOKEN --broadcast  --verify
+```
+
+#### Verify
+```shell
+$ forge verify-contract 0x6004efe4C11f98C05bF27B900Db18258B5f87652  ./contracts/TechTokenV1.sol:TechTokenV1 --verifier-url 'https://api.blastscan.io/api' --etherscan-api-key $BLASTSCAN_TOKEN --num-of-optimizations 200 --compiler-version 0.8.21 
+
+$ forge verify-contract 0xd3807CE2F215DC42ca4bfA616B16C20b0B195128  ./contracts/WrapperBaseV1BlastPoints.sol:WrapperBaseV1 --verifier-url 'https://api.blastscan.io/api' --etherscan-api-key $BLASTSCAN_TOKEN --num-of-optimizations 200 --compiler-version 0.8.21 --constructor-args $(cast abi-encode "constructor(address, address)" 0x6004efe4C11f98C05bF27B900Db18258B5f87652 0x303cD2A927D9Cb6F5CE03b88a4e3E2528baEDF40)
+
+$ forge verify-contract 0x765886A9f388ca58092Bba5b6191b1e57e0950Bf  ./contracts/EnvelopwNFT721.sol:EnvelopwNFT721 --verifier-url 'https://api.blastscan.io/api' --etherscan-api-key $BLASTSCAN_TOKEN --num-of-optimizations 200 --compiler-version 0.8.21 --constructor-args $(cast abi-encode "constructor(string name_, string symbol_, string _baseurl, address wrapper)" 'ENVELOP 721 wNFT Collection' 'wNFT' 'https://api.envelop.is/metadata/' 0xdf4e8278D8D050E667D9ECe9AC2346a73236eD33)
+
+$ forge verify-contract  0xbd2D353821CdEdC7C74632669Ea592aff61150d7 ./contracts/EnvelopwNFT1155.sol:EnvelopwNFT1155 --verifier-url 'https://api.blastscan.io/api' --etherscan-api-key $BLASTSCAN_TOKEN --num-of-optimizations 200 --compiler-version 0.8.21 --constructor-args $(cast abi-encode "constructor(string name_, string symbol_, string _baseurl, address wrapper)" 'ENVELOP 1155 wNFT Collection' 'wNFT' 'https://api.envelop.is/metadata/' 0xdf4e8278D8D050E667D9ECe9AC2346a73236eD33)
+
+$ forge verify-contract 0xe91BF43105b9F307A591E827CC27BebC308B3F01  ./contracts/AdvancedWhiteList.sol:AdvancedWhiteList --verifier-url 'https://api.blastscan.io/api' --etherscan-api-key $BLASTSCAN_TOKEN --num-of-optimizations 200 --compiler-version 0.8.21 
+
+$ forge verify-contract 0x77714B0B51D64Ad3dB8c7FBeBb7f367f869bc6B8  ./contracts/OriginalNFT.sol:OrigNFT --verifier-url 'https://api.blastscan.io/api' --etherscan-api-key $BLASTSCAN_TOKEN --num-of-optimizations 200 --compiler-version 0.8.21 --constructor-args $(cast abi-encode "constructor(string name_, string symbol_, string _baseurl)" 'ENVELOP 721 Default Collection' 'ENVELOP' 'https://api.envelop.is/metadata/')
+```
 
 ### Cast
 
 ```shell
-$ cast <subcommand>
+$ cast send 0xd3807CE2F215DC42ca4bfA616B16C20b0B195128 "setWhiteList(address)" "0xe91BF43105b9F307A591E827CC27BebC308B3F01" --rpc-url blast_mainnet  --account envdeployer 
+
 ```
 
 ### Help

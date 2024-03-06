@@ -7,6 +7,7 @@
     "31337": "io",
     "42161":"arbiscan.io",
     "80001":"mumbai.polygonscan.com",  
+    "81457": "blastscan.io",  
     "534352": "scrollscan.com",
     "11155111":"sepolia.etherscan.io",
     "168587773": "testnet.blastscan.io"
