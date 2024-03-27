@@ -615,7 +615,7 @@ contract WrapperUsersV1 is
         }
     }
 
-    function _mustTransfered(ETypes.AssetItem calldata _assetForTransfer) 
+    function _mustTransfered(ETypes.AssetItem memory _assetForTransfer) 
         internal 
         pure 
         returns (uint256 mustTransfered) 
