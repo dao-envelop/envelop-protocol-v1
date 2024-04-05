@@ -115,7 +115,8 @@ contract WrapperUsersV1Batch is WrapperUsersV1
                 );
             }
             if (_collateralERC20[i].asset.assetType == ETypes.AssetType.NATIVE) {
-                totalNativeAmount += _collateralERC20[i].amount * _receivers.length;    
+                // totalNativeAmount += _collateralERC20[i].amount * _receivers.length;    
+                totalNativeAmount += _collateralERC20[i].amount;    
             } 
 
         }
