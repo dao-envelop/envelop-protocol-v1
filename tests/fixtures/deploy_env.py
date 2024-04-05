@@ -396,6 +396,21 @@ def wnft1155SBT1(accounts, MockUsersCollection1155, wrapperUsers1):
     )
     yield w
 
+@pytest.fixture(scope="module")
+def wrapperUsersBatch(accounts, WrapperUsersV1Batch, usersSBTRegistry):
+    w = accounts[0].deploy(WrapperUsersV1Batch, usersSBTRegistry)
+    yield w
+
+@pytest.fixture(scope="module")
+def wnft721SBT1forBatch(accounts, MockUsersSBTCollection721, wrapperUsersBatch):
+    w = accounts[0].deploy(MockUsersSBTCollection721, 
+        accounts[0],
+        "Envelop wNFT", "eNFT", "https://api.envelop.is/metadata/", 
+        wrapperUsersBatch
+    )
+    yield w
+
+
 
 
 
