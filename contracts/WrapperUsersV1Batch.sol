@@ -129,7 +129,7 @@ contract WrapperUsersV1Batch is WrapperUsersV1
         ETypes.AssetItem[] calldata _collateralERC20
     ) public payable {
         require(_wNFTAddress.length == _wNFTTokenId.length, "Array params must have equal length");
-        
+        require(_collateralERC20.length > 0 || msg.value > 0, "Collateral not found");
         for (uint256 i = 0; i < _collateralERC20.length; i ++) {
             if (_collateralERC20[i].asset.assetType == ETypes.AssetType.ERC20) {
                 // 1. Transfer all erc20 tokens to BatchWorker        
@@ -141,17 +141,58 @@ contract WrapperUsersV1Batch is WrapperUsersV1
             }
         }
 
-            
+        
         uint256 valuePerWNFT = msg.value / _wNFTAddress.length;
+        // cycle for wNFTs that need to be topup with collateral
         for (uint256 i = 0; i < _wNFTAddress.length; i ++){
-            //addCollateral{value: valuePerWNFT}(
-            addCollateral(
-                _wNFTAddress[i],
+            _checkAddCollateral(
+                _wNFTAddress[i], 
                 _wNFTTokenId[i],
                 _collateralERC20
             );
-        }
 
+            // Native collateral     
+            if (valuePerWNFT > 0) {
+                _updateCollateralInfo(
+                    _wNFTAddress[i], 
+                    _wNFTTokenId[i],
+                    ETypes.AssetItem(
+                        ETypes.Asset(ETypes.AssetType.NATIVE, address(0)),
+                        0,
+                        valuePerWNFT
+                    )
+                );
+                emit CollateralAdded(
+                        _wNFTAddress[i], 
+                        _wNFTTokenId[i], 
+                        uint8(ETypes.AssetType.NATIVE),
+                        address(0),
+                        0,
+                        valuePerWNFT
+                    );
+            }
+            
+            // ERC20 collateral
+            for (uint256 j = 0; j < _collateralERC20.length; j ++) {
+                if (_collateralERC20[j].asset.assetType == ETypes.AssetType.ERC20) {
+                    _updateCollateralInfo(
+                        _wNFTAddress[i], 
+                        _wNFTTokenId[i],
+                        _collateralERC20[j]
+                    );
+                    emit CollateralAdded(
+                        _wNFTAddress[i], 
+                        _wNFTTokenId[i], 
+                        uint8(_collateralERC20[j].asset.assetType),
+                        _collateralERC20[j].asset.contractAddress,
+                        _collateralERC20[j].tokenId,
+                        _collateralERC20[j].amount
+                    );
+                }
+            } // cycle end - ERC20 collateral 
+        }// cycle end - wNFTs
+
+        // Change return  - 1 wei return ?
         if (valuePerWNFT * _wNFTAddress.length < msg.value ){
             address payable s = payable(msg.sender);
             s.transfer(msg.value - valuePerWNFT * _wNFTAddress.length);

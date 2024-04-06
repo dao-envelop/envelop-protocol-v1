@@ -147,13 +147,10 @@ contract WrapperUsersV1 is
         ETypes.AssetItem[] calldata _collateral
     ) public payable virtual  {
         if (_collateral.length > 0 || msg.value > 0) {
-            require(
-                _checkAddCollateral(
+            _checkAddCollateral(
                     _wNFTAddress, 
                     _wNFTTokenId,
                     _collateral
-                ),
-                "Forbidden add collateral"
             );
             _addCollateral(
                 _wNFTAddress, 
@@ -701,7 +698,6 @@ contract WrapperUsersV1 is
                 ETypes.AssetItem(ETypes.Asset(wnftType,_wNFTAddress),_wNFTTokenId, 0)
             );
         }
-        enabled = true; 
     }
 
     function _checkCoreUnwrap(
