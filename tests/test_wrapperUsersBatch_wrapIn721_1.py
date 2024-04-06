@@ -71,7 +71,7 @@ def test_wrapBatch_ownerSBT(accounts, erc721mock, wrapperUsersBatch, dai, weth, 
 		receivers.append(accounts[i])
 		i = i + 1
 
-	tx = wrapperUsersBatch.wrapBatch(wNFTs, [dai_data, weth_data, eth_data], receivers, wnft721SBT1forBatch,  {"from": accounts[0], "value": eth_amount * 5})
+	tx = wrapperUsersBatch.wrapBatch(wNFTs, [dai_data, weth_data, eth_data], receivers, wnft721SBT1forBatch,  {"from": accounts[0], "value": eth_amount * count})
 	logging.info(wnft721SBT1forBatch.totalSupply())
 	logging.info('work!')
 
@@ -120,7 +120,7 @@ def test_addCollateralBatch_ownerSBT1(accounts, erc721mock, wrapperUsersBatch, d
 		wNFTIds.append(i)
 		i = i + 1
 
-	wrapperUsersBatch.addCollateralBatch(wNFTAddresses, wNFTIds, [dai_data, weth_data, eth_data], {"from": accounts[0], "value": eth_amount * 5})
+	wrapperUsersBatch.addCollateralBatch(wNFTAddresses, wNFTIds, [dai_data, weth_data, eth_data], {"from": accounts[0], "value": eth_amount * count})
 
 
 
