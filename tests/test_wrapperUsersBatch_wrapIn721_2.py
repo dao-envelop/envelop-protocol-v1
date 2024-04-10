@@ -14,7 +14,7 @@ in_type = 3
 out_type = 3
 count = 5
 
-# with eth in collateral data
+# withOUT eth in collateral data
 
 def test_call_factory(accounts, usersSBTRegistry, wrapperUsersBatch, wnft721SBT1forBatch, wnft1155SBT):
     usersSBTRegistry.addImplementation((3,wnft721SBT1forBatch), {'from': accounts[0]})
@@ -71,9 +71,16 @@ def test_wrapBatch_ownerSBT(accounts, erc721mock, wrapperUsersBatch, dai, weth, 
 		receivers.append(accounts[i])
 		i = i + 1
 
+	# without eth_data in collateral info
+	with reverts('Native amount check failed'):
+		tx = wrapperUsersBatch.wrapBatch(wNFTs, [dai_data, weth_data], receivers, wnft721SBT1forBatch,  {"from": accounts[0], "value": eth_amount * count})
+	# msg.value < eth amount of collateral info
+	with reverts('Native amount check failed'):
+		tx = wrapperUsersBatch.wrapBatch(wNFTs, [dai_data, weth_data, eth_data], receivers, wnft721SBT1forBatch,  {"from": accounts[0], "value": eth_amount})
+
 	tx = wrapperUsersBatch.wrapBatch(wNFTs, [dai_data, weth_data, eth_data], receivers, wnft721SBT1forBatch,  {"from": accounts[0], "value": eth_amount * count})
 	logging.info(wnft721SBT1forBatch.totalSupply())
-	logging.info('work!')
+	
 
 	j = 0
 	while j < count:
@@ -120,7 +127,7 @@ def test_addCollateralBatch_ownerSBT1(accounts, erc721mock, wrapperUsersBatch, d
 		wNFTIds.append(i)
 		i = i + 1
 
-	wrapperUsersBatch.addCollateralBatch(wNFTAddresses, wNFTIds, [dai_data, weth_data, eth_data], {"from": accounts[0], "value": eth_amount * count})
+	wrapperUsersBatch.addCollateralBatch(wNFTAddresses, wNFTIds, [dai_data, weth_data], {"from": accounts[0], "value": eth_amount * count})
 
 
 
