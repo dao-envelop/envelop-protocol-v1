@@ -73,12 +73,24 @@ def test_wrapBatch_ownerSBT(accounts, erc721mock, wrapperUsersBatch, dai, weth, 
 
 	# without eth_data in collateral info
 	with reverts('Native amount check failed'):
-		tx = wrapperUsersBatch.wrapBatch(wNFTs, [dai_data, weth_data], receivers, wnft721SBT1forBatch,  {"from": accounts[0], "value": eth_amount * count})
+		tx = wrapperUsersBatch.wrapBatch(wNFTs, 
+			[dai_data, weth_data], 
+			receivers, 
+			wnft721SBT1forBatch,  
+			{"from": accounts[0], "value": eth_amount * count})
 	# msg.value < eth amount of collateral info
 	with reverts('Native amount check failed'):
-		tx = wrapperUsersBatch.wrapBatch(wNFTs, [dai_data, weth_data, eth_data], receivers, wnft721SBT1forBatch,  {"from": accounts[0], "value": eth_amount})
+		tx = wrapperUsersBatch.wrapBatch(wNFTs, 
+			[dai_data, weth_data, eth_data], 
+			receivers, 
+			wnft721SBT1forBatch,  
+			{"from": accounts[0], "value": eth_amount})
 
-	tx = wrapperUsersBatch.wrapBatch(wNFTs, [dai_data, weth_data, eth_data], receivers, wnft721SBT1forBatch,  {"from": accounts[0], "value": eth_amount * count})
+	tx = wrapperUsersBatch.wrapBatch(wNFTs, 
+		[dai_data, weth_data, eth_data], 
+		receivers, 
+		wnft721SBT1forBatch,  
+		{"from": accounts[0], "value": eth_amount * count})
 	logging.info(wnft721SBT1forBatch.totalSupply())
 	
 
@@ -134,7 +146,11 @@ def test_addCollateralBatch_ownerSBT1(accounts, erc721mock, wrapperUsersBatch, d
 		1, 
 		zero_address, 
 		0)[0]
-	wrapperUsersBatch.addCollateralBatch(wNFTAddresses, wNFTIds, [dai_data, weth_data], {"from": accounts[0], "value": eth_amount * count})
+	wrapperUsersBatch.addCollateralBatch(
+		wNFTAddresses, 
+		wNFTIds, 
+		[dai_data, weth_data], 
+		{"from": accounts[0], "value": eth_amount * count})
 	assert before_eth_balance + eth_amount * count == wrapperUsersBatch.balance()
 	assert wrapperUsersBatch.getCollateralBalanceAndIndex(
 		wnft721SBT1forBatch, 
@@ -169,7 +185,11 @@ def test_addCollateralBatch_ownerSBT2(accounts, erc721mock, wrapperUsersBatch, d
 		1, 
 		zero_address, 
 		0)[0]
-	wrapperUsersBatch.addCollateralBatch(wNFTAddresses, wNFTIds, [dai_data, weth_data, eth_data], {"from": accounts[0], "value": eth_amount * (count + 1)})
+	wrapperUsersBatch.addCollateralBatch(
+		wNFTAddresses, 
+		wNFTIds, 
+		[dai_data, weth_data, eth_data], 
+		{"from": accounts[0], "value": eth_amount * (count + 1)})
 	assert before_eth_balance + eth_amount * (count + 1) == wrapperUsersBatch.balance()
 	assert wrapperUsersBatch.getCollateralBalanceAndIndex(
 		wnft721SBT1forBatch, 
@@ -204,7 +224,11 @@ def test_addCollateralBatch_ownerSBT3(accounts, erc721mock, wrapperUsersBatch, d
 		1, 
 		zero_address, 
 		0)[0]
-	wrapperUsersBatch.addCollateralBatch(wNFTAddresses, wNFTIds, [dai_data, weth_data, eth_data], {"from": accounts[0], "value": eth_amount * (count - 1)})
+	wrapperUsersBatch.addCollateralBatch(
+		wNFTAddresses, 
+		wNFTIds, 
+		[dai_data, weth_data, eth_data], 
+		{"from": accounts[0], "value": eth_amount * (count - 1)})
 	assert before_eth_balance + eth_amount * (count - 1) == wrapperUsersBatch.balance()
 	assert wrapperUsersBatch.getCollateralBalanceAndIndex(
 		wnft721SBT1forBatch, 
