@@ -108,6 +108,7 @@ def test_wrapBatch_ownerSBT(accounts, erc721mock, wrapperUsersBatch, dai, weth, 
 	with reverts('Only wNFT contract owner able to add collateral'):
 		wrapperUsersBatch.addCollateral(wnft721SBT1forBatch, count - 1, [], {"from": accounts[2], "value": 1})
 
+# without collateral info - only msg.value
 def test_addCollateralBatch_ownerSBT1(accounts, erc721mock, wrapperUsersBatch, dai, weth, wnft721SBT1forBatch, niftsy20):
 	dai_property = (2, dai.address)
 	weth_property = (2, weth.address)
@@ -126,10 +127,125 @@ def test_addCollateralBatch_ownerSBT1(accounts, erc721mock, wrapperUsersBatch, d
 		wNFTAddresses.append(wnft721SBT1forBatch.address)
 		wNFTIds.append(i)
 		i = i + 1
-
+	before_eth_balance = wrapperUsersBatch.balance()
+	before_eth_info = wrapperUsersBatch.getCollateralBalanceAndIndex(
+		wnft721SBT1forBatch, 
+		count - 1, 
+		1, 
+		zero_address, 
+		0)[0]
 	wrapperUsersBatch.addCollateralBatch(wNFTAddresses, wNFTIds, [dai_data, weth_data], {"from": accounts[0], "value": eth_amount * count})
+	assert before_eth_balance + eth_amount * count == wrapperUsersBatch.balance()
+	assert wrapperUsersBatch.getCollateralBalanceAndIndex(
+		wnft721SBT1forBatch, 
+		count - 1, 
+		1, 
+		zero_address, 
+		0)[0] == eth_amount + before_eth_info
+
+# msg.value more than in collateral info
+def test_addCollateralBatch_ownerSBT2(accounts, erc721mock, wrapperUsersBatch, dai, weth, wnft721SBT1forBatch, niftsy20):
+	dai_property = (2, dai.address)
+	weth_property = (2, weth.address)
+	eth_property = (1, zero_address)
+	dai_data = (dai_property, 0, Wei(call_amount))
+	weth_data = (weth_property, 0, Wei(2*call_amount))
+	eth_data = (eth_property, 0, eth_amount)
+
+	dai.approve(wrapperUsersBatch.address, call_amount * count, {'from':accounts[0]})
+	weth.approve(wrapperUsersBatch.address, 2 * call_amount * count, {'from':accounts[0]})
+
+	i = 0
+	wNFTAddresses = []
+	wNFTIds = []
+	while i < count:
+		wNFTAddresses.append(wnft721SBT1forBatch.address)
+		wNFTIds.append(i)
+		i = i + 1
+	before_eth_balance = wrapperUsersBatch.balance()
+	before_eth_info = wrapperUsersBatch.getCollateralBalanceAndIndex(
+		wnft721SBT1forBatch, 
+		count - 1, 
+		1, 
+		zero_address, 
+		0)[0]
+	wrapperUsersBatch.addCollateralBatch(wNFTAddresses, wNFTIds, [dai_data, weth_data, eth_data], {"from": accounts[0], "value": eth_amount * (count + 1)})
+	assert before_eth_balance + eth_amount * (count + 1) == wrapperUsersBatch.balance()
+	assert wrapperUsersBatch.getCollateralBalanceAndIndex(
+		wnft721SBT1forBatch, 
+		count - 1, 
+		1, 
+		zero_address, 
+		0)[0] == eth_amount * (count + 1) /count + before_eth_info
+
+# msg.value less than in collateral info
+def test_addCollateralBatch_ownerSBT3(accounts, erc721mock, wrapperUsersBatch, dai, weth, wnft721SBT1forBatch, niftsy20):
+	dai_property = (2, dai.address)
+	weth_property = (2, weth.address)
+	eth_property = (1, zero_address)
+	dai_data = (dai_property, 0, Wei(call_amount))
+	weth_data = (weth_property, 0, Wei(2*call_amount))
+	eth_data = (eth_property, 0, eth_amount)
+
+	dai.approve(wrapperUsersBatch.address, call_amount * count, {'from':accounts[0]})
+	weth.approve(wrapperUsersBatch.address, 2 * call_amount * count, {'from':accounts[0]})
+
+	i = 0
+	wNFTAddresses = []
+	wNFTIds = []
+	while i < count:
+		wNFTAddresses.append(wnft721SBT1forBatch.address)
+		wNFTIds.append(i)
+		i = i + 1
+	before_eth_balance = wrapperUsersBatch.balance()
+	before_eth_info = wrapperUsersBatch.getCollateralBalanceAndIndex(
+		wnft721SBT1forBatch, 
+		count - 1, 
+		1, 
+		zero_address, 
+		0)[0]
+	wrapperUsersBatch.addCollateralBatch(wNFTAddresses, wNFTIds, [dai_data, weth_data, eth_data], {"from": accounts[0], "value": eth_amount * (count - 1)})
+	assert before_eth_balance + eth_amount * (count - 1) == wrapperUsersBatch.balance()
+	assert wrapperUsersBatch.getCollateralBalanceAndIndex(
+		wnft721SBT1forBatch, 
+		count - 1, 
+		1, 
+		zero_address, 
+		0)[0] == eth_amount * (count - 1) /count + before_eth_info
 
 
+# msg.value less than in collateral info
+def test_check_reverts(accounts, erc721mock, wrapperUsersBatch, dai, weth, wnft721SBT1forBatch, niftsy20):
+	dai_property = (2, dai.address)
+	weth_property = (2, weth.address)
+	eth_property = (1, zero_address)
+	dai_data = (dai_property, 0, Wei(call_amount))
+	weth_data = (weth_property, 0, Wei(2*call_amount))
+	eth_data = (eth_property, 0, eth_amount)
+
+	dai.approve(wrapperUsersBatch.address, call_amount * count, {'from':accounts[0]})
+	weth.approve(wrapperUsersBatch.address, 2 * call_amount * count, {'from':accounts[0]})
+
+	i = 0
+	wNFTAddresses = []
+	wNFTIds = []
+	while i < count:
+		wNFTAddresses.append(wnft721SBT1forBatch.address)
+		wNFTIds.append(i)
+		i = i + 1
+	before_eth_balance = wrapperUsersBatch.balance()
+	before_eth_info = wrapperUsersBatch.getCollateralBalanceAndIndex(
+		wnft721SBT1forBatch, 
+		count - 1, 
+		1, 
+		zero_address, 
+		0)[0]
+	with reverts('Collateral not found'):
+		wrapperUsersBatch.addCollateralBatch(wNFTAddresses, wNFTIds, [], {"from": accounts[0]})
+	wNFTIds.pop()
+	with reverts('Array params must have equal length'):
+		wrapperUsersBatch.addCollateralBatch(wNFTAddresses, wNFTIds, [dai_data], {"from": accounts[0]})
+	
 
 
 	
