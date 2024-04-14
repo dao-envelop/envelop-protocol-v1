@@ -23,7 +23,8 @@ contract WrapperUsersV1Batch is WrapperUsersV1
             _inDataS.length == _receivers.length, 
             "Array params must have equal length"
         );
-        // make wNFTs
+        // make wNFTs batch cycle. No callateral assete transfers in this cycle
+        uint256 valuePerWNFT = msg.value / _inDataS.length;
         for (uint256 i = 0; i < _inDataS.length; i++) {
 
             // 0. Check assetIn asset
@@ -49,23 +50,31 @@ contract WrapperUsersV1Batch is WrapperUsersV1
                 _inDataS[i]
             );
 
+            
+            // Native collateral record for new wNFT    
+            if (valuePerWNFT > 0) {
+                _processNativeCollateralRecord(_wrappIn, wnftId, valuePerWNFT);
+                
+            }
             // Update collateral records for new wNFT
             for (uint256 j = 0; j <_collateralERC20.length; ++ j) {
-                _updateCollateralInfo(
-                   _wrappIn, 
-                    wnftId,
-                    _collateralERC20[j]
-                );
+                if (_collateralERC20[j].asset.assetType == ETypes.AssetType.ERC20) {
+                    _updateCollateralInfo(
+                       _wrappIn, 
+                        wnftId,
+                        _collateralERC20[j]
+                    );
 
-                // Emit event for each collateral record
-                emit CollateralAdded(
-                    _wrappIn, 
-                    wnftId, 
-                    uint8(_collateralERC20[j].asset.assetType),
-                    _collateralERC20[j].asset.contractAddress,
-                    _collateralERC20[j].tokenId,
-                    _collateralERC20[j].amount
-                );
+                    // Emit event for each collateral record
+                    emit CollateralAdded(
+                        _wrappIn, 
+                        wnftId, 
+                        uint8(_collateralERC20[j].asset.assetType),
+                        _collateralERC20[j].asset.contractAddress,
+                        _collateralERC20[j].tokenId,
+                        _collateralERC20[j].amount
+                    );
+                }
             }
             
             // Emit event for each new wNFT
@@ -100,7 +109,6 @@ contract WrapperUsersV1Batch is WrapperUsersV1
         } // end of batch cycle
 
         // Now we need trnafer and check all collateral from user to this conatrct
-        uint256 totalNativeAmount;
         for (uint256 i = 0; i <_collateralERC20.length; ++ i) {
             // Update amount in paramaters for  gas save
             _collateralERC20[i].amount = _collateralERC20[i].amount * _receivers.length;
@@ -114,13 +122,13 @@ contract WrapperUsersV1Batch is WrapperUsersV1
                     "Suspicious asset for wrap"
                 );
             }
-            if (_collateralERC20[i].asset.assetType == ETypes.AssetType.NATIVE) {
-                // totalNativeAmount += _collateralERC20[i].amount * _receivers.length;    
-                totalNativeAmount += _collateralERC20[i].amount;    
-            } 
-
         }
-        require(totalNativeAmount == msg.value,  "Native amount check failed");
+        
+        // Change return  - 1 wei return ?
+        if (valuePerWNFT * _inDataS.length < msg.value ){
+            address payable s = payable(msg.sender);
+            s.transfer(msg.value - valuePerWNFT * _inDataS.length);
+        }
     }
 
     function addCollateralBatch(
@@ -130,6 +138,8 @@ contract WrapperUsersV1Batch is WrapperUsersV1
     ) public payable {
         require(_wNFTAddress.length == _wNFTTokenId.length, "Array params must have equal length");
         require(_collateralERC20.length > 0 || msg.value > 0, "Collateral not found");
+        
+        //  Transfer all erc20 tokens to BatchWorker 
         for (uint256 i = 0; i < _collateralERC20.length; i ++) {
             if (_collateralERC20[i].asset.assetType == ETypes.AssetType.ERC20) {
                 // 1. Transfer all erc20 tokens to BatchWorker        
@@ -153,23 +163,8 @@ contract WrapperUsersV1Batch is WrapperUsersV1
 
             // Native collateral     
             if (valuePerWNFT > 0) {
-                _updateCollateralInfo(
-                    _wNFTAddress[i], 
-                    _wNFTTokenId[i],
-                    ETypes.AssetItem(
-                        ETypes.Asset(ETypes.AssetType.NATIVE, address(0)),
-                        0,
-                        valuePerWNFT
-                    )
-                );
-                emit CollateralAdded(
-                        _wNFTAddress[i], 
-                        _wNFTTokenId[i], 
-                        uint8(ETypes.AssetType.NATIVE),
-                        address(0),
-                        0,
-                        valuePerWNFT
-                    );
+                _processNativeCollateralRecord(_wNFTAddress[i], _wNFTTokenId[i], valuePerWNFT);
+                
             }
             
             // ERC20 collateral
@@ -197,6 +192,31 @@ contract WrapperUsersV1Batch is WrapperUsersV1
             address payable s = payable(msg.sender);
             s.transfer(msg.value - valuePerWNFT * _wNFTAddress.length);
         }
+    }
+
+    function _processNativeCollateralRecord(
+        address _wNFTAddress, 
+        uint256 _wNFTTokenId, 
+        uint256 _amount
+    ) internal 
+    {
+        _updateCollateralInfo(
+            _wNFTAddress, 
+            _wNFTTokenId,
+            ETypes.AssetItem(
+                ETypes.Asset(ETypes.AssetType.NATIVE, address(0)),
+                0,
+                _amount
+            )
+        );
+        emit CollateralAdded(
+            _wNFTAddress, 
+            _wNFTTokenId, 
+            uint8(ETypes.AssetType.NATIVE),
+            address(0),
+            0,
+            _amount
+        );
     }
     
 }
