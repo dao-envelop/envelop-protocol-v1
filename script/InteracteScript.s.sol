@@ -3,8 +3,9 @@ pragma solidity ^0.8.21;
 
 import {Script, console2} from "forge-std/Script.sol";
 import "../lib/forge-std/src/StdJson.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {WrapperUsersV1Batch} from "../contracts/WrapperUsersV1Batch.sol";
-import "../interfaces/IWrapperUsersV1Batch.sol";
+import "../interfaces/IWrapperUsers.sol";
 
 contract InteracteScript is Script {
     using stdJson for string;
@@ -21,15 +22,18 @@ contract InteracteScript is Script {
         string memory key;
 
         // 
-        address wrapper = 0x7EdB762bb3E7a7402Bb3Cd8DFAEb04Fe15ab0829; // wrapperUserBatch
+        address _wrapper = 0x7EdB762bb3E7a7402Bb3Cd8DFAEb04Fe15ab0829; // wrapperUserBatch
+        address _nyftsy = 0x5dB9f4C9239345308614604e69258C0bba9b437f;  // nyftsy token
+        uint256 amount = 10e18;
  
         address[] memory receivers = new address[](2);
-        console2.log("owner: %s", address(IWrapperUsersV1Batch(wrapper)));
+        WrapperUsersV1Batch wrapper = WrapperUsersV1Batch(_wrapper);
+        console2.log("owner: %s", address(wrapper));
 
         receivers[0] = 0x5992Fe461F81C8E0aFFA95b831E50e9b3854BA0E;
         receivers[1] = 0xf315B9006C20913D6D8498BDf657E778d4Ddf2c4;
 
-        ETypes.AssetItem[] memory collateral;
+        ETypes.AssetItem[] memory collateral = new ETypes.AssetItem[](1);
         ETypes.INData[] memory WNFTs = new ETypes.INData[](2);
         ETypes.Fee[] memory fees;
         ETypes.Lock[] memory loks;
@@ -51,10 +55,16 @@ contract InteracteScript is Script {
 
         WNFTs[0] = inData;
         WNFTs[1] = inData;
+        collateral[0] = ETypes.AssetItem(
+                            ETypes.Asset(ETypes.AssetType.ERC20, _nyftsy),
+                            0,
+                            amount
+                        );
         
 
         vm.startBroadcast();
-        IWrapperUsersV1Batch(wrapper).wrapBatch(
+        IERC20(_nyftsy).approve(_wrapper, 2 * amount);
+        wrapper.wrapBatch(
             WNFTs, 
             collateral,
             receivers,
