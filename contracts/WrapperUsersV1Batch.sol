@@ -18,7 +18,7 @@ contract WrapperUsersV1Batch is WrapperUsersV1
         ETypes.AssetItem[] memory _collateralERC20,
         address[] memory _receivers,
         address _wrappIn
-    ) external payable {
+    ) external payable nonReentrant {
         require(
             _inDataS.length == _receivers.length, 
             "Array params must have equal length"
@@ -127,7 +127,7 @@ contract WrapperUsersV1Batch is WrapperUsersV1
         address[] calldata _wNFTAddress, 
         uint256[] calldata _wNFTTokenId, 
         ETypes.AssetItem[] calldata _collateralERC20
-    ) public payable {
+    ) public payable nonReentrant{
         require(_wNFTAddress.length == _wNFTTokenId.length, "Array params must have equal length");
         require(_collateralERC20.length > 0 || msg.value > 0, "Collateral not found");
         

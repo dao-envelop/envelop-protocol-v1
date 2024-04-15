@@ -145,7 +145,7 @@ contract WrapperUsersV1 is
         address _wNFTAddress, 
         uint256 _wNFTTokenId, 
         ETypes.AssetItem[] calldata _collateral
-    ) public payable virtual  {
+    ) public payable virtual  nonReentrant{
         if (_collateral.length > 0 || msg.value > 0) {
             _checkAddCollateral(
                     _wNFTAddress, 
