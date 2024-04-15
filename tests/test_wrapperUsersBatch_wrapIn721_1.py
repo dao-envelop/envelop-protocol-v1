@@ -85,7 +85,7 @@ def test_wrapBatch_ownerSBT(accounts, erc721mock, wrapperUsersBatch, dai, weth, 
 		assert wnft721SBT1forBatch.ownerOf(wnft721SBT1forBatch.tokenOfOwnerByIndex(accounts[j], 0)) == accounts[j].address
 		wNFT = wrapperUsersBatch.getWrappedToken(wnft721SBT1forBatch, j)
 		assert wNFT[0] == [erc721_property, ORIGINAL_NFT_IDs[j], 0]
-		assert wNFT[1] == [dai_data, weth_data, eth_data]
+		assert wNFT[1] == [eth_data, dai_data, weth_data]
 		assert wNFT[2] == zero_address
 		assert wNFT[3] == fee
 		assert wNFT[4] == lock
