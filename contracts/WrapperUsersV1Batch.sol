@@ -108,27 +108,19 @@ contract WrapperUsersV1Batch is WrapperUsersV1
 
         } // end of batch cycle
 
-        // Now we need trnafer and check all collateral from user to this conatrct
-        for (uint256 i = 0; i <_collateralERC20.length; ++ i) {
-            // Update amount in paramaters for  gas save
-            _collateralERC20[i].amount = _collateralERC20[i].amount * _receivers.length;
-            if (_collateralERC20[i].asset.assetType == ETypes.AssetType.ERC20) {
-                require(
-                    _mustTransfered(_collateralERC20[i]) == _transferSafe(
-                        _collateralERC20[i], 
-                        msg.sender, 
-                        address(this)
-                    ),
-                    "Suspicious asset for wrap"
-                );
-            }
-        }
-        
         // Change return  - 1 wei return ?
         if (valuePerWNFT * _inDataS.length < msg.value ){
             address payable s = payable(msg.sender);
             s.transfer(msg.value - valuePerWNFT * _inDataS.length);
         }
+        
+        // Now we need trnafer and check all collateral from user to this conatrct
+        _processERC20transfers(
+            _collateralERC20, 
+            msg.sender, 
+            address(this), 
+            _receivers.length
+        );
     }
 
     function addCollateralBatch(
@@ -138,19 +130,6 @@ contract WrapperUsersV1Batch is WrapperUsersV1
     ) public payable {
         require(_wNFTAddress.length == _wNFTTokenId.length, "Array params must have equal length");
         require(_collateralERC20.length > 0 || msg.value > 0, "Collateral not found");
-        
-        //  Transfer all erc20 tokens to BatchWorker 
-        for (uint256 i = 0; i < _collateralERC20.length; i ++) {
-            if (_collateralERC20[i].asset.assetType == ETypes.AssetType.ERC20) {
-                // 1. Transfer all erc20 tokens to BatchWorker        
-                IERC20Extended(_collateralERC20[i].asset.contractAddress).safeTransferFrom(
-                    msg.sender,
-                    address(this),
-                    _collateralERC20[i].amount * _wNFTAddress.length
-                );
-            }
-        }
-
         
         uint256 valuePerWNFT = msg.value / _wNFTAddress.length;
         // cycle for wNFTs that need to be topup with collateral
@@ -192,6 +171,14 @@ contract WrapperUsersV1Batch is WrapperUsersV1
             address payable s = payable(msg.sender);
             s.transfer(msg.value - valuePerWNFT * _wNFTAddress.length);
         }
+
+        //  Transfer all erc20 tokens to BatchWorker 
+        _processERC20transfers(
+            _collateralERC20, 
+            msg.sender, 
+            address(this), 
+            _wNFTAddress.length
+        );
     }
 
     function _processNativeCollateralRecord(
@@ -217,6 +204,29 @@ contract WrapperUsersV1Batch is WrapperUsersV1
             0,
             _amount
         );
+    }
+
+    function _processERC20transfers(
+        ETypes.AssetItem[] memory _collateralERC20,
+        address _from,
+        address _to,
+        uint256 _multiplier
+    ) internal 
+    {
+         //  Transfer all erc20 tokens 
+        for (uint256 i = 0; i < _collateralERC20.length; i ++) {
+            _collateralERC20[i].amount = _collateralERC20[i].amount * _multiplier;
+            if (_collateralERC20[i].asset.assetType == ETypes.AssetType.ERC20) {
+                require(
+                    _mustTransfered(_collateralERC20[i]) == _transferSafe(
+                        _collateralERC20[i], 
+                        _from, 
+                        _to
+                    ),
+                    "Suspicious asset for wrap"
+                );
+            }
+        }
     }
     
 }
