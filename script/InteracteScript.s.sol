@@ -51,6 +51,7 @@ contract InteracteScript is Script {
                 ETypes.AssetType.ERC721,
                 0,
                 0x0004
+                //0x0000
             );
 
         WNFTs[0] = inData;
