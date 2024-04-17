@@ -87,7 +87,7 @@ def test_wrap(accounts, erc721mock, wrapper, wnft721, niftsy20):
     wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[1]})
     wTokenId = wrapper.lastWNFTId(out_type)[1]
 
-    with reverts("Trasfer was disabled by author"):
+    with reverts("Transfer was disabled by author"):
         wnft721.safeTransferFrom(accounts[3], accounts[5], wTokenId, {"from": accounts[3]})
 
     niftsy20.approve(wrapper.address, 1e18, {"from": accounts[0]})

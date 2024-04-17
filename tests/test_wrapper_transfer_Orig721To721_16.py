@@ -107,7 +107,7 @@ def test_wrap(accounts, erc721mock, wrapper, dai, weth, wnft721, niftsy20, white
         '0'
         )
 
-    with reverts("Trasfer was disabled by author"):
+    with reverts("Transfer was disabled by author"):
         wrapper.wrap(wNFT, [], accounts[3], {"from": accounts[3]})
 
 

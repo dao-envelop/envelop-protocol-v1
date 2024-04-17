@@ -318,7 +318,7 @@ def test_wrap_userSBT(accounts, erc721mock, wrapperUsers1, dai, weth, wnft721SBT
 	assert tx.events['WrappedV1']['nativeCollateralAmount'] == 0
 	assert tx.events['WrappedV1']['rules'] == '0x0005'
 
-	with reverts('Trasfer was disabled by author'):
+	with reverts('Transfer was disabled by author'):
 		wnft721SBT1.transferFrom(accounts[3], accounts[0], wTokenId, {"from": accounts[3]})
 
 	empty_property = (0, zero_address)

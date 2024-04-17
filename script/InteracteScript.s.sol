@@ -20,9 +20,10 @@ contract InteracteScript is Script {
         string memory params_path = string.concat(root, "/script/chain_params.json");
         string memory params_json_file = vm.readFile(params_path);
         string memory key;
+        bytes2 rules = 0x0000; // 0x0004;
 
         // 
-        address _wrapper = 0x7EdB762bb3E7a7402Bb3Cd8DFAEb04Fe15ab0829; // wrapperUserBatch
+        address _wrapper = 0xdfaf9a0cB22275bd7BA2c883fff64919C7930d14; // wrapperUserBatch
         address _nyftsy = 0x5dB9f4C9239345308614604e69258C0bba9b437f;  // nyftsy token
         uint256 amount = 10e18;
  
@@ -50,8 +51,7 @@ contract InteracteScript is Script {
                 royalties,
                 ETypes.AssetType.ERC721,
                 0,
-                0x0004
-                //0x0000
+                rules
             );
 
         WNFTs[0] = inData;
@@ -69,7 +69,7 @@ contract InteracteScript is Script {
             WNFTs, 
             collateral,
             receivers,
-            0x7851990E0005d7931caAcD9c8b681B4eF7490062 // wrappIn
+            0xF30F852991775BC0A9C3880D1Ab9c464DAE7F8F0 // wrapIn
             );
         vm.stopBroadcast();
 

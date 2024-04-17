@@ -73,7 +73,7 @@ def test_unwrap(accounts, erc1155mock, wrapperRent, wnft1155ForRent, niftsy20):
 
 
 	#refuse to transfer
-	with reverts("Trasfer was disabled by author"):
+	with reverts("Transfer was disabled by author"):
 	 	wnft1155ForRent.safeTransferFrom(accounts[3], accounts[9], wTokenId, 1, '', {"from": accounts[3]})
 
 	#refuse to deposit collateral
