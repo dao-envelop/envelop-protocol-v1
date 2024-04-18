@@ -118,14 +118,18 @@ contract WrapperUsersV1 is
             );
         }
 
-        // No checks from public addCollateral need
-        // by design: wnft exist(just minted above) 
-        // and only wnft contract owner can do this
-        _addCollateral(
-            _wrappIn, 
-            wnftId,
-            _collateral
-        ); 
+        // Not all checks from public addCollateral are needed
+        // by design: wnft exist(just minted above). 
+        // Check that only wnft contract owner can do this
+        if (IUsersSBT(_wrappIn).owner() == msg.sender) {
+            _addCollateral(
+                _wrappIn, 
+                wnftId,
+                _collateral
+            );
+        }
+
+         
          
         emit WrappedV1(
             _inData.inAsset.asset.contractAddress,        // inAssetAddress
