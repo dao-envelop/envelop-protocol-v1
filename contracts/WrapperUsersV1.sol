@@ -118,7 +118,10 @@ contract WrapperUsersV1 is
             );
         }
 
-        addCollateral(
+        // No checks from public addCollateral need
+        // by design: wnft exist(just minted above) 
+        // and only wnft contract owner can do this
+        _addCollateral(
             _wrappIn, 
             wnftId,
             _collateral
