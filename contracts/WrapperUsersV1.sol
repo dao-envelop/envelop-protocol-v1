@@ -121,7 +121,11 @@ contract WrapperUsersV1 is
         // Not all checks from public addCollateral are needed
         // by design: wnft exist(just minted above). 
         // Check that only wnft contract owner can do this
-        if (IUsersSBT(_wrappIn).owner() == msg.sender) {
+        // In this implementation only wnft contract owner can add collateral
+        if (_collateral.length > 0 || msg.value > 0) {
+            require(IUsersSBT(_wrappIn).owner() == msg.sender, 
+                'Only wNFT contract owner able to add collateral'
+            );
             _addCollateral(
                 _wrappIn, 
                 wnftId,
@@ -153,11 +157,15 @@ contract WrapperUsersV1 is
         uint256 _wNFTTokenId, 
         ETypes.AssetItem[] calldata _collateral
     ) public payable virtual  nonReentrant{
+        // In this implementation only wnft contract owner can add collateral
+        require(IUsersSBT(_wNFTAddress).owner() == msg.sender, 
+            'Only wNFT contract owner able to add collateral'
+        );
+
         if (_collateral.length > 0 || msg.value > 0) {
-            _checkAddCollateral(
+            _checkWNFTExist(
                     _wNFTAddress, 
-                    _wNFTTokenId,
-                    _collateral
+                    _wNFTTokenId
             );
             _addCollateral(
                 _wNFTAddress, 
@@ -681,19 +689,14 @@ contract WrapperUsersV1 is
         
     }
     
-    function _checkAddCollateral(
+    function _checkWNFTExist(
         address _wNFTAddress, 
-        uint256 _wNFTTokenId, 
-        ETypes.AssetItem[] calldata _collateral
+        uint256 _wNFTTokenId
     ) 
         internal 
         view
         virtual 
-        returns (bool enabled)
     {
-        require(IUsersSBT(_wNFTAddress).owner() == msg.sender, 
-            'Only wNFT contract owner able to add collateral'
-        );
         // Check  that wNFT exist
         ETypes.AssetType wnftType = _getNFTType(_wNFTAddress, _wNFTTokenId);
         if (wnftType == ETypes.AssetType.ERC721) {
@@ -706,6 +709,8 @@ contract WrapperUsersV1 is
             );
         }
     }
+
+    
 
     function _checkCoreUnwrap(
         ETypes.AssetType _wNFTType, 

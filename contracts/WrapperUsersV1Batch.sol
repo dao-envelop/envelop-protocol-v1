@@ -130,14 +130,16 @@ contract WrapperUsersV1Batch is WrapperUsersV1
     ) public payable nonReentrant{
         require(_wNFTAddress.length == _wNFTTokenId.length, "Array params must have equal length");
         require(_collateralERC20.length > 0 || msg.value > 0, "Collateral not found");
-        
         uint256 valuePerWNFT = msg.value / _wNFTAddress.length;
         // cycle for wNFTs that need to be topup with collateral
         for (uint256 i = 0; i < _wNFTAddress.length; i ++){
-            _checkAddCollateral(
+            // In this implementation only wnft contract owner can add collateral
+            require(IUsersSBT(_wNFTAddress[i]).owner() == msg.sender, 
+                'Only wNFT contract owner able to add collateral'
+            );
+            _checkWNFTExist(
                 _wNFTAddress[i], 
-                _wNFTTokenId[i],
-                _collateralERC20
+                _wNFTTokenId[i]
             );
 
             // Native collateral     
