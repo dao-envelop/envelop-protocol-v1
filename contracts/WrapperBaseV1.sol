@@ -109,8 +109,9 @@ contract WrapperBaseV1 is
             _inData
         );
 
-        
-        addCollateral(
+        // No checks from public addCollateral need
+        // by design: wnft exist(just minted above) 
+        _addCollateral(
             lastWNFTId[_inData.outType].contractAddress, 
             lastWNFTId[_inData.outType].tokenId,
             _collateral
