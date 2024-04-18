@@ -70,7 +70,7 @@ def test_transfer(accounts, erc1155mock, wrapperUsers, wnft1155SBT, niftsy20):
     wnft1155SBT.setApprovalForAll(wrapperUsers.address, True, {"from": accounts[0]})
 
     logging.info("add wnft with transfer fee to collateral yourself*************************")
-    with reverts('Trasfer was disabled by author'):
+    with reverts('Transfer was disabled by author'):
         wrapperUsers.addCollateral(wnft1155SBT.address, wTokenId, [((out_type, wnft1155SBT.address), wTokenId, out_nft_amount)], {"from": accounts[0]})
 
     assert wnft1155SBT.balanceOf(wrapperUsers.address, wTokenId) == 0
