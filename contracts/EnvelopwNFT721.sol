@@ -95,7 +95,7 @@ contract EnvelopwNFT721 is ERC721Enumerable {
                 // Check Core Protocol Rules
                 require(
                     !(bytes2(0x0004) == (bytes2(0x0004) & _wnft.rules)),
-                    "Trasfer was disabled by author"
+                    "Transfer was disabled by author"
                 );
 
                 // Check and charge Transfer Fee and pay Royalties

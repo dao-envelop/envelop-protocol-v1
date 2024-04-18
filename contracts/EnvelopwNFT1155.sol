@@ -94,7 +94,7 @@ contract EnvelopwNFT1155 is ERC1155Supply {
                 // Check Core Protocol Rules
                 require(
                     !(bytes2(0x0004) == (bytes2(0x0004) & _wnft.rules)),
-                    "Trasfer was disabled by author"
+                    "Transfer was disabled by author"
                 );
 
                 // Check and charge Transfer Fee and pay Royalties
