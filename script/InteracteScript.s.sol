@@ -23,7 +23,7 @@ contract InteracteScript is Script {
         bytes2 rules = 0x0000; // 0x0004;
 
         // 
-        address _wrapper = 0xdfaf9a0cB22275bd7BA2c883fff64919C7930d14; // wrapperUserBatch
+        address _wrapper = 0x518d6a37493AF5917DAbECe74F41cc6697EbE831; // wrapperUserBatch
         address _nyftsy = 0x5dB9f4C9239345308614604e69258C0bba9b437f;  // nyftsy token
         uint256 amount = 10e18;
  
@@ -69,7 +69,7 @@ contract InteracteScript is Script {
             WNFTs, 
             collateral,
             receivers,
-            0xF30F852991775BC0A9C3880D1Ab9c464DAE7F8F0 // wrapIn
+            0xFdB40F8C6DAA7f1d934C6877BD03980C86055E3f // wrapIn
             );
         vm.stopBroadcast();
 

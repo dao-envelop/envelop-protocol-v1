@@ -55,14 +55,14 @@ def test_wrap(accounts, erc1155mock, wrapper, wnft1155, niftsy20):
 	with reverts("Forbidden add collateral"):
 		wrapper.wrap(wNFT, [((2, niftsy20.address), 0, call_amount)], accounts[3], {"from": accounts[1], "value": "1 ether"})
 
-	'''wTokenId = wrapper.lastWNFTId(out_type)[1]
+	wTokenId = wrapper.lastWNFTId(out_type)[1]
 
 	logging.info("{}".format(wrapper.getWrappedToken(wnft1155.address, wTokenId)))
 
 	niftsy20.transfer(accounts[1], call_amount, {"from": accounts[0]})
-	niftsy20.approve(wrapper.address, call_amount, {"from": accounts[1]})'''
+	niftsy20.approve(wrapper.address, call_amount, {"from": accounts[1]})
 
-	#wrapper.addCollateral(wnft1155.address, wTokenId, [((2, niftsy20.address), 0, call_amount)], {"from": accounts[1]} )
+	wrapper.addCollateral(wnft1155.address, wTokenId, [((2, niftsy20.address), 0, call_amount)], {"from": accounts[1]} )
 	
 
 	

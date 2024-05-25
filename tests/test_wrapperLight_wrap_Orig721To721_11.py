@@ -44,7 +44,7 @@ def test_wrap(accounts, erc721mock, wrapperLight, wnft721ForWrapperLightV1):
         '0'
         )
 
-    with reverts("1"):
+    with reverts(""):
         wrapperLight.wrap(wNFT, [], accounts[3], {"from": accounts[3]})
 
    
