@@ -19,12 +19,19 @@ contract DeployScript is Script {
         string memory key;
 
         // Define constructor params
-        address registry = 0xfE693E733FAe1E82d7c45661C7562A27Ec3F5C22; // Event registry
-        console2.log("registry: %s", registry); 
+        address event_reg;   
+        key = string.concat(".", vm.toString(block.chainid),".event_reg");
+        if (vm.keyExists(params_json_file, key)) 
+        {
+            event_reg = params_json_file.readAddress(key);
+        } else {
+            event_reg = msg.sender;
+        }
+        console2.log("event_reg: %s", event_reg); 
         
         //////////   Deploy   //////////////
         vm.startBroadcast();
-        WrapperUsersV1Batch wrapper = new WrapperUsersV1Batch(registry);
+        WrapperUsersV1Batch wrapper = new WrapperUsersV1Batch(event_reg);
         vm.stopBroadcast();
         
         ///////// Pretty printing ////////////////
@@ -42,7 +49,7 @@ contract DeployScript is Script {
         
         console2.log("```python");
         console2.log("wrapper = WrapperUsersV1Batch.at('%s')", address(wrapper));
-           
+        console2.log("```");   
         ///////// End of pretty printing ////////////////
     }
 }

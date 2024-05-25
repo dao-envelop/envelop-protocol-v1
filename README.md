@@ -74,6 +74,11 @@ $ anvil
 ```
 
 ### Deploy 
+#### Sepolia
+```shell
+$ forge script script/Deploy-main-index.s.sol:DeployMain --rpc-url sepolia  --account ttwo --sender 0xDDA2F2E159d2Ce413Bd0e1dF5988Ee7A803432E3 --broadcast --verify  --etherscan-api-key $ETHERSCAN_TOKEN
+```
+
 #### Blast Sepolia
 ```shell
 $ forge script script/Deploy-main.s.sol:DeployMain --rpc-url blast_sepolia  --account ttwo --sender 0xDDA2F2E159d2Ce413Bd0e1dF5988Ee7A803432E3 --broadcast
@@ -93,7 +98,11 @@ $ forge verify-contract 0x6A37E369b615C4244B0D3d092a45a8D2B092e6f9  ./contracts/
 ```
 #### Blast Mainnet
 ```shell
-$ forge script script/Deploy-main-blast.s.sol:DeployMainBlast --rpc-url blast_mainnet  --account envdeployer --sender 0xE1a8F0a249A87FDB9D8B912E11B198a2709D6d9B  --verifier-url 'https://api.blastscan.io/api' --etherscan-api-key $BLASTSCAN_TOKEN --broadcast  --verify
+$ forge script script/Deploy-main-blast.s.sol:DeployMainBlast --rpc-url blast_mainnet  --account envdeployer --sender 0xE1a8F0a249A87FDB9D8B912E11B198a2709D6d9B  --verifier-url 'https://api.blastscan.io/api' --etherscan-api-key $BLASTSCAN_TOKEN --priority-gas-price 300000 --broadcast  --verify
+$ #Index Wrapper  contracts set
+$ forge script script/Deploy-main-blast-forindex.s.sol:DeployMainBlast --rpc-url blast_mainnet  --account envdeployer --sender 0xE1a8F0a249A87FDB9D8B912E11B198a2709D6d9B  --verifier-url 'https://api.blastscan.io/api' --etherscan-api-key $BLASTSCAN_TOKEN --priority-gas-price 300000 --broadcast  --verify
+
+$ forge script script/DeployWrapperUserBatch.s.sol:DeployScript --rpc-url blast_mainnet  --account envdeployer --sender 0xE1a8F0a249A87FDB9D8B912E11B198a2709D6d9B  --verifier-url 'https://api.blastscan.io/api' --etherscan-api-key $BLASTSCAN_TOKEN --priority-gas-price 300000 --broadcast  --verify
 ```
 
 #### Verify
@@ -111,6 +120,16 @@ $ forge verify-contract 0xe91BF43105b9F307A591E827CC27BebC308B3F01  ./contracts/
 
 $ forge verify-contract 0x77714B0B51D64Ad3dB8c7FBeBb7f367f869bc6B8  ./contracts/OriginalNFT.sol:OrigNFT --verifier-url 'https://api.blastscan.io/api' --etherscan-api-key $BLASTSCAN_TOKEN --num-of-optimizations 200 --compiler-version 0.8.21 --constructor-args $(cast abi-encode "constructor(string name_, string symbol_, string _baseurl)" 'ENVELOP 721 Default Collection' 'ENVELOP' 'https://api.envelop.is/metadata/')
 ```
+#### Arbitrum
+```shell
+$ #Index Wrapper  contracts set
+$ forge script script/Deploy-main-index.s.sol:DeployMain --rpc-url arbitrum  --account envdeployer --sender 0xE1a8F0a249A87FDB9D8B912E11B198a2709D6d9B  --etherscan-api-key $ARBISCAN_TOKEN  --broadcast  --verify
+
+$ forge script script/DeployWrapperUserBatch.s.sol:DeployScript --rpc-url arbitrum  --account envdeployer --sender 0xE1a8F0a249A87FDB9D8B912E11B198a2709D6d9B  --etherscan-api-key $ARBISCAN_TOKEN  --broadcast  --verify
+
+
+```
+
 
 ### Cast
 
