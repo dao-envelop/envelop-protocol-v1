@@ -46,7 +46,7 @@ def test_wrap(accounts, erc1155mock, wrapper, wnft1155, niftsy20):
 	royalty,
 	out_type,
 	out_nft_amount,
-	Web3.toBytes(0x0008)
+	Web3.to_bytes(0x0008)
 	)
 
 	niftsy20.transfer(accounts[1], call_amount, {"from": accounts[0]})

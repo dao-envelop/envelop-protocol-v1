@@ -33,6 +33,8 @@
     },
     
     "137": {
+        "chain_name": "Polygon Mainnet",
+        "event_reg": "0xBB990bAFA2BB5b733d2E4A2dB7F18760fe440980", 
         "wl_items": [
             "0x432cdbC749FD96AA35e1dC27765b23fDCc8F5cf1",
             "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063", 
