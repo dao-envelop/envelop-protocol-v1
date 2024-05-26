@@ -6,7 +6,17 @@ All notable changes to this project are documented in this file.
 This changelog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
-- Full tests  for WrapperUsersV1
+- All done that we want in V1. So see soon with V2!
+
+## [1.3.1](https://github.com/dao-envelop/envelop-protocol-v1/tree/1.3.2) - 2024-05-26
+### Added
+- Foundry (forge) framework support added to project
+- Forge Scrypt deployments
+- Version with Blast Network Points support
+- New feature WrapperUsersV1Batch: add batch functionality (aka SAFT) to  WrapperUsersV1
+### Fixed
+- Safe gas in wrap op 
+
 
 ## [1.3.1](https://github.com/dao-envelop/envelop-protocol-v1/tree/1.3.1) - 2023-11-26
 ### Added
