@@ -2,7 +2,6 @@
 // ENVELOP(NIFTSY) protocol V1 for NFT. Wrapper - for users SBT collections
 pragma solidity 0.8.21;
 
-//import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -287,7 +286,7 @@ contract WrapperUsersV1 is
     //                    Admin functions                              //
     /////////////////////////////////////////////////////////////////////
     
-    //   There is no admib functions in this implementation            //
+    //   There is no admin functions in this implementation            //
 
     /////////////////////////////////////////////////////////////////////
 
