@@ -1,5 +1,7 @@
 {   
     "1": {
+        "chain_name": "Ethereum Mainnet",
+        "event_reg": "0xc5f5B44c983B6345F022a7FeEa94608D5eE9Ee03", 
         "wl_items": [
             "0x7728cd70b3dD86210e2bd321437F448231B81733", 
             "0x6b175474e89094c44da98b954eedeac495271d0f", 
