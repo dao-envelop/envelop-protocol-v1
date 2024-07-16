@@ -74,6 +74,10 @@ $ anvil
 ```
 
 ### Deploy 
+#### Ethereum Mainet
+```shell
+$ forge script script/DeployWrapperUserBatch.s.sol:DeployScript --rpc-url mainnet  --account envdeployer --sender 0xE1a8F0a249A87FDB9D8B912E11B198a2709D6d9B  --etherscan-api-key $ETHERSCAN_TOKEN  --broadcast  --verify
+```
 #### Sepolia
 ```shell
 $ forge script script/Deploy-main-index.s.sol:DeployMain --rpc-url sepolia  --account ttwo --sender 0xDDA2F2E159d2Ce413Bd0e1dF5988Ee7A803432E3 --broadcast --verify  --etherscan-api-key $ETHERSCAN_TOKEN
